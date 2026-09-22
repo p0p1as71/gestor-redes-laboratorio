@@ -276,3 +276,79 @@ Registro de los cambios relevantes del proyecto.
 - Crear la red virtual aislada del laboratorio.
 - Crear posteriormente las primeras máquinas virtuales.
 - Reproducir en el laboratorio virtual los conceptos observados en la red física.
+
+---
+
+## 2026-09-22 — Diagnóstico y acceso SSH Raspberry Pi ↔ MikroTik ↔ Arduino Yún
+
+### Arduino Yún y conectividad de red
+
+- Retomada la configuración del laboratorio físico utilizando la Arduino Yún conectada por Ethernet al MikroTik y alimentación USB independiente.
+- Eliminado el USB de datos con el Lenovo como canal habitual de administración de la Yún.
+- Verificada la configuración de red de la Yún:
+  - IP: `192.168.88.253/24`
+  - Gateway: `192.168.88.1`
+  - Interfaz Ethernet: `eth1`
+  - MAC: `B4:21:8A:F8:4D:C9`
+- Detectada temporalmente la pérdida de la ruta por defecto de la Yún.
+- Renovado DHCP y recuperada correctamente la puerta de enlace `192.168.88.1`.
+
+### Diagnóstico de conectividad
+
+- Verificada mediante `ping` y `tcpdump` la comunicación entre:
+  - Raspberry Pi `192.168.100.1` ↔ MikroTik `192.168.100.2`
+  - Raspberry Pi `192.168.100.1` ↔ Arduino Yún `192.168.88.253`
+  - MikroTik `192.168.100.2` ↔ Arduino Yún `192.168.88.253`
+- Verificado que el firewall del MikroTik permite el tráfico de administración desde `192.168.100.1` hacia `192.168.88.0/24`.
+
+### Acceso SSH
+
+- Comprobada la disponibilidad del servicio SSH de la Yún en `22/TCP` desde la Raspberry Pi.
+- Identificada la antigüedad del servidor SSH de la Yún y sus requisitos de compatibilidad criptográfica.
+- Configurado el cliente SSH de la Raspberry para permitir `diffie-hellman-group14-sha1` y `ssh-rsa` durante la conexión con la Yún.
+- Establecido correctamente el acceso SSH desde la Raspberry Pi a la Yún como `root`.
+- Confirmado el modelo operativo de administración:
+  - Raspberry Pi → SSH → MikroTik
+  - Raspberry Pi → SSH → Arduino Yún
+- Comprobado que el acceso SSH directo MikroTik → Yún alcanza el servicio SSH, pero la autenticación no se completó; no se considera una ruta de administración operativa.
+- Mantenido el USB del Lenovo como canal de recuperación y configuración de la Yún, no como canal normal de administración de red.
+
+### Estado
+
+- Acceso remoto por red desde la Raspberry Pi al MikroTik: **OPERATIVO**.
+- Acceso remoto por red desde la Raspberry Pi a la Arduino Yún: **OPERATIVO**.
+- Administración habitual de la Yún mediante USB desde el Lenovo: **NO NECESARIA**.
+- USB del Lenovo para recuperación/configuración: **MANTENIDO**.
+
+### Rutas de administración comprobadas
+
+| Desde | Destino | IP destino | Comando de terminal | Resultado |
+|---|---|---|---|---|
+| **Raspberry** | **MikroTik** | `192.168.100.2` | `ssh admin@192.168.100.2` | **SSH OK** |
+| **Raspberry** | **Yún** | `192.168.88.253` | `ssh -o KexAlgorithms=+diffie-hellman-group14-sha1 -o HostKeyAlgorithms=+ssh-rsa root@192.168.88.253` | **SSH OK** |
+| **Raspberry** | **Yún — puerto SSH** | `192.168.88.253:22` | `nc -vz -w 3 192.168.88.253 22` | **TCP/22 OK** |
+| **Raspberry** | **Yún** | `192.168.88.253` | `ping -c 3 192.168.88.253` | **PING OK** |
+| **MikroTik** | **Raspberry** | `192.168.100.1` | `ping 192.168.100.1 count=3` | **PING OK** |
+| **MikroTik** | **Yún** | `192.168.88.253` | `ping 192.168.88.253 count=3` | **PING OK** |
+| **Yún** | **Raspberry** | `192.168.100.1` | `ping -c 3 192.168.100.1` | **PING OK** |
+
+### Las dos rutas SSH de administración
+
+**Raspberry → MikroTik**
+
+```bash
+ssh admin@192.168.100.2
+```
+
+**Raspberry → Arduino Yún**
+
+```bash
+ssh -o KexAlgorithms=+diffie-hellman-group14-sha1 -o HostKeyAlgorithms=+ssh-rsa root@192.168.88.253
+```
+
+Estas son las dos rutas SSH de administración comprobadas y funcionando en el laboratorio físico:
+
+```text
+RASPBERRY → MikroTik
+RASPBERRY → Arduino Yún
+```
