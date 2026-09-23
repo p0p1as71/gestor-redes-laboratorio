@@ -352,3 +352,82 @@ Estas son las dos rutas SSH de administración comprobadas y funcionando en el l
 RASPBERRY → MikroTik
 RASPBERRY → Arduino Yún
 ```
+
+---
+
+## 2026-09-23 — Gestión de red — Instalación de LibreNMS en Raspberry Pi
+
+### Preparación
+
+- Se preparó la estructura de trabajo para la gestión de red:
+  - `~/gestion-red/librenms/`
+  - `~/gestion-red/librenms/deploy/`
+- Se decidió utilizar **LibreNMS** como plataforma de monitorización de la infraestructura del laboratorio físico.
+- El despliegue se realizó mediante **Docker**, manteniendo la plataforma de monitorización separada de los servicios principales del laboratorio.
+
+### Despliegue de LibreNMS
+
+- Se descargó y revisó el Docker oficial de LibreNMS.
+- Se utilizó el Compose oficial como base para el despliegue.
+- Se configuraron los siguientes componentes:
+  - LibreNMS.
+  - MariaDB como base de datos.
+  - Redis para caché y sesiones.
+  - Dispatcher.
+  - Syslog-ng.
+  - SNMP Trapd.
+  - MSMTPD para correo.
+- Se configuró `Europe/Madrid` como zona horaria.
+- Se generó una contraseña aleatoria específica para MariaDB.
+- Se sustituyó la comunidad SNMP de ejemplo `librenmsdocker` por una comunidad propia del laboratorio.
+- La comunidad SNMP real no se documenta en GitHub por motivos de seguridad.
+
+### Validaciones previas
+
+- Se comprobaron previamente los puertos necesarios:
+  - `8000/TCP`
+  - `514/TCP+UDP`
+  - `162/TCP+UDP`
+- Todos los puertos comprobados estaban libres.
+- Se validó el archivo Compose antes de iniciar el despliegue.
+
+### Puesta en funcionamiento
+
+- Se descargaron las imágenes Docker necesarias.
+- Se crearon los contenedores del despliegue.
+- Se verificó que los **7 contenedores** quedaron en estado `Up`.
+- Se verificó mediante los logs la inicialización de la base de datos.
+- Se verificó mediante los logs la inicialización de LibreNMS.
+- Se comprobó que la aplicación web respondía correctamente mediante HTTP `302 → /login`.
+- Se completó la instalación inicial desde el navegador del Lenovo.
+- Se creó el usuario administrador de LibreNMS.
+
+### Acceso remoto
+
+- Se verificó el acceso a LibreNMS a través de la interfaz Tailscale de la Raspberry Pi:
+  - `100.90.39.30:8000`
+- LibreNMS quedó accesible desde el Lenovo mediante Tailscale.
+- El acceso administrativo se mantiene mediante la red privada de Tailscale y no mediante una publicación directa de LibreNMS en Internet.
+
+### Objetivo dentro del laboratorio
+
+LibreNMS queda establecido como plataforma central de monitorización de la infraestructura de red del laboratorio físico.
+
+La incorporación de dispositivos se realizará progresivamente, comenzando por el MikroTik y posteriormente incorporando el resto de equipos de red y dispositivos compatibles con SNMP.
+
+### Estado al cierre
+
+**LibreNMS instalado y operativo en la Raspberry Pi.**
+
+### Pendiente para la próxima sesión
+
+1. Validar la instalación desde LibreNMS.
+2. Revisar la configuración de informes y errores.
+3. Añadir el MikroTik como primer dispositivo monitorizado.
+4. Configurar y comprobar SNMP entre LibreNMS y el MikroTik.
+5. Verificar la recepción y representación de datos de monitorización.
+6. Posteriormente incorporar:
+   - Arduino Yún.
+   - Switch TP-Link.
+   - AP Wi-Fi.
+   - Otros dispositivos del laboratorio compatibles con SNMP.
