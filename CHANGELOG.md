@@ -431,3 +431,193 @@ La incorporación de dispositivos se realizará progresivamente, comenzando por 
    - Switch TP-Link.
    - AP Wi-Fi.
    - Otros dispositivos del laboratorio compatibles con SNMP.
+
+   ---
+
+## 2026-09-24 → 2026-09-27 — Monitorización, Raspberry Pi 3B, LibreNMS y NetBox
+
+### Raspberry Pi 3B — nodo de monitorización
+
+- Incorporada una **Raspberry Pi 3 Model B v1.2** al laboratorio físico.
+- Preparada una tarjeta microSD de 32 GB para el nuevo nodo.
+- Preparada la tarjeta mediante Raspberry Pi Imager desde el Lenovo.
+- Identificado el dispositivo de almacenamiento mediante `lsblk` y `lsusb`.
+- Comprobado el dispositivo mediante `dmesg`.
+- Eliminadas las estructuras de datos anteriores de la tarjeta antes de instalar el sistema.
+- Sobrescritos los primeros 256 MiB del dispositivo.
+- Grabada la imagen de Raspberry Pi OS mediante Raspberry Pi Imager.
+- Confirmado el arranque de la Raspberry Pi 3B desde la nueva tarjeta SD.
+
+La Raspberry Pi 3B queda definida como **nodo de monitorización y diagnóstico**, diferenciada de la Raspberry Pi 4.
+
+### Arquitectura de las Raspberry Pi
+
+**Raspberry Pi 4**
+
+- Gateway del laboratorio.
+- Gestión y administración.
+- Tailscale.
+- NoMachine.
+- LibreNMS.
+- Servicios de observabilidad.
+
+**Raspberry Pi 3B**
+
+- Nodo dedicado de monitorización y diagnóstico.
+- No actúa como gateway.
+- No sustituye a la Raspberry Pi 4.
+- Funciones de routing separadas de las funciones de monitorización.
+
+### Conectividad de la Raspberry Pi 3B
+
+Se verificó una configuración con dos interfaces de red:
+
+- Ethernet → MikroTik:
+  - `192.168.88.252`
+- Wi-Fi → Starlink:
+  - `192.168.1.94`
+
+- Añadida temporalmente una ruta desde la Raspberry Pi 3B hacia la red de tránsito `192.168.100.0/30` para permitir la comunicación con la Raspberry Pi 4.
+- Verificada la comunicación bidireccional:
+  - Raspberry Pi 3B → Raspberry Pi 4.
+  - Raspberry Pi 4 → Raspberry Pi 3B.
+
+### SNMP en Raspberry Pi 3B
+
+- Instalado y activado `snmpd`.
+- Creada una copia de seguridad de `/etc/snmp/snmpd.conf`.
+- Ampliada la configuración SNMP para permitir la consulta de interfaces y contadores.
+- Verificadas mediante SNMP las interfaces:
+  - `lo`
+  - `eth0`
+  - `wlan0`
+- Verificados los contadores de tráfico mediante SNMP.
+
+### Integración de Raspberry Pi 3B en LibreNMS
+
+- Incorporada la Raspberry Pi 3B a LibreNMS como `rpi3-monitor`.
+- Discovery SNMP completado correctamente.
+- Polling completado correctamente.
+- LibreNMS monitoriza en la Raspberry Pi 3B:
+  - CPU.
+  - Memoria.
+  - Almacenamiento.
+  - Interfaces.
+  - Tráfico.
+  - Carga.
+  - Uptime.
+  - Temperatura.
+  - Disponibilidad mediante ICMP.
+
+La Raspberry Pi 3B queda establecida como **nodo de monitorización del laboratorio físico**, sin ejecutar una segunda instancia de LibreNMS.
+
+---
+
+### Raspberry Pi 4 — LibreNMS y administración
+
+- Consolidada la **Raspberry Pi 4** como nodo de gateway, gestión y observabilidad del laboratorio.
+- LibreNMS continúa operativo mediante Docker.
+- Incorporada la propia Raspberry Pi 4 a LibreNMS mediante SNMP.
+- Verificadas interfaces físicas, interfaces Docker y métricas del sistema.
+- Tras un reinicio de la Raspberry Pi 4 se verificó la recuperación de:
+  - Docker.
+  - LibreNMS.
+  - Tailscale.
+  - Servicios de administración.
+- Verificado posteriormente el funcionamiento normal del sistema tras el reinicio, incluyendo carga y memoria.
+
+---
+
+### Arduino Yún — diagnóstico de conectividad
+
+- Continuado el diagnóstico del Arduino Yún `192.168.88.253`.
+- Confirmada su presencia en la tabla ARP del MikroTik.
+- Confirmada la conectividad MikroTik → Yún.
+- Desde la Raspberry Pi 4, las conexiones ICMP/TCP hacia el Yún no obtuvieron respuesta.
+- Mediante captura en el MikroTik se comprobó que las solicitudes TCP llegaban físicamente al segmento del Yún, pero no se observaba respuesta procedente del dispositivo.
+- Se estableció como siguiente punto de diagnóstico el acceso físico al Yún mediante USB/serie para revisar su estado de red.
+- El Yún permanece integrado en LibreNMS mediante **ICMP**, sin monitorización SNMP.
+
+**Estado del Yún:**
+
+- Conectividad física: **CONFIRMADA**
+- Presencia en red: **CONFIRMADA**
+- ICMP desde MikroTik: **CONFIRMADO**
+- Respuesta ICMP/TCP desde Raspberry Pi 4: **NO CONFIRMADA**
+- SNMP: **NO CONFIGURADO**
+- Monitorización LibreNMS: **ICMP**
+
+---
+
+### NetBox — instalación y puesta en marcha
+
+- Instalado **NetBox 4.7.1** mediante Docker Compose en la Raspberry Pi 4.
+- NetBox se mantiene separado arquitectónicamente de LibreNMS.
+- LibreNMS mantiene el puerto `8000`.
+- NetBox utiliza el puerto `8001`.
+
+Componentes desplegados:
+
+- NetBox.
+- NetBox Worker.
+- PostgreSQL.
+- Redis.
+- Redis-cache.
+
+- Completadas las migraciones iniciales de la base de datos.
+- Verificado el funcionamiento de la interfaz web de NetBox.
+- Creado el usuario administrativo `popi`.
+- Conservados los datos mediante los volúmenes Docker existentes.
+
+### Recuperación y persistencia de NetBox
+
+- Después de un reinicio de la Raspberry Pi se comprobó que Docker estaba activo, pero los contenedores de NetBox no se iniciaban automáticamente.
+- Identificada la causa: los contenedores tenían configurada la política:
+
+`RestartPolicy=no`
+
+- Recuperado NetBox mediante Docker Compose sin eliminar volúmenes ni reinstalar la aplicación.
+- Verificado posteriormente el estado de los servicios:
+  - PostgreSQL → `healthy`
+  - Redis → `healthy`
+  - Redis-cache → `healthy`
+  - NetBox → `healthy`
+- Creada una copia de seguridad de `docker-compose.override.yml`.
+- Modificado `docker-compose.override.yml` para establecer:
+
+`restart: unless-stopped`
+
+en los cinco servicios:
+
+- `netbox`
+- `postgres`
+- `redis`
+- `redis-cache`
+- `netbox-worker`
+
+El objetivo es permitir la recuperación automática de la infraestructura NetBox después de futuros reinicios de la Raspberry Pi.
+
+---
+
+### Estado consolidado al 27/09/2026
+
+| Componente | Función | Estado |
+|---|---|---|
+| Raspberry Pi 4 | Gateway / Gestión / Observabilidad | **OPERATIVA** |
+| Raspberry Pi 3B | Monitorización / Diagnóstico | **OPERATIVA** |
+| LibreNMS | Monitorización | **OPERATIVO** |
+| NetBox | Inventario / Documentación de infraestructura | **OPERATIVO** |
+| MikroTik hEX lite | Router del laboratorio | **OPERATIVO** |
+| Arduino Yún | Nodo de laboratorio | **INTEGRADO / DIAGNÓSTICO PENDIENTE** |
+| SNMP Raspberry Pi 3B | Monitorización | **OPERATIVO** |
+| SNMP Raspberry Pi 4 | Monitorización | **OPERATIVO** |
+| SNMP Arduino Yún | Monitorización | **PENDIENTE** |
+
+### Próximos pasos
+
+1. Resolver el diagnóstico de conectividad del Arduino Yún desde la Raspberry Pi 4.
+2. Determinar si el Yún puede ser monitorizado mediante SNMP o mantener únicamente ICMP.
+3. Continuar incorporando dispositivos de red a LibreNMS.
+4. Documentar los equipos y relaciones de red en NetBox.
+5. Continuar validando la recuperación automática de los servicios tras reinicios.
+6. Integrar progresivamente switch, AP y nodos ESP32 en la plataforma de observabilidad.
