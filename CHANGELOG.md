@@ -621,3 +621,731 @@ El objetivo es permitir la recuperación automática de la infraestructura NetBo
 4. Documentar los equipos y relaciones de red en NetBox.
 5. Continuar validando la recuperación automática de los servicios tras reinicios.
 6. Integrar progresivamente switch, AP y nodos ESP32 en la plataforma de observabilidad.
+
+---
+
+## 2026-09-27 → 2026-09-28 — Consolidación de la red, funciones de los nodos y administración de contingencia
+
+### MikroTik RB750r2 — consolidación de la red física
+
+- Consolidada la configuración del MikroTik hEX lite RB750r2 como router principal de la red física del laboratorio.
+- Confirmada la topología física actual:
+  - `ether1` → Raspberry Pi 4 / enlace WAN del laboratorio.
+  - `ether2` → Raspberry Pi 3.
+  - `ether3` → Arduino Yún.
+  - `ether4`–`ether5` → libres.
+- Confirmada la red de tránsito Raspberry Pi 4 ↔ MikroTik:
+  - Raspberry Pi 4: `192.168.100.1/30`.
+  - MikroTik: `192.168.100.2/30`.
+- Confirmada la LAN del laboratorio:
+  - Red: `192.168.88.0/24`.
+  - MikroTik: `192.168.88.1`.
+  - Raspberry Pi 3: `192.168.88.252`.
+  - Arduino Yún: `192.168.88.253`.
+  - Raspberry Pi 4: `192.168.88.254`.
+- Configurado/verificado DNS `1.1.1.1`.
+- Configurada la zona horaria `Europe/Madrid`.
+- Configurado NTP mediante `pool.ntp.org`.
+- Verificada la sincronización correcta del reloj.
+- Realizadas nuevas pruebas de conectividad entre los elementos de la red.
+- Creado el backup:
+  - `lab-mikrotik-2026-09-27.backup`
+- Copiado externamente el backup a la Raspberry Pi 4.
+- Eliminados backups antiguos innecesarios, conservando los automáticos relevantes.
+
+### Raspberry Pi 4 — gateway y administración
+
+- Consolidada la Raspberry Pi 4 como elemento con dos funciones principales dentro de la arquitectura:
+  1. **Gateway de la red física del laboratorio**, proporcionando la salida hacia Internet mediante Starlink.
+  2. **Estación principal de administración y observabilidad** de la infraestructura.
+- Confirmadas sus direcciones principales:
+  - Wi-Fi/Starlink: `192.168.1.236`.
+  - Ethernet hacia MikroTik: `192.168.100.1`.
+  - Presencia en la LAN: `192.168.88.254`.
+- La función de administración de la Raspberry Pi 4 incluye actualmente:
+  - LibreNMS para monitorización.
+  - NetBox para inventario, IPAM y documentación.
+  - futura automatización mediante Ansible/AWX.
+- Tras un reinicio se detectó la pérdida de las rutas estáticas hacia la red `192.168.88.0/24`.
+- Recuperada temporalmente la ruta:
+  - `192.168.88.0/24 via 192.168.100.2`
+- Verificada posteriormente la recuperación de la comunicación con la Raspberry Pi 3.
+- La persistencia definitiva de esta ruta queda pendiente.
+
+### Raspberry Pi 3 — revisión de función dentro del laboratorio
+
+- Durante la integración inicial de la Raspberry Pi 3 se había planteado utilizarla como nodo de monitorización.
+- Se comprobó posteriormente que esta función resultaba redundante, ya que la Raspberry Pi 4 ya proporciona la infraestructura de monitorización y administración mediante LibreNMS y NetBox.
+- Se decidió redefinir la función principal de la Raspberry Pi 3 como **estación de trabajo, prácticas y diagnóstico del laboratorio**.
+- La Raspberry Pi 3 queda destinada a:
+  - pruebas de red;
+  - prácticas de DNS;
+  - pruebas de servicios;
+  - diagnóstico;
+  - experimentación;
+  - pruebas con los elementos físicos del laboratorio.
+- Esta decisión permite disponer de una estación Linux física para prácticas sin añadir otro ordenador convencional al laboratorio.
+- Los dispositivos ESP32 se mantienen como nodos embebidos de experimentación y no sustituyen a una estación de trabajo general.
+- En NetBox se refleja esta función mediante el concepto de **Desktop / estación de trabajo**.
+
+### Raspberry Pi 3 — conectividad y pruebas
+
+- Confirmadas sus conexiones:
+  - Ethernet hacia MikroTik: `192.168.88.252`.
+  - Wi-Fi hacia Starlink: `192.168.1.94`.
+- Verificada la conectividad Raspberry Pi 4 → Raspberry Pi 3:
+  - `3/3` respuestas.
+  - `0 %` de pérdida.
+  - RTT medio aproximado: `0,681 ms`.
+- Verificado el acceso SSH desde la Raspberry Pi 4 hacia la Raspberry Pi 3.
+- Verificada la conectividad MikroTik → Raspberry Pi 3:
+  - `3/3` respuestas.
+  - `0 %` de pérdida.
+- Verificada la conectividad Raspberry Pi 3 → Raspberry Pi 4:
+  - `3/3` respuestas.
+  - `0 %` de pérdida.
+- Recuperada temporalmente en la Raspberry Pi 3 la ruta hacia la red de tránsito:
+  - `192.168.100.0/30 via 192.168.88.1`
+- La persistencia definitiva de esta ruta queda pendiente.
+
+### Descubrimiento de una ruta de administración de contingencia
+
+- Durante las pruebas se identificó que la Raspberry Pi 3 dispone simultáneamente de conectividad hacia:
+  - la red local de Starlink mediante Wi-Fi;
+  - la red física del laboratorio mediante Ethernet.
+- Esta doble conexión permite utilizar la Raspberry Pi 3 como punto intermedio de acceso a la red física del laboratorio cuando la Raspberry Pi 4 no esté disponible como punto de entrada habitual.
+- La ruta de administración identificada puede representarse como:
+
+```text
+Lenovo / móvil
+       │
+       │ acceso remoto / red Starlink
+       ▼
+Raspberry Pi 3
+192.168.1.94
+       │
+       │ SSH
+       ▼
+MikroTik
+192.168.88.1
+       │
+       ├── LAN del laboratorio
+       │
+       └── enlace hacia Raspberry Pi 4
+       - Desde la Raspberry Pi 3 se mantiene el acceso SSH al MikroTik a través de la LAN 192.168.88.0/24.
+- Esta ruta proporciona una vía alternativa de administración y diagnóstico en caso de indisponibilidad de la Raspberry Pi 4.
+- La ruta puede utilizarse desde equipos que tengan acceso a la red de Starlink, así como mediante un equipo accesible remotamente que disponga de conectividad hacia dicha red.
+- La existencia de esta ruta no constituye un sistema de alta disponibilidad ni un failover automático.
+- Se considera una ruta de administración de contingencia.
+Aprendizaje arquitectónico
+- Las pruebas permitieron identificar que la disponibilidad del gateway principal y la disponibilidad de una ruta de administración no son necesariamente el mismo problema.
+- La Raspberry Pi 4 concentra actualmente el gateway y la administración principal de la infraestructura.
+- La Raspberry Pi 3 proporciona una segunda vía física de acceso al laboratorio gracias a su conectividad simultánea con Starlink y el MikroTik.
+- Esta experiencia permitió identificar la importancia de diseñar también caminos de administración y recuperación ante fallos, además de la conectividad normal de producción.
+Gateway de contingencia — diseño futuro
+- Se identificó como posible evolución futura la utilización de la Raspberry Pi 3 como gateway de respaldo.
+- La arquitectura actualmente operativa continúa siendo:
+  - Raspberry Pi 4 → gateway principal.
+  - MikroTik → router de la LAN.
+  - Raspberry Pi 3 → estación de trabajo/prácticas/diagnóstico.
+- Se planteó un posible modo degradado de emergencia en el que la Raspberry Pi 3 pueda asumir determinadas funciones críticas si la Raspberry Pi 4 deja de estar disponible.
+- Esta funcionalidad de failover no está implementada actualmente.
+- No se modificó la red física existente para implementar este diseño.
+- El gateway de respaldo queda registrado como diseño y práctica futura.
+
+### LibreNMS — ampliación de la monitorización
+
+- Ampliada la infraestructura monitorizada por LibreNMS durante el fin de semana.
+- Estado de los dispositivos actualmente registrados:
+  - MikroTik → ID `1`.
+  - Arduino Yún → ID `2`.
+  - Raspberry Pi 3 → ID `3`.
+  - Raspberry Pi 4 → ID `4`.
+- Verificado que los dispositivos permanecen registrados y no están marcados como eliminados o ignorados.
+- Confirmadas en LibreNMS las principales interfaces de los dispositivos:
+  - MikroTik: `ether1`–`ether5` y bridge.
+  - Raspberry Pi 3: `eth0` y `wlan0`.
+  - Raspberry Pi 4: `eth0` y `wlan0`.
+
+### LibreNMS — SNMP
+
+- Verificado SNMP v2c operativo en las Raspberry Pi 3 y 4.
+- Verificadas consultas SNMP desde el entorno de LibreNMS hacia ambas Raspberry Pi.
+- Ampliada la información SNMP disponible de la Raspberry Pi 4 para consultar recursos de:
+  - memoria;
+  - almacenamiento;
+  - procesos.
+- Reiniciado `snmpd` en la Raspberry Pi y ejecutado posteriormente un nuevo discovery.
+
+### LibreNMS — discovery, polling y RRD
+
+- Verificado el funcionamiento del discovery de los dispositivos.
+- Verificado el descubrimiento de interfaces.
+- Verificado el polling periódico.
+- Verificada la actualización de los RRD.
+- Verificada la generación de datos de tráfico.
+- Verificada la adquisición de:
+  - temperatura;
+  - memoria;
+  - almacenamiento;
+  - disponibilidad;
+  - rendimiento;
+  - procesos;
+  - interfaces.
+- En la Raspberry Pi 3 se confirmó la adquisición de datos correspondientes a:
+  - `eth0`;
+  - `wlan0`;
+  - procesos;
+  - usuarios;
+  - ping;
+  - disponibilidad;
+  - RRD.
+- Comprobado que `rrdtool` puede generar directamente una gráfica a partir de los datos almacenados de la Raspberry Pi 3.
+
+### LibreNMS — investigación de las gráficas
+
+- Investigada la diferencia entre las gráficas de recursos mostradas para las Raspberry Pi y las mostradas para el MikroTik.
+- Durante el diagnóstico se descartaron como causa:
+  - pérdida de conectividad;
+  - fallo de SNMP;
+  - fallo de discovery;
+  - ausencia de RRD;
+  - fallo del polling.
+- Confirmado que los datos de monitorización de las Raspberry Pi se están adquiriendo y almacenando correctamente.
+- Comprobado mediante `rrdtool` que los datos disponibles pueden utilizarse para generar gráficas directamente.
+- La investigación orientó el problema hacia la presentación o generación de determinados elementos del `Overview` de LibreNMS, y no hacia la adquisición de los datos.
+- Durante la investigación se consultó la estructura disponible de `device_graphs` y se comprobó que el esquema utilizado no contiene la columna `port_id`.
+- Como consecuencia, se decidió continuar la construcción de una vista específica mediante el dashboard personalizado del laboratorio.
+
+### Dashboard personalizado `Lab`
+
+- Creado y utilizado el dashboard personalizado `Lab` de LibreNMS.
+- El dashboard permite construir una vista específica del laboratorio independientemente del `Overview` automático de cada dispositivo.
+- Se incorporaron widgets para representar diferentes aspectos de la infraestructura, entre ellos:
+  - `raspi Stats`;
+  - `Mikrotik Stats`;
+  - `Top Devices`;
+  - `Device Summary Horizontal`;
+  - `DHCP Lease Count`;
+  - `Top Interfaces`;
+  - `Alerts`;
+  - `Eventlog`;
+  - `Availability Map`;
+  - `Top Errors`;
+  - `Graylog`.
+- Verificado visualmente el funcionamiento del dashboard y la representación de dispositivos y métricas.
+- El dashboard `Lab` queda establecido como base para continuar construyendo la vista de observabilidad del laboratorio.
+
+### NetBox — plataforma documental
+
+- Continuada la utilización de NetBox Community `4.7.1` en la Raspberry Pi 4.
+- Verificado el acceso mediante Tailscale en el puerto `8001`.
+- Verificados los servicios Docker de:
+  - NetBox;
+  - NetBox Worker;
+  - PostgreSQL;
+  - Redis;
+  - Redis-cache.
+- Verificada la política `restart: unless-stopped` de los cinco servicios.
+- Realizado backup de la configuración/override de Docker.
+- Consolidado NetBox como fuente documental de verdad para:
+  - inventario;
+  - IPAM;
+  - VLAN;
+  - conexiones;
+  - arquitectura del laboratorio.
+
+### NetBox — inventario inicial
+
+- Creado el Site:
+  - nombre: `LAB-REDES`;
+  - slug: `lab-redes`;
+  - estado: `Activo`.
+- Creado el fabricante `MikroTik`.
+- Creado el rol de dispositivo `Router`.
+- Iniciado el alta del modelo:
+  - `MikroTik RB750r2 hEX lite`.
+- Iniciado el inventario de los equipos principales del laboratorio:
+  - MikroTik RB750r2 hEX lite;
+  - Raspberry Pi 4;
+  - Raspberry Pi 3;
+  - Arduino Yún v1.2.
+- Definidos conceptualmente sus papeles dentro del laboratorio:
+  - MikroTik → router;
+  - Raspberry Pi 4 → gateway/gestión;
+  - Raspberry Pi 3 → estación de trabajo/prácticas;
+  - Arduino Yún → nodo de experimentación/legacy.
+- Iniciado el inventario de interfaces del MikroTik.
+- Durante el alta de `ether1` se registró inicialmente la interfaz con el nombre `100BASE-TX` en lugar de `ether1`.
+- La corrección del nombre de esta interfaz queda pendiente.
+- Los cambios realizados en NetBox corresponden exclusivamente a documentación e inventario.
+- NetBox no se está utilizando para modificar automáticamente los equipos reales.
+
+### Separación entre documentación y operación
+
+- Se mantiene NetBox como herramienta documental y de modelado de la infraestructura.
+- La configuración real de la red continúa siendo responsabilidad de los equipos físicos correspondientes.
+- La incorporación de dispositivos, interfaces, direcciones IP, VLAN y conexiones en NetBox no implica cambios automáticos en MikroTik, Raspberry Pi, LibreNMS u otros elementos del laboratorio.
+- Se mantiene la separación entre:
+  - infraestructura real;
+  - monitorización mediante LibreNMS;
+  - documentación mediante NetBox;
+  - experimentación mediante la Raspberry Pi 3.
+
+  Sí, continúa. Esta es la **PARTE 3/3**, con el cierre, estado y pendientes:
+
+```markdown id="z5xq2k"
+### Arquitectura física y función de los nodos
+
+Al finalizar el fin de semana queda consolidada la siguiente distribución funcional:
+
+```text
+                         INTERNET
+                            │
+                         STARLINK
+                            │
+                           Wi-Fi
+                            │
+                    ┌───────▼────────┐
+                    │ Raspberry Pi 4 │
+                    │                │
+                    │ Gateway        │
+                    │ Administración │
+                    └───────┬────────┘
+                            │
+                    192.168.100.0/30
+                            │
+                    ┌───────▼────────┐
+                    │    MikroTik    │
+                    │ 192.168.88.1   │
+                    │     Router     │
+                    └───────┬────────┘
+                            │
+                    192.168.88.0/24
+                            │
+             ┌──────────────┼──────────────┐
+             │              │              │
+           RPi 3           Yún       futuros nodos
+        .252 / .1.94       .253
+             │
+             │
+      Estación de trabajo
+       / prácticas
+```
+
+- Raspberry Pi 4:
+  - gateway principal;
+  - administración;
+  - monitorización;
+  - documentación de infraestructura.
+- MikroTik:
+  - router de la LAN;
+  - DHCP;
+  - routing;
+  - frontera de la red física del laboratorio.
+- Raspberry Pi 3:
+  - estación de trabajo;
+  - prácticas;
+  - pruebas;
+  - diagnóstico;
+  - experimentación con servicios de red.
+- Arduino Yún:
+  - nodo de experimentación;
+  - dispositivo legacy;
+  - plataforma para prácticas con hardware y servicios de red.
+- Futuros ESP32, switch PoE y AP Wi-Fi:
+  - elementos de expansión del laboratorio físico.
+
+### Herramientas de gestión y observabilidad
+
+La arquitectura de administración queda organizada conceptualmente de la siguiente manera:
+
+```text
+Raspberry Pi 4
+│
+├── LibreNMS
+│   └── Monitorización y observabilidad
+│
+├── NetBox
+│   └── Inventario, IPAM, VLAN y documentación
+│
+└── Ansible/AWX
+    └── Automatización futura
+```
+
+- LibreNMS se mantiene como plataforma de monitorización.
+- NetBox se mantiene como fuente documental de verdad.
+- Ansible/AWX queda como componente de automatización pendiente.
+- La Raspberry Pi 3 no duplica estas funciones y queda dedicada principalmente a prácticas y experimentación.
+
+### Estado de la red y servicios al cierre del fin de semana
+
+| Componente | Función | Estado |
+|---|---|---|
+| Raspberry Pi 4 | Gateway / gestión / observabilidad | **OPERATIVO** |
+| MikroTik RB750r2 | Router de la LAN | **OPERATIVO** |
+| Raspberry Pi 3 | Estación de trabajo / prácticas / diagnóstico | **OPERATIVO** |
+| Arduino Yún | Nodo de experimentación / legacy | **INTEGRADO / DIAGNÓSTICO PENDIENTE** |
+| LibreNMS | Monitorización | **OPERATIVO** |
+| Dashboard `Lab` | Observabilidad personalizada | **OPERATIVO / EN DESARROLLO** |
+| NetBox | Inventario / IPAM / documentación | **OPERATIVO** |
+| Inventario NetBox | Documentación de equipos e interfaces | **EN DESARROLLO** |
+| Ansible/AWX | Automatización | **PENDIENTE** |
+| Gateway de respaldo RPi3 | Contingencia/failover | **DISEÑO FUTURO — NO IMPLEMENTADO** |
+
+### Aprendizajes obtenidos durante el fin de semana
+
+- La función de un dispositivo dentro de una arquitectura puede revisarse después de observar el funcionamiento real del sistema.
+- Se comprobó que utilizar la Raspberry Pi 3 exclusivamente para monitorización duplicaría una función que ya proporciona la Raspberry Pi 4 mediante LibreNMS.
+- La redefinición de la Raspberry Pi 3 como estación de trabajo permite disponer de un equipo físico dedicado a las prácticas del curso.
+- Se identificó la diferencia entre:
+  - gateway;
+  - dispositivo de administración;
+  - estación de trabajo;
+  - nodo de monitorización;
+  - ruta de administración de contingencia.
+- Las pruebas demostraron que una red puede mantener una vía de administración aunque su gateway principal deje de estar disponible, siempre que exista otro equipo con conectividad hacia ambos segmentos.
+- Se identificó la necesidad de considerar la persistencia de las rutas estáticas después de reinicios.
+- La investigación de LibreNMS permitió distinguir entre problemas de adquisición de datos y problemas de presentación de los datos.
+- La utilización de un dashboard personalizado permite construir una vista de observabilidad adaptada a las necesidades del laboratorio.
+
+### Pendientes
+
+1. Hacer persistentes las rutas estáticas recuperadas temporalmente en:
+   - Raspberry Pi 4:
+     - `192.168.88.0/24 via 192.168.100.2`
+   - Raspberry Pi 3:
+     - `192.168.100.0/30 via 192.168.88.1`
+2. Continuar el diseño y organización del dashboard `Lab` de LibreNMS.
+3. Completar el inventario de NetBox.
+4. Corregir el nombre de la interfaz registrada inicialmente como `100BASE-TX` para que corresponda con `ether1`.
+5. Incorporar progresivamente en NetBox:
+   - interfaces;
+   - direcciones IP;
+   - IPAM;
+   - VLAN;
+   - conexiones físicas.
+6. Continuar el diagnóstico del Arduino Yún.
+7. Incorporar progresivamente nuevos elementos del laboratorio a LibreNMS y NetBox.
+8. Incorporar posteriormente Ansible/AWX para automatización.
+9. Mantener el posible gateway de contingencia de la Raspberry Pi 3 como práctica futura, sin implementarlo todavía.
+10. Continuar documentando la evolución del laboratorio en el repositorio `gestor-redes-laboratorio`.
+
+### Estado general
+
+Al finalizar el 28/09/2026, la red física del laboratorio dispone de una arquitectura funcional con:
+
+```text
+Starlink
+   │
+   ▼
+Raspberry Pi 4
+Gateway + Administración
+   │
+   ▼
+MikroTik
+Router LAN
+   │
+   ├── Raspberry Pi 3
+   │   Estación de trabajo / prácticas
+   │
+   ├── Arduino Yún
+   │   Nodo de experimentación
+   │
+   └── futuros nodos
+```
+
+Sobre esta infraestructura se encuentran operativos:
+
+```text
+LibreNMS → monitorización
+NetBox   → inventario y documentación
+```
+
+y queda prevista:
+
+```text
+Ansible/AWX → automatización
+```
+
+La Raspberry Pi 3 proporciona además una ruta de administración de contingencia hacia el MikroTik mediante su conectividad simultánea con la red Starlink y la LAN del laboratorio.
+
+La arquitectura de failover automático todavía no está implementada y permanece como práctica futura.
+```
+---
+
+## 2026-10-01 — Acceso remoto seguro al MikroTik mediante Tailscale
+
+### Objetivo
+
+Habilitar la administración remota del MikroTik hEX lite desde el móvil fuera de la red doméstica, reutilizando la infraestructura Tailscale ya existente y sin exponer puertos de administración directamente a Internet.
+
+### Arquitectura utilizada
+
+La Raspberry Pi 4 continúa actuando como gateway y nodo de administración del laboratorio físico.
+
+Ruta de acceso remoto:
+
+```text
+Poco X7 Pro
+→ Tailscale
+→ Raspberry Pi 4
+→ enlace 192.168.100.0/30
+→ MikroTik hEX lite
+```
+
+Direcciones relevantes:
+
+- Raspberry Pi 4 / Tailscale: `100.90.39.30`
+- Raspberry Pi 4 / `eth0`: `192.168.100.1/30`
+- MikroTik / `ether1`: `192.168.100.2`
+- WinBox: TCP `8291`
+
+### Configuración de Tailscale
+
+Se configuró la Raspberry Pi 4 como **subnet router** para anunciar la red de tránsito entre Raspberry Pi y MikroTik:
+
+```text
+192.168.100.0/30
+```
+
+La ruta fue posteriormente aprobada desde la consola de administración de Tailscale.
+
+Se verificó:
+
+- `net.ipv4.ip_forward = 1`
+- funcionamiento de la cadena `ts-forward`
+- funcionamiento de `ts-postrouting`
+- aplicación de MASQUERADE/SNAT al tráfico procedente de Tailscale
+
+De esta forma, una conexión iniciada desde un dispositivo autorizado de la tailnet hacia `192.168.100.2` puede atravesar la Raspberry Pi 4 y alcanzar el MikroTik.
+
+### Diagnóstico del acceso WinBox
+
+Inicialmente, MikroTik Pro desde el móvil no conseguía conectarse a:
+
+```text
+192.168.100.2
+```
+
+Mediante `tcpdump` en `eth0` de la Raspberry Pi 4 se comprobó que los paquetes TCP SYN procedentes del móvil atravesaban correctamente Tailscale y llegaban hasta:
+
+```text
+192.168.100.2:8291
+```
+
+Sin embargo, el MikroTik no respondía.
+
+También se comprobó directamente desde la Raspberry Pi 4:
+
+```bash
+nc -vz -w 3 192.168.100.2 8291
+```
+
+El intento expiraba por timeout.
+
+Esto permitió descartar como origen del problema:
+
+- Tailscale.
+- El Poco X7 Pro.
+- La conexión externa utilizada por el móvil.
+- El routing de la Raspberry Pi 4.
+- El enlace Ethernet Raspberry Pi 4 ↔ MikroTik.
+
+### Causa identificada
+
+El servicio WinBox estaba correctamente habilitado en RouterOS en TCP `8291`.
+
+El problema estaba en el firewall `INPUT` del MikroTik.
+
+Existían reglas específicas que permitían desde la Raspberry Pi 4:
+
+- WebFig — TCP `80`.
+- SSH — TCP `22`.
+- SNMP — UDP `161`.
+
+Pero no existía una autorización equivalente para WinBox.
+
+La regla general:
+
+```text
+defconf: drop all not coming from LAN
+```
+
+descartaba finalmente las conexiones TCP `8291` recibidas por `ether1`.
+
+### Corrección aplicada
+
+Se añadió una regla específica de firewall antes del `DROP` general:
+
+```text
+ALLOW WinBox from Raspberry
+```
+
+Características:
+
+- `chain`: `input`
+- `action`: `accept`
+- `protocol`: TCP
+- `source`: `192.168.100.1`
+- `interface`: `ether1`
+- `destination port`: `8291`
+
+No se abrió WinBox de forma general ni se creó ningún port forwarding desde Internet.
+
+Tras aplicar la regla se verificó desde la Raspberry Pi 4:
+
+```text
+Connection to 192.168.100.2 8291 port [tcp/*] succeeded!
+```
+
+### Verificación remota
+
+Con el Poco X7 Pro conectado mediante **datos móviles y Tailscale** se consiguió iniciar sesión correctamente en:
+
+```text
+admin@192.168.100.2
+```
+
+desde la aplicación MikroTik Pro.
+
+Desde el móvil quedaron accesibles las funciones administrativas de RouterOS, incluyendo interfaces, IP, routing, firewall, archivos y demás apartados de configuración.
+
+Por tanto, queda operativo el acceso:
+
+```text
+Internet
+   │
+   ▼
+Tailscale
+   │
+   ▼
+Raspberry Pi 4
+Subnet Router
+   │
+   ▼
+MikroTik
+192.168.100.2
+```
+
+sin exposición directa del puerto WinBox a Internet.
+
+### Verificación de la salida a Internet del laboratorio
+
+También se realizó un `traceroute` desde el entorno del MikroTik hasta:
+
+```text
+8.8.8.8
+```
+
+Ruta observada:
+
+1. `192.168.100.1` — Raspberry Pi 4.
+2. `192.168.1.1` — gateway Starlink.
+3. `100.64.0.1` — infraestructura/CGNAT del operador.
+4. Salto intermedio sin respuesta ICMP.
+5. a 9. Infraestructura pública de tránsito.
+10. `8.8.8.8` — Google DNS.
+
+El destino respondió con `0 %` de pérdida.
+
+Esta prueba confirma experimentalmente la ruta de salida del laboratorio:
+
+```text
+MikroTik
+→ Raspberry Pi 4
+→ Starlink
+→ CGNAT
+→ Internet
+```
+
+### Estado final
+
+- Acceso remoto mediante Tailscale: **OPERATIVO**.
+- Raspberry Pi 4 como subnet router para `192.168.100.0/30`: **OPERATIVO**.
+- WinBox remoto mediante MikroTik Pro: **OPERATIVO**.
+- TCP `8291` accesible desde la Raspberry Pi 4 por `ether1`: **VERIFICADO**.
+- Port forwarding desde Internet: **NO UTILIZADO**.
+- Salida a Internet del MikroTik a través de Raspberry Pi 4/Starlink: **VERIFICADA**.
+- RouterOS instalado: `7.1.2`.
+- Actualización de RouterOS: **PENDIENTE**, a tratar como operación independiente con backup y comprobaciones previas.
+
+### Acceso directo al MikroTik desde Lenovo L13 mediante Tailscale
+
+Se eliminó la necesidad de utilizar la ruta indirecta de administración:
+
+```text
+Lenovo L13
+→ NoMachine
+→ Raspberry Pi 3
+→ WebFig
+→ MikroTik
+```
+
+Se configuró el Lenovo ThinkPad L13 para utilizar las rutas de subred anunciadas por Tailscale:
+
+```bash
+sudo tailscale set --accept-routes=true
+```
+
+#### Situación anterior
+
+Antes del cambio, el Lenovo L13 no podía alcanzar la interfaz del MikroTik:
+
+- Destino: `192.168.100.2`
+- Resultado: `100 %` de pérdida ICMP.
+- Tailscale estaba operativo, pero `RouteAll` aparecía como `false`.
+
+#### Verificación después del cambio
+
+Después de habilitar la aceptación de rutas de subred:
+
+- `192.168.100.2` responde correctamente desde el Lenovo L13.
+- `3/3` paquetes ICMP recibidos.
+- `0 %` de pérdida.
+- Latencia media aproximada: `6,5 ms`.
+
+Se verificó posteriormente el acceso directo a WebFig desde Firefox en el Lenovo:
+
+```text
+http://192.168.100.2
+```
+
+La nueva ruta de administración queda:
+
+```text
+Lenovo L13
+    │
+    ▼
+Tailscale
+    │
+    ▼
+Raspberry Pi 4
+Subnet Router
+192.168.100.0/30
+    │
+    ▼
+MikroTik
+192.168.100.2
+```
+
+#### Resultado
+
+- WebFig accesible directamente desde el Lenovo L13.
+- Raspberry Pi 3 eliminada de la ruta habitual de administración del MikroTik desde el Lenovo.
+- NoMachine ya no es necesario para este acceso.
+- No se han abierto puertos del MikroTik directamente hacia Internet.
+- Se reutiliza la infraestructura Tailscale existente.
+- La Raspberry Pi 4 mantiene su función de subnet router para `192.168.100.0/30`.
+- El acceso continúa limitado por las reglas específicas existentes en el firewall del MikroTik.
+
+### Accesos remotos directos verificados
+
+Quedan comprobadas dos rutas de administración directa del MikroTik mediante Tailscale:
+
+| Dispositivo | Herramienta | Ruta | Estado |
+|---|---|---|---|
+| Poco X7 Pro | MikroTik Pro / WinBox | Poco → Tailscale → RPi4 → MikroTik | **OPERATIVO** |
+| Lenovo L13 | Firefox / WebFig | Lenovo → Tailscale → RPi4 → MikroTik | **OPERATIVO** |
+
+En ambos casos la Raspberry Pi 4 actúa como subnet router y proporciona acceso a la red de tránsito `192.168.100.0/30` sin publicar los servicios administrativos del MikroTik directamente en Internet.
