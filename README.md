@@ -11,7 +11,7 @@ Documentación de ingeniería y aprendizaje del curso de Gestor de Redes, con la
 | [Curso](curso/) | Teoría, temario, apuntes y evaluaciones (contenido por incorporar) |
 | [Arquitectura](arquitectura/README.md) | Topologías, segmentación, direccionamiento y decisiones |
 | [Laboratorio físico](laboratorio-fisico/README.md) | Raspberry Pi, MikroTik, SG2210P, EAP225, ESP32, Arduino Yún y estaciones |
-| [Laboratorio virtual](laboratorio-virtual/README.md) | MEDION, KVM/QEMU, libvirt, OPNsense y pruebas de aislamiento |
+| [Laboratorio virtual](laboratorio-virtual/README.md) | Réplica principal Lenovo L13 y plataforma de prácticas adicional MEDION |
 | [Servicios](servicios/README.md) | NetBox, LibreNMS, Omada, dashboard y automatización |
 | [Prácticas](practicas/README.md) | Prácticas guiadas; [plantilla](practicas/plantillas/PRACTICA.md) |
 | [Evidencias](evidencias/README.md) | Pruebas, resultados y material revisado |
@@ -37,8 +37,9 @@ No se asume ninguna sincronización automática entre estos sistemas.
 ## Estado técnico resumido (documentación al 10-10-2026)
 
 - **Físico:** Raspberry Pi 4 como gateway, MikroTik como router LAN, SG2210P y EAP225; subsistemas de administración y nodos de pruebas.
-- **Virtual:** MEDION `netlab-ws01` con KVM/QEMU, redes `default` y `lab-isolated`, y VM `opnsense-lab`.
-- **Pendiente de comprobar:** aislamiento efectivo de la red virtual, interfaces de OPNsense, identidad de segunda VM, mapa de puertos y estado permanente del dashboard.
+- **Virtual principal (diseño):** Lenovo L13: réplica funcional gateway → router → switch → hosts; infraestructura libvirt preparada y VMs previstas aún sin verificar como creadas.
+- **Virtual adicional (histórico):** MEDION `netlab-ws01` con KVM/QEMU, redes `default` y `lab-isolated`, y VM `opnsense-lab`.
+- **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, aislamiento de MEDION, interfaces de OPNsense, identidad de segunda VM, mapa de puertos y servicio permanente del dashboard.
 
 El detalle histórico y el grado de evidencia de cada elemento están en el [CHANGELOG](CHANGELOG.md).
 
