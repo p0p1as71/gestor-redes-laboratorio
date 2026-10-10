@@ -5,7 +5,7 @@
 2. Separar curso, laboratorio físico, laboratorio virtual y servicios reales/de producción.
 3. No declarar VERIFICADO sin evidencia identificable.
 4. Un cambio operativo cada vez: estado inicial, copia de seguridad si procede, acción, validación y reversión.
-5. No almacenar secretos, configuraciones brutas ni datos innecesarios en este repositorio público.
+5. No almacenar secretos, configuraciones brutas ni datos innecesarios en este repositorio, aunque sea privado.
 
 ## Estados
 - PLANIFICADO: idea registrada, no ejecutada.
