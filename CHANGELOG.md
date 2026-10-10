@@ -732,17 +732,19 @@ MikroTik
        ├── LAN del laboratorio
        │
        └── enlace hacia Raspberry Pi 4
-       - Desde la Raspberry Pi 3 se mantiene el acceso SSH al MikroTik a través de la LAN 192.168.88.0/24.
+```
+
+- Desde la Raspberry Pi 3 se mantiene el acceso SSH al MikroTik a través de la LAN 192.168.88.0/24.
 - Esta ruta proporciona una vía alternativa de administración y diagnóstico en caso de indisponibilidad de la Raspberry Pi 4.
 - La ruta puede utilizarse desde equipos que tengan acceso a la red de Starlink, así como mediante un equipo accesible remotamente que disponga de conectividad hacia dicha red.
 - La existencia de esta ruta no constituye un sistema de alta disponibilidad ni un failover automático.
 - Se considera una ruta de administración de contingencia.
-Aprendizaje arquitectónico
+### Aprendizaje arquitectónico
 - Las pruebas permitieron identificar que la disponibilidad del gateway principal y la disponibilidad de una ruta de administración no son necesariamente el mismo problema.
 - La Raspberry Pi 4 concentra actualmente el gateway y la administración principal de la infraestructura.
 - La Raspberry Pi 3 proporciona una segunda vía física de acceso al laboratorio gracias a su conectividad simultánea con Starlink y el MikroTik.
 - Esta experiencia permitió identificar la importancia de diseñar también caminos de administración y recuperación ante fallos, además de la conectividad normal de producción.
-Gateway de contingencia — diseño futuro
+### Gateway de contingencia — diseño futuro
 - Se identificó como posible evolución futura la utilización de la Raspberry Pi 3 como gateway de respaldo.
 - La arquitectura actualmente operativa continúa siendo:
   - Raspberry Pi 4 → gateway principal.
@@ -892,9 +894,6 @@ Gateway de contingencia — diseño futuro
   - documentación mediante NetBox;
   - experimentación mediante la Raspberry Pi 3.
 
-  Sí, continúa. Esta es la **PARTE 3/3**, con el cierre, estado y pendientes:
-
-```markdown id="z5xq2k"
 ### Arquitectura física y función de los nodos
 
 Al finalizar el fin de semana queda consolidada la siguiente distribución funcional:
@@ -1071,7 +1070,7 @@ Ansible/AWX → automatización
 La Raspberry Pi 3 proporciona además una ruta de administración de contingencia hacia el MikroTik mediante su conectividad simultánea con la red Starlink y la LAN del laboratorio.
 
 La arquitectura de failover automático todavía no está implementada y permanece como práctica futura.
-```
+
 ---
 
 ## 2026-10-01 — Acceso remoto seguro al MikroTik mediante Tailscale
@@ -1349,3 +1348,1243 @@ Quedan comprobadas dos rutas de administración directa del MikroTik mediante Ta
 | Lenovo L13 | Firefox / WebFig | Lenovo → Tailscale → RPi4 → MikroTik | **OPERATIVO** |
 
 En ambos casos la Raspberry Pi 4 actúa como subnet router y proporciona acceso a la red de tránsito `192.168.100.0/30` sin publicar los servicios administrativos del MikroTik directamente en Internet.
+
+---
+
+## 2026-10-02 → 2026-10-03 — Ampliación física, Omada Controller, routing y corrección de los ESP32-S3
+
+### Ampliación de la infraestructura física
+
+Se amplió la red física del laboratorio incorporando un switch gestionable PoE, un punto de acceso inalámbrico y tres microcontroladores Ethernet.
+
+Dispositivos incorporados:
+
+| Dispositivo | Modelo | Dirección IP | Función |
+|---|---|---|---|
+| Switch | TP-Link Omada SG2210P | `192.168.88.251` | Switching gestionable y PoE |
+| Punto de acceso | TP-Link Omada EAP225 | `192.168.88.250` | Acceso Wi-Fi del laboratorio |
+| ESP32-01 | Waveshare ESP32-S3-POE-ETH | `192.168.88.245` | Nodo Ethernet de prácticas |
+| ESP32-02 | Waveshare ESP32-S3-POE-ETH | `192.168.88.246` | Nodo Ethernet de prácticas |
+| ESP32-03 | Waveshare ESP32-S3-POE-ETH | `192.168.88.247` | Nodo Ethernet de prácticas |
+
+El SG2210P se conectó al MikroTik como switch principal de la LAN del laboratorio.
+
+El EAP225 quedó conectado al SG2210P mediante Ethernet, con alimentación PoE y enlace negociado a 1 Gbps.
+
+Direcciones MAC de los equipos Omada:
+
+- SG2210P: `A8:29:48:FF:C9:68`
+- EAP225: `C0:3A:55:A9:6B:C2`
+
+### Instalación de Omada Software Controller
+
+Se instaló y puso en funcionamiento Omada Software Controller en el Lenovo ThinkPad L13 Gen 3.
+
+Componentes instalados o verificados:
+
+- OpenJDK 17.
+- MongoDB 8.0.32.
+- `jsvc`.
+- Omada Network Application 6.3.0.45.
+
+Puertos del controlador:
+
+- HTTP: `8088/TCP`.
+- HTTPS: `8043/TCP`.
+
+Se verificó el funcionamiento del servicio mediante `tpeap status` y el acceso HTTPS a la interfaz de administración.
+
+El Lenovo quedó establecido como equipo anfitrión del controlador Omada.
+
+### Adopción del SG2210P y EAP225
+
+Se adoptaron correctamente los dispositivos:
+
+- SG2210P: `192.168.88.251`.
+- EAP225: `192.168.88.250`.
+
+Durante las pruebas se observó que ambos dispositivos perdían comunicación con el controlador cuando el Lenovo dejaba de utilizar la dirección local `192.168.88.249`.
+
+Los registros de Omada mostraban eventos:
+
+- `Heartbeat Missed`.
+- `Disconnected`.
+
+La adopción inicial se había completado correctamente.
+
+El problema estaba relacionado con la continuidad del canal de gestión entre los dispositivos Omada y el controlador al cambiar el Lenovo de red.
+
+### Descubrimiento del controlador mediante DHCP Option 138
+
+Para mantener una dirección de referencia estable se configuró en el MikroTik la opción DHCP 138.
+
+Dirección anunciada del controlador:
+
+`100.116.135.126`
+
+Esta dirección corresponde a la interfaz Tailscale del Lenovo.
+
+La opción DHCP se aplicó a la red:
+
+`192.168.88.0/24`
+
+Tras aplicar la configuración, SG2210P y EAP225 recuperaron la comunicación con Omada Controller.
+
+Se verificaron conexiones TCP establecidas hacia el controlador mediante el puerto:
+
+`29814/TCP`
+
+**Resultado:** el controlador puede seguir siendo localizado mediante su dirección Tailscale cuando el Lenovo cambia entre la WLAN del laboratorio y la red Starlink, siempre que exista conectividad hacia esa dirección.
+
+### Configuración de la WLAN Lab-Redes
+
+Se creó y configuró desde Omada Controller la red inalámbrica:
+
+`Lab-Redes`
+
+Configuración:
+
+- Banda de 2,4 GHz habilitada.
+- Banda de 5 GHz habilitada.
+- Seguridad WPA2-PSK / AES.
+- Difusión del SSID habilitada.
+- VLAN por defecto.
+- Gestión centralizada mediante Omada Controller.
+
+El EAP225 quedó administrado desde Omada.
+
+También se verificó desde las herramientas del EAP225 la conectividad hacia la dirección Tailscale del Lenovo:
+
+`100.116.135.126`
+
+### Acceso local y remoto al controlador Omada
+
+Se comprobaron dos vías de acceso a Omada Controller.
+
+**Acceso local desde Lab-Redes:**
+
+```text
+https://192.168.88.249:8043
+```
+
+**Acceso mediante Tailscale:**
+
+```text
+https://100.116.135.126:8043
+```
+
+Se realizaron pruebas desde un teléfono POCO.
+
+Durante el diagnóstico se observó que la configuración de VPN/Tailscale del teléfono podía interferir con el acceso directo al Lenovo cuando ambos dispositivos estaban conectados a la misma LAN.
+
+Se mantuvieron diferenciados:
+
+- Acceso directo mediante la dirección local del Lenovo.
+- Acceso mediante su dirección Tailscale.
+
+No fue necesario publicar el controlador directamente en Internet.
+
+### Diagnóstico del routing Lenovo / Tailscale
+
+Se detectó un conflicto de rutas al conectar el Lenovo directamente a la WLAN `Lab-Redes`.
+
+Tailscale instalaba en la tabla de routing 52 una ruta hacia:
+
+```text
+192.168.88.0/24 dev tailscale0
+```
+
+Esto provocaba que determinados paquetes destinados a dispositivos de la LAN del laboratorio intentaran utilizar Tailscale, incluso cuando el Lenovo tenía conectividad directa mediante Wi-Fi.
+
+La situación requería distinguir dos escenarios:
+
+1. Lenovo conectado directamente a `Lab-Redes`.
+2. Lenovo conectado a Starlink y accediendo al laboratorio mediante Tailscale.
+
+### Corrección de prioridades de routing
+
+Se validó inicialmente una regla temporal de política de routing:
+
+```text
+priority 2500 to 192.168.88.0/24 lookup main
+```
+
+La regla permite consultar prioritariamente la tabla principal para los destinos pertenecientes a la LAN del laboratorio.
+
+Posteriormente se hizo persistente mediante su asociación al perfil NetworkManager:
+
+`Lab-Redes`
+
+Antes de modificar el perfil se creó una copia textual de su configuración.
+
+**Comportamiento verificado:**
+
+Lenovo conectado a `Lab-Redes`:
+
+- NetworkManager instala automáticamente la regla de prioridad 2500.
+- El tráfico hacia `192.168.88.0/24` utiliza la conexión Wi-Fi local.
+
+Lenovo conectado a Starlink:
+
+- La regla asociada a `Lab-Redes` desaparece automáticamente.
+- La red `192.168.88.0/24` vuelve a alcanzarse mediante Tailscale.
+
+Se verificó desde Starlink la conectividad con el EAP225:
+
+`192.168.88.250`
+
+**Resultado:** la selección de ruta se adapta automáticamente a la red utilizada por el Lenovo, sin necesidad de modificar manualmente las rutas en cada cambio de conexión.
+
+---
+
+### Incorporación de tres Waveshare ESP32-S3-POE-ETH
+
+Se conectaron tres módulos Waveshare ESP32-S3-POE-ETH al switch SG2210P.
+
+Los tres dispositivos establecieron enlaces físicos Ethernet a:
+
+- 100 Mbps.
+- Full Duplex.
+
+Se definió el siguiente direccionamiento:
+
+| Dispositivo | Dirección IP prevista |
+|---|---|
+| ESP32-01 | `192.168.88.245` |
+| ESP32-02 | `192.168.88.246` |
+| ESP32-03 | `192.168.88.247` |
+
+Inicialmente solo se había creado la reserva DHCP correspondiente a ESP32-01.
+
+### Detección del conflicto de direcciones MAC
+
+Al conectar los tres dispositivos se comprobó que todos utilizaban la misma dirección MAC Ethernet:
+
+```text
+02:00:00:12:34:56
+```
+
+El problema impedía identificar correctamente los tres dispositivos como clientes Ethernet independientes.
+
+La tabla MAC del SG2210P mostró que esa misma dirección aparecía alternativamente en los puertos utilizados por los ESP32.
+
+Puertos implicados:
+
+- `Gi1/0/3`.
+- `Gi1/0/4`.
+- `Gi1/0/5`.
+
+La duplicación provocaba que el switch desplazara la asociación de la MAC entre los distintos puertos según el tráfico recibido.
+
+En MikroTik, la dirección:
+
+`192.168.88.245`
+
+estaba asociada a la MAC duplicada:
+
+`02:00:00:12:34:56`
+
+Durante esta fase se decidió no crear todavía las reservas DHCP de ESP32-02 y ESP32-03.
+
+### Diagnóstico mediante CLI del SG2210P
+
+Se utilizó el terminal CLI del SG2210P desde Omada Controller.
+
+Prompt EXEC:
+
+```text
+A8-29-48-FF-C9-68>
+```
+
+Modo Privileged EXEC:
+
+```text
+A8-29-48-FF-C9-68#
+```
+
+Se inspeccionaron los enlaces físicos y las entradas de la tabla MAC.
+
+Se confirmó:
+
+- Existencia de tres enlaces Ethernet activos.
+- Negociación a 100 Mbps Full Duplex.
+- Aprendizaje de la misma MAC en diferentes puertos.
+- Imposibilidad de identificar correctamente los tres dispositivos mediante esa MAC compartida.
+
+También se verificó desde MikroTik que `192.168.88.245` respondía a ICMP.
+
+Un escaneo TCP con Nmap mostró el host activo, sin servicios TCP abiertos entre los 1000 puertos habituales examinados.
+
+### Identificación física de los ESP32-S3 mediante USB
+
+Se conectaron individualmente los tres ESP32 al Lenovo mediante USB.
+
+Linux identificó el dispositivo:
+
+```text
+303a:1001 Espressif USB JTAG/serial debug unit
+```
+
+Puerto serie utilizado:
+
+```text
+/dev/ttyACM0
+```
+
+Se utilizó `esptool` para consultar la identidad grabada en cada microcontrolador.
+
+Los tres dispositivos fueron identificados como:
+
+- ESP32-S3 QFN56.
+- Revisión 0.2.
+- Wi-Fi.
+- BLE.
+- 8 MB de PSRAM.
+
+MAC base de fábrica:
+
+| Dispositivo | MAC base de fábrica |
+|---|---|
+| ESP32-01 | `28:84:85:54:C6:A0` |
+| ESP32-02 | `28:84:85:53:12:F4` |
+| ESP32-03 | `A4:CB:8F:F8:A6:3C` |
+
+Esto confirmó que los tres microcontroladores tenían identidades físicas diferentes.
+
+La MAC Ethernet duplicada no correspondía a la MAC base de fábrica de ninguno de ellos.
+
+Durante estas pruebas, `esptool 4.7.0` presentó posteriormente el error:
+
+```text
+FileNotFoundError: stub_flasher_32s3.json
+```
+
+El error se produjo después de obtener los datos de identificación necesarios y no impidió completar esta fase del diagnóstico.
+
+### Investigación del firmware original
+
+Se analizó la aplicación existente en la memoria flash de los ESP32.
+
+Se localizó explícitamente la dirección:
+
+```text
+02:00:00:12:34:56
+```
+
+El firmware utilizaba el controlador Ethernet W5500 y contenía esa dirección MAC configurada en la aplicación.
+
+**Causa identificada:** la dirección MAC duplicada procedía del firmware utilizado, no de una identidad física duplicada entre los microcontroladores.
+
+### Desarrollo del firmware Ethernet corregido
+
+Se utilizó como base el ejemplo oficial de Waveshare para ESP32-S3-POE-ETH.
+
+Librería Ethernet:
+
+`Ethernet_Generic 2.8.1`
+
+Se creó el sketch:
+
+```text
+~/Arduino/ESP32_ETH_UNIQUE/ESP32_ETH_UNIQUE.ino
+```
+
+El nuevo firmware obtiene una dirección MAC Ethernet derivada de la identidad propia del ESP32 mediante:
+
+```cpp
+esp_read_mac(mac, ESP_MAC_ETH);
+```
+
+La MAC obtenida se proporciona al controlador W5500 durante la inicialización Ethernet.
+
+También se eliminó la dirección IP estática de respaldo incluida en el ejemplo utilizado.
+
+El firmware quedó configurado para obtener el direccionamiento IPv4 exclusivamente mediante DHCP.
+
+Herramientas utilizadas:
+
+- Arduino CLI.
+- ESP32 Arduino Core 2.0.12.
+- Librería Ethernet_Generic 2.8.1.
+
+Los tres ESP32 fueron compilados y reprogramados correctamente.
+
+### Identidades Ethernet definitivas
+
+Después de reprogramar los dispositivos se verificaron las siguientes identidades:
+
+| Dispositivo | Puerto SG2210P | MAC Ethernet definitiva | IP reservada |
+|---|---|---|---|
+| ESP32-01 | `Gi1/0/3` | `2A:84:85:54:C6:A1` | `192.168.88.245` |
+| ESP32-02 | `Gi1/0/5` | `2A:84:85:53:12:F5` | `192.168.88.246` |
+| ESP32-03 | `Gi1/0/4` | `A6:CB:8F:F8:A6:3D` | `192.168.88.247` |
+
+Los tres dispositivos mantienen enlaces Ethernet a 100 Mbps Full Duplex.
+
+### Corrección de las reservas DHCP en MikroTik
+
+Se eliminó la reserva antigua de ESP32-01 asociada a:
+
+```text
+02:00:00:12:34:56
+```
+
+Se identificaron las nuevas concesiones DHCP y se convirtieron en reservas estáticas.
+
+Direccionamiento definitivo:
+
+- ESP32-01 → `192.168.88.245`.
+- ESP32-02 → `192.168.88.246`.
+- ESP32-03 → `192.168.88.247`.
+
+Se verificó en MikroTik:
+
+- Tres reservas DHCP independientes.
+- Tres direcciones MAC Ethernet diferentes.
+- Estado `bound` en las tres reservas.
+- Coincidencia entre `active-address` y la dirección IP reservada.
+
+### Verificación de la tabla MAC del SG2210P
+
+Se comprobó la asociación física de cada dispositivo con su puerto correspondiente:
+
+```text
+Gi1/0/3 → ESP32-01 → 2A:84:85:54:C6:A1
+Gi1/0/4 → ESP32-03 → A6:CB:8F:F8:A6:3D
+Gi1/0/5 → ESP32-02 → 2A:84:85:53:12:F5
+```
+
+En ESP32-03 fue necesario realizar un reinicio para que el dispositivo volviera a generar tráfico Ethernet.
+
+Posteriormente, el SG2210P aprendió correctamente:
+
+```text
+A6:CB:8F:F8:A6:3D → Gi1/0/4
+```
+
+La tabla MAC quedó coherente con la identificación física de los tres dispositivos.
+
+### Resultado de la corrección
+
+El conflicto de identidad Ethernet quedó resuelto.
+
+Se consiguió:
+
+- Identificar individualmente los tres ESP32-S3.
+- Determinar la causa de la MAC duplicada.
+- Corregir el firmware.
+- Obtener tres MAC Ethernet diferentes.
+- Eliminar la dependencia de `02:00:00:12:34:56`.
+- Configurar DHCP como único mecanismo de obtención de dirección IPv4.
+- Crear tres reservas DHCP permanentes.
+- Verificar las tres concesiones en estado `bound`.
+- Asociar cada ESP32 a su puerto físico del SG2210P.
+
+---
+
+### Estado consolidado al 03/10/2026
+
+| Componente | Estado |
+|---|---|
+| MikroTik RB750r2 | Operativo como router y servidor DHCP |
+| TP-Link SG2210P | Operativo y adoptado en Omada |
+| TP-Link EAP225 | Operativo y adoptado en Omada |
+| WLAN `Lab-Redes` | Operativa |
+| Omada Controller 6.3.0.45 | Operativo en Lenovo |
+| Descubrimiento mediante DHCP Option 138 | Configurado y verificado |
+| Acceso a Omada mediante Tailscale | Verificado |
+| Routing automático Lenovo / Lab-Redes / Tailscale | Verificado |
+| ESP32-01 | MAC única y reserva DHCP `bound` |
+| ESP32-02 | MAC única y reserva DHCP `bound` |
+| ESP32-03 | MAC única y reserva DHCP `bound` |
+| Conflicto de MAC duplicada | Resuelto |
+
+### Aprendizajes técnicos
+
+1. Un enlace Ethernet activo no garantiza que un dispositivo tenga una identidad de red correcta.
+2. La tabla MAC de un switch gestionable permite relacionar dispositivos y puertos físicos.
+3. Una MAC duplicada puede provocar cambios continuos en el aprendizaje del switch y conflictos de identificación DHCP.
+4. La MAC base de fábrica de un microcontrolador no tiene por qué coincidir con la MAC utilizada por una interfaz Ethernet externa.
+5. El firmware de un dispositivo embebido puede determinar la identidad Ethernet presentada a la red.
+6. Las reservas DHCP deben basarse en identidades de cliente correctas y verificadas.
+7. La adopción de un dispositivo en un controlador no garantiza la continuidad de su comunicación de gestión.
+8. DHCP Option 138 permite anunciar información de descubrimiento del controlador a dispositivos compatibles.
+9. Las políticas de routing permiten priorizar rutas distintas según el contexto de conexión.
+10. Tailscale puede proporcionar una dirección de gestión estable aunque el equipo controlador cambie de red local.
+
+### Próximos pasos
+
+- Integrar progresivamente SG2210P, EAP225 y ESP32 en LibreNMS y NetBox.
+- Continuar el diagnóstico de identificación de clientes en Omada.
+- Definir funciones prácticas individuales para ESP32-01, ESP32-02 y ESP32-03.
+- Documentar los puertos físicos y conexiones definitivas en NetBox.
+- Continuar la construcción del dashboard general del laboratorio.
+- Mantener el firmware corregido de los ESP32 como referencia para futuras pruebas.
+
+---
+
+## 2026-10-03 — Dashboard web de topología del laboratorio
+
+### Objetivo
+
+Crear un dashboard web propio para representar visualmente la infraestructura del laboratorio de redes.
+
+El objetivo es disponer de una vista general de los dispositivos físicos, sus conexiones y su función dentro de la arquitectura, complementando las herramientas de administración existentes.
+
+Se mantiene la separación funcional:
+
+- LibreNMS: monitorización, métricas y alertas.
+- NetBox: inventario, direccionamiento IP y documentación.
+- Omada Controller: administración del switch SG2210P y del punto de acceso EAP225.
+- Dashboard web: visualización de la topología del laboratorio.
+
+### Desarrollo del dashboard HTML
+
+Se preparó un dashboard independiente en formato HTML.
+
+Archivo de trabajo utilizado en el Lenovo:
+
+`/home/ricardo/Descargas/lab-tv.html`
+
+Se trabajó en la representación gráfica de la infraestructura física, incluyendo los siguientes elementos:
+
+- Starlink.
+- Raspberry Pi 4.
+- MikroTik RB750r2.
+- TP-Link SG2210P.
+- TP-Link EAP225.
+- Raspberry Pi 3.
+- Arduino Yún.
+- Tres ESP32-S3 Ethernet.
+- Lenovo ThinkPad L13 Gen 3.
+
+Se plantearon dos representaciones complementarias:
+
+1. Topología física, centrada en equipos y conexiones.
+2. Topología lógica, centrada en redes, direccionamiento y relaciones entre componentes.
+
+### Publicación del archivo en Raspberry Pi 4
+
+Se utilizó SCP desde el Lenovo para copiar el dashboard a la Raspberry Pi 4.
+
+Comando ejecutado:
+
+```bash
+scp '/home/ricardo/Descargas/lab-tv.html' popi@100.90.39.30:/home/popi/lab-dashboard/index.html
+```
+
+La transferencia finalizó correctamente.
+
+Resultado observado:
+
+```text
+lab-tv.html  100%  33KB
+```
+
+Archivo de destino:
+
+```text
+/home/popi/lab-dashboard/index.html
+```
+
+El acceso a la Raspberry Pi se realizó mediante su dirección Tailscale:
+
+`100.90.39.30`
+
+La transferencia no requirió publicar servicios adicionales directamente en Internet.
+
+### Arquitectura del dashboard
+
+La solución se basa en un documento HTML alojado en la Raspberry Pi 4.
+
+Arquitectura prevista:
+
+```text
+Lenovo ThinkPad L13
+        │
+        │ Edición del HTML
+        ▼
+lab-tv.html
+        │
+        │ SCP / Tailscale
+        ▼
+Raspberry Pi 4
+        │
+        ▼
+/home/popi/lab-dashboard/index.html
+        │
+        ▼
+Servidor web local
+        │
+        ▼
+Navegador del cliente
+```
+
+El dashboard es una herramienta independiente de las interfaces web de LibreNMS, NetBox y Omada.
+
+### Servicio web del dashboard
+
+Se planteó utilizar un servicio systemd denominado:
+
+`lab-dashboard.service`
+
+Puerto previsto:
+
+`8085/TCP`
+
+**Estado de verificación:**
+
+- Archivo HTML preparado: CONFIRMADO.
+- Transferencia mediante SCP: CONFIRMADA.
+- Archivo copiado a la ruta de destino: CONFIRMADO por la transferencia.
+- Servicio systemd habilitado: PENDIENTE DE VERIFICACIÓN.
+- Arranque automático después de reinicio: PENDIENTE DE VERIFICACIÓN.
+- Acceso HTTP desde otros dispositivos: PENDIENTE DE VERIFICACIÓN.
+
+No se considera completada la publicación permanente hasta comprobar el funcionamiento del servidor web.
+
+### Representación física y lógica
+
+El dashboard se diseñó para facilitar la comprensión de dos aspectos diferentes de la infraestructura.
+
+**Topología física**
+
+Representación de los equipos reales y sus conexiones:
+
+```text
+STARLINK
+   │
+   ▼
+RASPBERRY PI 4
+   │
+   ▼
+MIKROTIK
+   │
+   ▼
+SG2210P
+   │
+   ├── EAP225
+   ├── ESP32-01
+   ├── ESP32-02
+   └── ESP32-03
+```
+
+Este esquema es una representación simplificada del segmento principal. No sustituye el inventario completo de puertos y enlaces físicos.
+
+**Topología lógica**
+
+Representación de las redes y funciones:
+
+- Red doméstica Starlink: `192.168.1.0/24`.
+- Red de tránsito Raspberry Pi 4 ↔ MikroTik: `192.168.100.0/30`.
+- LAN del laboratorio: `192.168.88.0/24`.
+- Red privada de administración Tailscale.
+- Funciones de gateway, routing, switching y acceso inalámbrico.
+
+### Resultado
+
+Se dispone de un archivo HTML del dashboard transferido a la Raspberry Pi 4.
+
+El trabajo establece la base para una interfaz visual propia del laboratorio, independiente de las plataformas de monitorización e inventario.
+
+### Pendientes
+
+1. Verificar si `lab-dashboard.service` existe y está habilitado.
+2. Comprobar el acceso HTTP al dashboard desde el Lenovo.
+3. Verificar la recuperación automática después de reiniciar la Raspberry Pi.
+4. Revisar la representación física tras incorporar el SG2210P y los tres ESP32.
+5. Mantener sincronizada la representación lógica con las configuraciones reales de MikroTik, Omada y Tailscale.
+6. Diferenciar visualmente dispositivos, redes, enlaces y funciones.
+7. Estudiar una futura integración de datos de LibreNMS o NetBox sin modificar los servicios existentes.
+
+### Aprendizajes
+
+- Una topología física representa dispositivos, puertos y conexiones reales.
+- Una topología lógica representa redes, direccionamiento, rutas y funciones.
+- Una herramienta de visualización no sustituye a un sistema de monitorización.
+- La publicación de un archivo HTML y la puesta en marcha de un servicio web son operaciones distintas.
+- El acceso mediante Tailscale permite administrar y transferir archivos sin publicar servicios directamente en Internet.
+
+---
+
+## 2026-10-05 → 2026-10-07 — Laboratorio virtual MEDION, KVM/QEMU y OPNsense
+
+### Objetivo
+
+Ampliar el laboratorio de redes mediante una plataforma de virtualización independiente, utilizando el equipo MEDION como estación de trabajo para prácticas de sistemas, routing, firewall y redes virtuales.
+
+La arquitectura permite experimentar con routers, servidores y clientes virtuales sin modificar directamente la infraestructura física del laboratorio.
+
+Se mantiene la separación entre:
+
+- Laboratorio físico: Raspberry Pi, MikroTik, SG2210P, EAP225 y dispositivos Ethernet.
+- Laboratorio virtual: MEDION, KVM/QEMU, libvirt y máquinas virtuales.
+- Red doméstica: Starlink y dispositivos habituales.
+- Servicios existentes: infraestructura de administración, monitorización y producción.
+
+### Equipo anfitrión
+
+Se utilizó el equipo:
+
+`netlab-ws01`
+
+Sistema operativo:
+
+`Debian 13`
+
+El MEDION queda destinado a funcionar como estación de trabajo del laboratorio virtual.
+
+Su función es ejecutar máquinas virtuales y permitir prácticas de:
+
+- Configuración de interfaces de red.
+- Routing entre subredes.
+- NAT.
+- DHCP.
+- DNS.
+- Firewall.
+- Administración de sistemas.
+- Diagnóstico de conectividad.
+- Segmentación y aislamiento de redes.
+
+### Plataforma de virtualización
+
+Se preparó la infraestructura de virtualización utilizando:
+
+- KVM/QEMU.
+- libvirt.
+- Virt-Manager.
+- `virsh`.
+
+Se utilizó la conexión de administración:
+
+```text
+qemu:///system
+```
+
+La plataforma permite administrar las máquinas virtuales y las redes definidas en libvirt.
+
+### Arquitectura de redes virtuales
+
+Se trabajó con dos redes de libvirt:
+
+| Red | Función | Características |
+|---|---|---|
+| `default` | Red virtual de salida | NAT |
+| `lab-isolated` | Red interna del laboratorio | Aislada |
+
+La red `default` proporciona una red virtual con NAT gestionada por libvirt.
+
+La red `lab-isolated` se utiliza como segmento interno para las prácticas del laboratorio.
+
+Se mantiene la distinción entre una red que proporciona conectividad de salida y una red destinada al tráfico interno entre máquinas virtuales.
+
+### Verificación de redes libvirt
+
+Se consultó el estado de las redes mediante:
+
+```bash
+virsh -c qemu:///system net-list --all
+```
+
+Resultado verificado:
+
+```text
+ Nombre         Estado   Inicio automático   Persistente
+----------------------------------------------------------
+ default        activo   si                  si
+ lab-isolated   activo   si                  si
+```
+
+Se confirmó que ambas redes estaban:
+
+- Activas.
+- Definidas de forma persistente.
+- Configuradas para iniciarse automáticamente.
+
+### Configuración de autoinicio de lab-isolated
+
+Se configuró el inicio automático de la red virtual aislada:
+
+```bash
+sudo virsh -c qemu:///system net-autostart lab-isolated
+```
+
+Resultado obtenido:
+
+```text
+La red lab-isolated ha sido marcada para iniciarse automáticamente
+```
+
+Posteriormente se verificó que la red aparecía con inicio automático habilitado.
+
+Esto permite que la red virtual esté disponible después del arranque del anfitrión, sin necesidad de iniciarla manualmente.
+
+### Máquina virtual OPNsense
+
+Se creó la máquina virtual:
+
+`opnsense-lab`
+
+OPNsense se utiliza como plataforma de firewall y routing para el laboratorio virtual.
+
+Su función prevista es administrar el tráfico entre:
+
+- Una interfaz WAN virtual.
+- Una interfaz LAN virtual aislada.
+- Futuras máquinas cliente o servidor.
+
+Se preparó una instalación de OPNsense sobre almacenamiento virtual.
+
+Características documentadas:
+
+- Disco virtual de 20 GiB.
+- Sistema de archivos ZFS.
+- Instalación mediante imagen ISO.
+- Desmontaje de la ISO después de la instalación.
+
+### Arranque de OPNsense
+
+Se verificó la ejecución de la máquina virtual mediante:
+
+```bash
+virsh -c qemu:///system start opnsense-lab
+```
+
+El sistema devolvió:
+
+```text
+error: El dominio ya se encuentra activo
+```
+
+Este resultado confirma que, en el momento de la comprobación, la máquina virtual ya estaba arrancada.
+
+No se consideró necesario iniciar una segunda instancia.
+
+Posteriormente se continuó trabajando con las máquinas virtuales desde sus consolas.
+
+### Topología virtual
+
+La arquitectura utilizada se representa de forma simplificada:
+
+```text
+MEDION netlab-ws01
+Debian 13
+│
+└── KVM/QEMU + libvirt
+    │
+    ├── Red default
+    │   └── NAT / salida virtual
+    │
+    └── Red lab-isolated
+        └── Segmento interno aislado
+
+OPNsense VM
+│
+├── WAN
+│   └── default
+│
+└── LAN
+    └── lab-isolated
+        │
+        └── Futuras máquinas cliente
+```
+
+La máquina virtual OPNsense permite estudiar el comportamiento de un router/firewall entre redes virtuales.
+
+La conexión de futuras máquinas a `lab-isolated` permitirá observar comunicaciones, configurar direccionamiento y aplicar reglas de firewall sin intervenir directamente en el MikroTik físico.
+
+### Adaptador USB Ethernet
+
+Durante la preparación del laboratorio se identificó un adaptador USB Ethernet basado en:
+
+`Realtek RTL8153`
+
+Identificador USB:
+
+```text
+0bda:8153
+```
+
+Interfaz Linux identificada:
+
+```text
+enx00e04c6831b0
+```
+
+Se estudió su posible utilización como interfaz de red adicional del MEDION.
+
+La incorporación definitiva del adaptador a la arquitectura virtual, incluido cualquier posible passthrough, queda pendiente de verificación.
+
+No se considera confirmada su asignación permanente a una máquina virtual.
+
+### Funcionamiento del MEDION con la tapa cerrada
+
+Se estableció como requisito operativo que el MEDION continúe funcionando cuando se cierre la tapa.
+
+Comportamiento deseado:
+
+- No suspender.
+- No hibernar.
+- No apagar.
+- Mantener activas las máquinas virtuales.
+- Mantener disponibles las redes virtuales.
+
+La configuración y validación definitiva de este comportamiento quedan pendientes.
+
+### Estado consolidado
+
+| Componente | Estado |
+|---|---|
+| MEDION `netlab-ws01` | Operativo |
+| Debian 13 | Instalado |
+| KVM/QEMU | Preparado |
+| libvirt | Operativo |
+| Virt-Manager | Disponible |
+| Red `default` | Activa, persistente y con autoinicio |
+| Red `lab-isolated` | Activa, persistente y con autoinicio |
+| Máquina virtual `opnsense-lab` | Creada y arrancada |
+| OPNsense | Instalado |
+| Disco virtual ZFS | Preparado |
+| Adaptador USB Ethernet RTL8153 | Identificado |
+| Passthrough del adaptador USB | Pendiente de verificación |
+| Funcionamiento con tapa cerrada | Pendiente de verificación |
+| Auditoría completa del aislamiento | Pendiente |
+
+### Aprendizajes técnicos
+
+1. KVM/QEMU proporciona virtualización de máquinas sobre un anfitrión Linux.
+2. libvirt permite administrar máquinas, interfaces y redes virtuales.
+3. Una red virtual puede configurarse para utilizar NAT o funcionar como segmento aislado.
+4. El autoinicio de una red virtual es independiente del autoinicio de una máquina virtual.
+5. OPNsense permite reproducir funciones de routing y firewall en un entorno virtual.
+6. Una interfaz WAN virtual no implica necesariamente una conexión directa a una interfaz Ethernet física.
+7. El aislamiento de una red virtual debe comprobarse mediante su configuración y pruebas reales de conectividad.
+8. Un adaptador USB Ethernet puede ampliar las posibilidades de conexión del anfitrión, pero su detección no implica que esté asignado a una máquina virtual.
+9. El comportamiento de suspensión del anfitrión puede afectar a la disponibilidad de todas sus máquinas virtuales.
+
+### Próximos pasos
+
+1. Auditar la configuración XML de las redes `default` y `lab-isolated`.
+2. Verificar las interfaces virtuales asignadas a `opnsense-lab`.
+3. Comprobar el direccionamiento de las interfaces WAN y LAN de OPNsense.
+4. Validar mediante pruebas el aislamiento de `lab-isolated`.
+5. Crear o completar una máquina cliente conectada a la LAN virtual.
+6. Verificar comunicaciones entre el cliente y OPNsense.
+7. Practicar DHCP, DNS, NAT, routing y reglas de firewall.
+8. Evaluar la integración del adaptador USB Ethernet si existe una necesidad concreta.
+9. Configurar y comprobar el comportamiento del MEDION al cerrar la tapa.
+10. Documentar las configuraciones verificadas y conservar copias de seguridad antes de cambios importantes.
+
+---
+
+## 2026-10-07 → 2026-10-10 — Continuación del laboratorio, administración y planificación de prácticas
+
+### Objetivo
+
+Continuar la puesta en marcha del laboratorio físico y virtual, comprobar el funcionamiento de los componentes instalados y organizar las siguientes prácticas del curso de Gestor de Redes.
+
+Se mantienen dos entornos diferenciados:
+
+- Laboratorio físico: Raspberry Pi, MikroTik, SG2210P, EAP225, Arduino Yún y ESP32.
+- Laboratorio virtual: MEDION `netlab-ws01`, KVM/QEMU, libvirt y OPNsense.
+
+### Continuación de las pruebas del MEDION
+
+Se continuó trabajando con el MEDION como anfitrión de máquinas virtuales.
+
+Se confirmó mediante `virsh` que las redes virtuales:
+
+- `default`
+- `lab-isolated`
+
+permanecían activas y configuradas para iniciarse automáticamente.
+
+También se comprobó que la máquina virtual `opnsense-lab` ya estaba activa cuando se intentó iniciarla.
+
+Durante la sesión se indicó que se habían iniciado dos máquinas y que se había accedido a sus respectivas consolas.
+
+La identidad, configuración y estado final de la segunda máquina no quedan suficientemente acreditados en los registros disponibles para documentarlos como definitivos.
+
+### Administración del laboratorio virtual
+
+Se continuaron las comprobaciones desde las consolas de las máquinas virtuales.
+
+Se mantiene como objetivo verificar:
+
+- Interfaces de red asignadas a OPNsense.
+- Correspondencia entre WAN y LAN.
+- Direccionamiento IPv4.
+- Servidor DHCP de la LAN virtual.
+- Comunicación entre máquinas.
+- Reglas de firewall.
+- Aislamiento respecto a la red doméstica.
+
+Estas comprobaciones no se consideran completadas hasta disponer de resultados verificables.
+
+### Diagnóstico de clientes en Omada
+
+Se continuó investigando la representación de clientes conectados al SG2210P y al EAP225.
+
+Durante las comprobaciones aparecieron discrepancias entre los dispositivos esperados y los clientes mostrados en Omada.
+
+También se revisaron exportaciones de información de clientes:
+
+- Clientes conectados.
+- Clientes desconectados.
+- Clientes bloqueados.
+- Historial de conexiones.
+- Historial de autenticaciones de portal.
+
+La existencia de estos archivos permite continuar el diagnóstico, pero no confirma por sí sola la causa de las discrepancias.
+
+Se mantiene como referencia principal para identificar los ESP32 Ethernet la información verificada previamente:
+
+- MAC Ethernet única.
+- Puerto físico del SG2210P.
+- Reserva DHCP del MikroTik.
+- Dirección IPv4 asignada.
+
+### Revisión de la conectividad del Lenovo
+
+Se continuaron las comprobaciones de conectividad del Lenovo ThinkPad L13 Gen 3 con la infraestructura física.
+
+Durante las pruebas se distinguieron las conexiones mediante:
+
+- Ethernet.
+- Adaptadores USB Ethernet.
+- Wi-Fi del laboratorio.
+- Tailscale.
+
+Se mantiene como principio de diagnóstico comprobar la interfaz realmente utilizada y la ruta seleccionada antes de atribuir una incidencia a Omada, MikroTik o Tailscale.
+
+No se documenta un cambio definitivo de topología del Lenovo sin una comprobación adicional.
+
+### Organización de las prácticas diarias
+
+Se definió una metodología de avance continuo para el curso de Gestor de Redes.
+
+El objetivo es realizar diariamente una tarea que produzca una mejora, implementación o comprobación nueva en el laboratorio.
+
+Ámbitos de trabajo:
+
+- Infraestructura física.
+- Infraestructura virtual.
+- Routing.
+- Switching.
+- Direccionamiento IP.
+- VLAN.
+- DHCP.
+- DNS.
+- Firewall.
+- NAT.
+- Monitorización.
+- Inventario.
+- Automatización.
+- Diagnóstico y documentación.
+
+Se estableció como horario de presentación de las tareas:
+
+`06:00`
+
+Las tareas se preparan para su lectura por la mañana y ejecución práctica por la tarde.
+
+Esta planificación no implica que todas las prácticas propuestas se hayan ejecutado.
+
+### Metodología de ejecución
+
+Se mantiene el procedimiento de trabajo del laboratorio:
+
+1. Definir el objetivo técnico.
+2. Explicar la arquitectura implicada.
+3. Consultar el estado actual.
+4. Realizar un único cambio controlado.
+5. Verificar el resultado.
+6. Documentar la evidencia.
+7. Actualizar el CHANGELOG cuando corresponda.
+
+Para la administración de los equipos Linux se mantiene la regla de ejecutar un solo comando cada vez, esperando su resultado antes de continuar.
+
+### Estado documental al 10/10/2026
+
+| Área | Situación |
+|---|---|
+| Laboratorio físico | Infraestructura ampliada y operativa según últimas comprobaciones documentadas |
+| Omada | Controlador y dispositivos adoptados; diagnóstico de clientes pendiente |
+| ESP32-S3 | Conflicto de MAC Ethernet resuelto |
+| Dashboard HTML | Archivo transferido a Raspberry Pi 4; servicio web pendiente de verificar |
+| MEDION | Anfitrión de virtualización operativo |
+| Redes libvirt | `default` y `lab-isolated` activas, persistentes y con autoinicio |
+| OPNsense | VM creada y arrancada |
+| Segunda máquina virtual | Identidad y configuración pendientes de documentar |
+| Aislamiento virtual | Auditoría completa pendiente |
+| Prácticas diarias | Metodología y horario definidos |
+
+### Próximos pasos
+
+1. Completar la verificación de OPNsense y sus interfaces WAN/LAN.
+2. Identificar y documentar la segunda máquina virtual del MEDION.
+3. Validar mediante pruebas el aislamiento de `lab-isolated`.
+4. Verificar el comportamiento del MEDION con la tapa cerrada.
+5. Comprobar el estado del servicio web del dashboard HTML.
+6. Continuar la investigación de clientes en Omada.
+7. Actualizar NetBox con los dispositivos, interfaces y conexiones incorporados.
+8. Definir funciones de diagnóstico para los tres ESP32.
+9. Registrar las prácticas realizadas y sus resultados verificables.
+10. Mantener actualizado el inventario y la documentación de la arquitectura física y virtual.
+
+---
+
+## 2026-10-10 — Consolidación de arquitectura y plan de validación del laboratorio
+
+### Objetivo
+
+Consolidar la documentación de los componentes físicos y virtuales del laboratorio de Gestor de Redes.
+
+Identificar qué partes de la infraestructura están verificadas, cuáles necesitan comprobaciones adicionales y cómo deben documentarse las futuras modificaciones.
+
+Esta entrada es una revisión documental. No representa una nueva instalación ni una modificación de configuración.
+
+### Arquitectura física de referencia
+
+```text
+                    STARLINK
+                       |
+                Red doméstica
+                 192.168.1.0/24
+                       |
+                 RASPBERRY PI 4
+                       |
+                Red de tránsito
+                192.168.100.0/30
+                       |
+                 MIKROTIK
+                192.168.88.1
+                       |
+                LAN LABORATORIO
+                192.168.88.0/24
+                       |
+          +------------+------------+
+          |                         |
+       SG2210P                  Otros nodos
+          |
+    +-----+-----+-----+-----+
+    |     |     |     |
+  EAP225 ESP01 ESP02 ESP03
+```
+
+El esquema representa las relaciones principales. No constituye un inventario completo de conexiones físicas.
+
+### Servicios de administración
+
+| Herramienta | Función | Equipo |
+|---|---|---|
+| LibreNMS | Monitorización y métricas | Raspberry Pi 4 |
+| NetBox | Inventario, IPAM y documentación | Raspberry Pi 4 |
+| Omada Controller | Gestión de switch y punto de acceso | Lenovo L13 |
+| Tailscale | Acceso administrativo remoto | Equipos configurados |
+| Dashboard HTML | Visualización de topología | Raspberry Pi 4, archivo transferido |
+
+El funcionamiento permanente del servidor web del dashboard HTML sigue pendiente de verificación.
+
+### Arquitectura virtual de referencia
+
+```text
+MEDION netlab-ws01
+|
++-- Debian 13
+    |
+    +-- KVM/QEMU
+        |
+        +-- libvirt
+            |
+            +-- default
+            |   +-- Red NAT
+            |
+            +-- lab-isolated
+                +-- Red virtual aislada
+
+OPNsense VM
+|
++-- WAN: default
+|
++-- LAN: lab-isolated
+```
+
+La asignación de interfaces de OPNsense deberá contrastarse con su configuración real antes de considerar validada la topología completa.
+
+### Separación de entornos
+
+Se mantienen diferenciados cuatro ámbitos:
+
+**CURSO**
+
+- Temario.
+- Ejercicios.
+- Autoevaluaciones.
+- Conceptos de redes.
+
+**LABORATORIO VIRTUAL**
+
+- KVM/QEMU.
+- libvirt.
+- OPNsense.
+- Redes virtuales.
+- Máquinas cliente y servidor.
+
+**LABORATORIO FÍSICO**
+
+- MikroTik.
+- Raspberry Pi.
+- SG2210P.
+- EAP225.
+- Arduino Yún.
+- ESP32.
+- Estaciones de trabajo.
+
+**SERVICIOS EXISTENTES Y PRODUCCIÓN**
+
+- Servicios ajenos al laboratorio.
+- Infraestructura doméstica que debe conservar su funcionamiento.
+- Sistemas de producción independientes.
+
+Las prácticas deben evitar modificaciones innecesarias fuera de su entorno correspondiente.
+
+### Plan de validación
+
+| Comprobación | Objetivo | Estado |
+|---|---|---|
+| Inventario físico | Identificar equipos y puertos | Parcial |
+| Direccionamiento IPv4 | Contrastar reservas e interfaces | Parcial |
+| DHCP ESP32 | Verificar tres clientes independientes | Completado el 03/10 |
+| Tabla MAC SG2210P | Comprobar asociación de puertos | Completado el 03/10 |
+| Gestión Omada | Confirmar comunicación con controlador | Completado el 03/10 |
+| Rutas Lenovo | Priorizar LAN local o Tailscale | Completado el 03/10 |
+| Dashboard web | Verificar servidor y autoinicio | Pendiente |
+| Interfaces OPNsense | Confirmar WAN/LAN | Pendiente |
+| Aislamiento libvirt | Validar tráfico permitido y bloqueado | Pendiente |
+| MEDION con tapa cerrada | Evitar suspensión del anfitrión | Pendiente |
+| NetBox | Actualizar inventario y conexiones | Pendiente de actualización |
+
+### Procedimiento para nuevas prácticas
+
+Cada nueva intervención debe documentar:
+
+1. Fecha y equipo afectado.
+2. Objetivo de la práctica.
+3. Estado inicial observado.
+4. Cambio realizado.
+5. Resultado de la comprobación.
+6. Incidencias encontradas.
+7. Solución aplicada, si procede.
+8. Estado final y tareas pendientes.
+
+No se registrarán como implementaciones completadas las propuestas que todavía no hayan sido ejecutadas y comprobadas.
+
+### Siguientes prioridades
+
+1. Completar la validación del laboratorio virtual MEDION/OPNsense.
+2. Confirmar el aislamiento efectivo de las redes virtuales.
+3. Verificar la publicación permanente del dashboard HTML.
+4. Actualizar el inventario de NetBox.
+5. Definir y probar funciones específicas para los tres ESP32.
+6. Documentar las pruebas físicas y virtuales realizadas.
