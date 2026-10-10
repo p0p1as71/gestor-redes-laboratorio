@@ -19,10 +19,10 @@ flowchart TD
     SW ---|"Puerto propio"| E1["ESP32-01 · prácticas Ethernet"]
     SW ---|"Puerto propio"| E2["ESP32-02 · prácticas Ethernet"]
     SW ---|"Puerto propio"| E3["ESP32-03 · prácticas Ethernet"]
-    SW ---|"Otro puerto Ethernet"| L["Portátil · estación de administración y pruebas"]
+    SW ---|"Puerto 6 · USB/Ethernet"| L["MEDION netlab-ws01 · anfitrión de VMs adicionales"]
 ```
 
-Las líneas representan enlaces, no direcciones de tráfico. El portátil no se identifica como Lenovo o MEDION sin evidencia. Los servicios de gestión no son equipos cableados adicionales.
+Las líneas representan enlaces, no direcciones de tráfico. El equipo del puerto 6 ha sido identificado por el usuario como MEDION netlab-ws01; la captura Omada confirma enlace a 1 Gbps. Los servicios de gestión no son equipos cableados adicionales.
 
 ## Mapa de conexiones y grado de evidencia
 
@@ -31,12 +31,12 @@ Las líneas representan enlaces, no direcciones de tráfico. El portátil no se 
 | Pi 4 Ethernet | MikroTik WAN | Pi 4 eth0 ↔ ether1 | CHANGELOG 21 y 27/09; vigencia pendiente |
 | Pi 3 Ethernet | MikroTik LAN | ether2 en 27/09 | Usuario confirma relación actual; número actual no comprobado |
 | Yún Ethernet | Otro puerto MikroTik LAN | ether3 en 20 y 27/09 | Usuario confirma relación actual; número actual no comprobado |
-| SG2210P uplink | MikroTik LAN | Ambos extremos pendientes | Incorporación en CHANGELOG 02–03/10 |
-| EAP225 | SG2210P | Pendiente | Ethernet/PoE según CHANGELOG 02–03/10 |
+| SG2210P uplink | MikroTik LAN | Switch puerto 1; vecino LLDP MikroTik bridge/ether4 | Omada LLDP del 10/10; etiqueta de interfaz a contrastar en MikroTik |
+| EAP225 | SG2210P | Switch puerto 2 | Omada LLDP del 10/10, vecino C0:3A:55:A9:6B:C2 |
 | ESP32-01 | SG2210P | Gi1/0/3 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-02 | SG2210P | Gi1/0/5 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-03 | SG2210P | Gi1/0/4 en 03/10 | Tabla MAC y reserva DHCP históricas |
-| Portátil | Otro puerto SG2210P | Pendiente | Actualización del usuario 10/10; identidad/IP/interfaz sin confirmar |
+| MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Omada 10/10 + identificación física del usuario; IP y MAC pendientes |
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
 
@@ -51,12 +51,12 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 | Raspberry Pi 3 | Prácticas, pruebas y diagnóstico de red; no duplica la gestión principal |
 | Arduino Yún | Host Linux/microcontrolador para experimentación |
 | Tres ESP32 | Hosts Ethernet para prácticas; funciones de diagnóstico permanentes pendientes |
-| Portátil del switch | Estación de administración y pruebas; función concreta e identidad por confirmar |
+| MEDION netlab-ws01 | Equipo físico conectado al puerto 6 y anfitrión de VMs adicionales; independiente de la réplica virtual Lenovo |
 
 ## Datos no verificables desde el repositorio
 
-- Identidad/modelo del portátil conectado al switch; no atribuirle automáticamente Omada ni virtualización.
-- Puertos actuales de uplink MikroTik–SG2210P, AP, portátil y confirmación de puertos históricos de Pi 3/Yún/ESP32.
+- IP y MAC actuales del adaptador USB/Ethernet del MEDION; no inferir su conectividad virtual a partir del enlace físico.
+- Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún/ESP32; los puertos del switch 1, 2 y 6 están identificados por Omada/usuario.
 - IP/MAC, VLAN, rutas, concesiones DHCP, servicios y estado de enlaces actuales.
 - Contenido vigente de NetBox y del HTML del dashboard: no hay exportación ni fuente HTML en esta rama.
 - Estado real de la réplica Lenovo, segunda VM del MEDION y asociación de interfaces de OPNsense.
