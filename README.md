@@ -1,85 +1,55 @@
 # Gestor de Redes — Laboratorio y Curso
 
-Repositorio de documentación técnica asociado al curso de redes y al laboratorio práctico desarrollado durante el proyecto.
+Documentación de ingeniería y aprendizaje del curso de Gestor de Redes, con laboratorios físico y virtual. El repositorio describe **qué está construido, qué se ha probado y qué queda pendiente**, sin equiparar diseños con resultados verificados.
 
-El repositorio recoge de forma progresiva la relación entre los conceptos estudiados, las prácticas realizadas, la infraestructura utilizada, las pruebas ejecutadas y los resultados obtenidos.
+> **Estado:** en desarrollo. Esta documentación no sustituye la comprobación de los sistemas en vivo.
+
+## Navegación
+
+| Área | Contenido |
+|---|---|
+| [Curso](curso/) | Teoría, temario, apuntes y evaluaciones (contenido por incorporar) |
+| [Arquitectura](arquitectura/README.md) | Topologías, segmentación, direccionamiento y decisiones |
+| [Laboratorio físico](laboratorio-fisico/README.md) | Raspberry Pi, MikroTik, SG2210P, EAP225, ESP32, Arduino Yún y estaciones |
+| [Laboratorio virtual](laboratorio-virtual/README.md) | MEDION, KVM/QEMU, libvirt, OPNsense y pruebas de aislamiento |
+| [Servicios](servicios/README.md) | NetBox, LibreNMS, Omada, dashboard y automatización |
+| [Prácticas](practicas/README.md) | Prácticas guiadas; [plantilla](practicas/plantillas/PRACTICA.md) |
+| [Evidencias](evidencias/README.md) | Pruebas, resultados y material revisado |
+| [Configuraciones](configuraciones/README.md) | Solo ejemplos o exportaciones sanitizadas |
+| [Operación](operacion/README.md) | Procedimientos, incidencias, seguridad y recuperación |
+| [Hoja de ruta](ROADMAP.md) | Próximos trabajos por prioridad |
+| [Histórico](CHANGELOG.md) | Cronología conservada de cambios |
+| [Reglas](CONTRIBUTING.md) | Estados, evidencias y criterios de publicación |
 
 ## Objetivo
 
-Construir un entorno de aprendizaje que permita trasladar los contenidos del curso a prácticas reales de redes.
+Aplicar la secuencia **TEORÍA → CONCEPTO → PRÁCTICA → OBSERVACIÓN → CONCLUSIÓN** en entornos controlados.
 
-El proyecto combina:
+## Responsabilidades y fuentes
 
-- teoría y contenidos del curso;
-- ejercicios y cuestionarios;
-- laboratorio virtual;
-- laboratorio físico;
-- prácticas de configuración y diagnóstico;
-- pruebas y evidencias;
-- diagramas de arquitectura;
-- resultados y conclusiones.
+- **NetBox:** fuente canónica prevista para inventario, direcciones IP y conexiones una vez reconciliados.
+- **GitHub:** documentación versionada de decisiones, procedimientos y evidencias.
+- **LibreNMS:** observación y alertas.
+- **Ansible/AWX:** automatización futura bajo autorización, no ejecución implícita.
 
-El objetivo no es únicamente documentar configuraciones, sino poder reconstruir qué se aprendió, qué se construyó, cómo se configuró, qué se comprobó y cuál fue el resultado.
+No se asume ninguna sincronización automática entre estos sistemas.
 
-## Estado del proyecto
+## Estado técnico resumido (documentación al 10-10-2026)
 
-**En desarrollo.**
+- **Físico:** Raspberry Pi 4 como gateway, MikroTik como router LAN, SG2210P y EAP225; subsistemas de administración y nodos de pruebas.
+- **Virtual:** MEDION `netlab-ws01` con KVM/QEMU, redes `default` y `lab-isolated`, y VM `opnsense-lab`.
+- **Pendiente de comprobar:** aislamiento efectivo de la red virtual, interfaces de OPNsense, identidad de segunda VM, mapa de puertos y estado permanente del dashboard.
 
-La infraestructura inicial del laboratorio virtual se encuentra en fase de preparación. La documentación se irá incorporando conforme las distintas partes del proyecto sean realizadas y verificadas.
+El detalle histórico y el grado de evidencia de cada elemento están en el [CHANGELOG](CHANGELOG.md).
 
-## Relación entre teoría y práctica
+## Estados documentales
 
-Una de las finalidades principales del proyecto es establecer una trazabilidad entre el contenido del curso y su aplicación práctica.
+`PLANIFICADO` · `EN PREPARACIÓN` · `EN PRUEBAS` · `VERIFICADO` · `DOCUMENTADO` · `PENDIENTE`.
 
-TEORÍA → CONCEPTO → PRÁCTICA → CONFIGURACIÓN → PRUEBA → RESULTADO → CONCLUSIÓN
+**VERIFICADO requiere evidencia.** Una propuesta o referencia histórica no es automáticamente el estado actual.
 
-Cuando una práctica esté relacionada directamente con una unidad del curso, esta relación quedará indicada en su documentación.
+## Seguridad
 
-## Estructura del repositorio
+**Repositorio público.** No publicar secretos, claves, contraseñas Wi-Fi, tokens, capturas no revisadas, copias brutas de configuración ni información personal de terceros. `.gitignore` ayuda a evitar inclusiones accidentales, pero **no garantiza** la protección de secretos ya comprometidos o añadidos forzosamente.
 
-La estructura principal separa el curso, los dos laboratorios, la arquitectura, los diagramas, las evidencias y la documentación transversal.
-
-## Control de estado
-
-Los elementos del proyecto podrán utilizar los siguientes estados:
-
-- PLANIFICADO
-- EN PREPARACIÓN
-- EN PRUEBAS
-- VERIFICADO
-- DOCUMENTADO
-- PENDIENTE
-
-No se utilizará VERIFICADO sin evidencia suficiente.
-
-## Evidencias
-
-Las evidencias se incorporarán con el contexto necesario para entender qué demuestran.
-
-Podrán incluir capturas de pantalla, fotografías del hardware, salidas de comandos, capturas de tráfico, tablas de direccionamiento, resultados de conectividad, configuraciones y diagramas.
-
-## Seguridad y privacidad
-
-El repositorio permanecerá inicialmente privado.
-
-No se almacenarán contraseñas, tokens, claves API, claves privadas, credenciales, contraseñas Wi-Fi, archivos .env con secretos ni datos personales innecesarios.
-
-Cuando sea necesario documentar una configuración que contenga información sensible, se utilizarán valores ficticios o archivos de ejemplo.
-
-## Documentación
-
-La documentación distinguirá entre:
-
-- HECHO VERIFICADO
-- CONFIGURACIÓN PROPUESTA
-- INFERENCIA
-- INTERPRETACIÓN DEL CURSO
-- CONOCIMIENTO TÉCNICO ACTUAL
-
-Esta distinción permite mantener la trazabilidad entre lo que realmente se ha probado y lo que todavía forma parte del diseño.
-
-## Estado actual
-
-El repositorio se encuentra en su fase inicial de construcción.
-
-La documentación y las prácticas se incorporarán progresivamente a medida que avance el curso y se complete el laboratorio.
+Las prácticas no deben cambiar por accidente Starlink, VPS, Tailscale o sistemas de producción.
