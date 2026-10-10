@@ -1,6 +1,6 @@
 # Revisión de publicación del repositorio
 
-**Situación confirmada:** GitHub informa que el repositorio es **público**; el README anterior decía privado.
+**Estado actual confirmado (10/10/2026):** GitHub informa que el repositorio es **privado**. Anteriormente estuvo público; la modificación de visibilidad no revoca copias históricas.
 
 ## Antes de fusionar la reorganización
 
@@ -13,6 +13,6 @@
 
 ## Regla
 
-`.gitignore` previene incorporaciones accidentales en el futuro, pero no vuelve privado un repositorio ni elimina información ya publicada.
+`.gitignore` previene incorporaciones accidentales en el futuro, pero no controla la visibilidad de un repositorio ni elimina información ya publicada.
 
 **Estado:** pendiente de revisión detallada; no afirmar ausencia de secretos.
