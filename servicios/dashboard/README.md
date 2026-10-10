@@ -1,0 +1,13 @@
+# Dashboard de topología
+
+Se documentó la transferencia de un archivo HTML a la Raspberry Pi 4. La copia del archivo **no demuestra** que el servidor HTTP ni su autoinicio funcionen.
+
+## Situación
+
+- Vista física: Starlink → Raspberry Pi 4 → MikroTik → SG2210P → EAP225 / ESP32.
+- Vista lógica: LAN doméstica, tránsito /30, LAN laboratorio y accesos de administración.
+- Fichero publicado en anfitrión según historial; servicio `lab-dashboard.service` pendiente de existencia/estado.
+
+## Pendientes
+
+Recuperar versión fuente revisada del HTML, verificar HTTP y persistencia, documentar método de instalación y dependencias. Evitar exponer rutas administrativas y secretos en el dashboard.
