@@ -1,0 +1,42 @@
+# Secretos y datos de entorno
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*credentials*
+*secrets*
+
+# Discos y estados de virtualización
+*.qcow2
+*.vmdk
+*.vdi
+*.vhd
+*.vhdx
+*.iso
+*.ova
+*.ovf
+*.img
+*.vma
+
+# Capturas de tráfico brutas (publicar solo evidencia revisada)
+*.pcap
+*.pcapng
+
+# Exportaciones brutas de dispositivos y respaldos
+*.backup
+*.rsc
+*.bak
+*.swp
+*~
+
+# Herramientas y entorno local
+__pycache__/
+.venv/
+.vscode/
+.idea/
+.DS_Store
