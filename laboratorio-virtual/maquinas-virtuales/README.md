@@ -1,8 +1,16 @@
-# Inventario de máquinas virtuales
+# Máquinas virtuales — inventarios separados
 
-| Identificador | Plataforma | Estado documental |
+## Réplica principal sobre Lenovo L13
+
+**Estado en el informe 10/10/2026:** sin VMs creadas en la fase de preparación allí descrita. Objetivo: VM-GW-ADMIN, VM-ROUTER, VM-YUN, VM-ESP01, VM-ESP02, VM-ESP03 y VM-WIN11, más switch y AP lógicos. La existencia actual debe contrastarse directamente con el anfitrión.
+
+## Prácticas independientes sobre MEDION
+
+| Identificador | Anfitrión | Estado en CHANGELOG |
 |---|---|---|
-| `opnsense-lab` | MEDION / libvirt | Creada y ejecutándose en pruebas 05–10/10 |
-| Segunda máquina (nombre desconocido) | MEDION | Inicio y acceso indicados, identidad no verificada |
+| `opnsense-lab` | MEDION | Creada y activa en las pruebas registradas |
+| Segunda VM sin identificar | MEDION | Usuario comunicó inicio y acceso; identidad/configuración sin verificar |
 
-No registrar nombres, CPU, RAM, disco, MAC o conectividad de VMs no contrastados. Incluir para cada VM: objetivo, red, recursos, sistema, arranque, copia de seguridad y evidencia.
+Ninguna VM de MEDION se cuenta como máquina de la réplica del Lenovo.
+
+Para cada VM registrar: anfitrión, propósito, interfaces, redes, recursos, fecha/evidencia de comprobación y política de respaldo.

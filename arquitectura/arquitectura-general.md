@@ -1,34 +1,48 @@
-# Arquitectura general
+# Arquitectura general del laboratorio de redes
 
-**Origen**: reconstrucción documental del CHANGELOG hasta el 10-10-2026; no auditoría en vivo.
+## Tres implementaciones diferenciadas
 
-## Entorno físico
+1. **Físico:** infraestructura real Raspberry Pi 4 → MikroTik → switch SG2210P → EAP225, ESP32 y otros nodos.
+2. **Virtual principal Lenovo L13:** réplica funcional de esa cadena, todavía en fase de diseño e implementación; [detalle](../laboratorio-virtual/lenovo-l13/README.md).
+3. **Virtual adicional MEDION:** KVM/QEMU con OPNsense y redes libvirt, para pruebas separadas; [detalle](../laboratorio-virtual/medion-netlab-ws01/README.md).
+
+## Laboratorio físico — referencia actualizada por CHANGELOG
 
 ```text
-Starlink / red doméstica
-  └── Raspberry Pi 4 (gateway de laboratorio)
-       ├── Wi-Fi doméstica: 192.168.1.0/24 (referencia histórica)
-       └── eth0: 192.168.100.1/30
-            └── MikroTik ether1: 192.168.100.2/30
-                 └── LAN 192.168.88.0/24
-                      └── Switch TP-Link SG2210P
-                           ├── EAP225
-                           └── ESP32 Ethernet (tres nodos documentados)
+Starlink / 192.168.1.0/24 (histórico)
+  └── Raspberry Pi 4 (gateway/admin)
+       └── tránsito 192.168.100.0/30
+            └── MikroTik (LAN 192.168.88.0/24)
+                 ├── Arduino Yún (conexión histórica)
+                 └── SG2210P
+                      ├── EAP225
+                      └── ESP32 × 3
 ```
 
-Arduino Yún, estaciones de trabajo y Raspberry Pi 3 forman parte del inventario del laboratorio, pero sus puertos actuales requieren verificación.
+El informe de diseño de la réplica citó **TL-SG108PE** como modelo de referencia en una versión anterior de topología; el CHANGELOG posterior registra el **SG2210P** como switch instalado. Revisar el inventario vivo para identificar cualquier dispositivo adicional; no equiparar ambos modelos.
 
-## Entorno virtual
+## Réplica virtual Lenovo (objetivo)
 
 ```text
-MEDION netlab-ws01 / Debian 13
-  └── KVM/QEMU y libvirt
+WAN controlada → VM-GW-ADMIN → red de tránsito
+    → VM-ROUTER → switch virtual L2/VLAN
+       → VM-YUN + VM-ESP01/02/03 + AP lógico + Windows 11
+```
+
+El informe del 10/10 registra `LAB-NET` 192.168.50.0/24 en el Lenovo, sin función definitiva. No asignarle automáticamente la LAN de la réplica.
+
+## Virtualización adicional MEDION (histórico documentado)
+
+```text
+MEDION netlab-ws01 (Debian 13)
+  └── libvirt
        ├── default (NAT)
-       └── lab-isolated (red interna)
-            └── OPNsense (WAN prevista: default; LAN prevista: lab-isolated)
+       └── lab-isolated (segmento interno)
+             └── OPNsense (WAN/LAN previstas, asignación pendiente de comprobar)
 ```
 
-Ambas redes se documentaron activas, persistentes y con autoinicio. El aislamiento extremo a extremo, la asignación de interfaces y la segunda VM deben contrastarse antes de considerarlos verificados.
+**Importante:** `LAB-NET` (Lenovo) y `lab-isolated` (MEDION) no son la misma red.
 
-## Límite
-No modificar Starlink, Tailscale, VPS ni servicios ajenos al laboratorio como efecto colateral de las prácticas.
+## Límites
+
+No alterar de forma incidental el entorno doméstico, Tailscale, Docker, VPS ni producción. Distinguir diseño, configuración histórica y estado comprobado del momento.

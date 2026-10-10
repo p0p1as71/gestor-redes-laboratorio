@@ -1,21 +1,23 @@
-# Redes libvirt — diseño y validación
+# Redes libvirt — separación por anfitrión
 
-| Red | Función documentada | Última constatación histórica | Pendiente |
-|---|---|---|---|
-| `default` | Segmento con NAT | Activa, persistente y autoinicio | XML, subred y rutas actuales |
-| `lab-isolated` | Segmento interno | Activa, persistente y autoinicio | Confirmar aislamiento real |
+## Lenovo L13 — réplica principal
 
-## Diferencias relevantes
+| Red | Estado documental |
+|---|---|
+| `default` | NAT/DHCP, 192.168.122.0/24 según informe 10/10 |
+| `LAB-NET` | `virbr50` con IP del host 192.168.50.1/24, activa/autostart, sin NAT ni DHCP declarados; función definitiva pendiente |
 
-Una red *activa* solo indica que está disponible en libvirt. Una red *aislada* de nombre no certifica que el tráfico quede bloqueado. Validar topología, forwarding, interfaces, rutas, firewall y pruebas positivas/negativas desde un cliente.
+No suponer que LAB-NET es absolutamente aislada del host: su bridge dispone de IP. Inspeccionar XML antes de cambiarla.
 
-## Matriz mínima de pruebas (PENDIENTE)
+## MEDION netlab-ws01 — plataforma adicional
 
-| Origen | Destino | Resultado esperado | Resultado observado |
-|---|---|---|---|
-| Cliente virtual LAN | OPNsense LAN | Según diseño de interfaz | Sin medir |
-| Cliente virtual LAN | Internet | Según política NAT/firewall | Sin medir |
-| Cliente virtual LAN | Red doméstica | Denegado, salvo autorización explícita | Sin medir |
-| Anfitrión MEDION | Cliente virtual | Según política de administración | Sin medir |
+| Red | Estado histórico |
+|---|---|
+| `default` | NAT, activa/autostart según CHANGELOG |
+| `lab-isolated` | Segmento interno, activa/autostart; aislamiento extremo a extremo no validado |
 
-**No suponer denegación** por el simple nombre `lab-isolated`. No modificar red `default` ni firewall del anfitrión sin evaluar dependencias.
+Una red `default` de un anfitrión no es la `default` del otro. Las pruebas OPNsense se documentan exclusivamente en MEDION.
+
+## Principio de validación
+
+Nombres como «isolated», estado activo o ausencia de NAT **no prueban aislamiento completo**. Registrar rutas, bridges, firewall y pruebas de comunicación permitida/bloqueada por anfitrión.

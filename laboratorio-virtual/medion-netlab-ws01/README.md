@@ -1,24 +1,20 @@
-# MEDION netlab-ws01 — anfitrión virtual
+# MEDION netlab-ws01 — entorno virtual adicional
 
-**Base documental:** CHANGELOG 05–10/10/2026, no comprobación en vivo.
+**Este equipo NO aloja, por definición, la réplica virtual principal del laboratorio físico.** Es una plataforma separada de pruebas, documentada en el CHANGELOG entre el 05 y el 10/10/2026.
 
-- Sistema: Debian 13.
-- Hipervisor: KVM/QEMU; administración libvirt mediante `qemu:///system`, Virt-Manager y virsh.
-- Redes de libvirt documentadas: `default` y `lab-isolated`, ambas activas, persistentes y con autoinicio en última comprobación registrada.
-- VM identificada: `opnsense-lab`, creada y arrancada.
-- Segunda VM: se comunicó su inicio, pero nombre y configuración no constan suficientemente confirmados.
-- Adaptador USB Ethernet: Realtek RTL8153, identificador USB `0bda:8153`, interfaz observada `enx00e04c6831b0`. Passthrough no confirmado.
+## Datos históricos
 
-## Requisito operativo
+- Anfitrión Debian 13 con KVM/QEMU, libvirt `qemu:///system` y Virt-Manager.
+- Redes `default` (NAT) y `lab-isolated`, activas, persistentes y autostart en comprobación registrada.
+- `opnsense-lab` creada y ejecutándose.
+- Segunda VM referida por usuario; identidad y configuración no confirmadas.
+- Adaptador USB-Ethernet RTL8153 detectado, passthrough no demostrado.
+- Requisito: funcionamiento con tapa cerrada; configuración/verificación pendientes.
 
-Con tapa cerrada debe permanecer encendido, sin suspensión ni hibernación, y mantener redes y VMs. **Configuración y resultado aún pendientes de comprobación**.
+## Trabajo pendiente propio
 
-## Validación pendiente
+Verificar inventario de VMs, interfaces WAN/LAN de OPNsense, XML de `lab-isolated`, comportamiento de tapa y aislamiento.
 
-1. Inventario de VMs e interfaces realmente asignadas.
-2. Estado de autoinicio de **cada VM** (no confundir con autoinicio de redes).
-3. XML de `default` y `lab-isolated`.
-4. Comportamiento real de tapa cerrada.
-5. Rutas desde anfitrión y seguridad de acceso a LAN doméstica.
+## Límites
 
-No ejecutar cambios sobre servicios ajenos al laboratorio.
+Ningún progreso realizado aquí significa automáticamente que la réplica Lenovo (VM-GW-ADMIN → VM-ROUTER → hosts) esté implementada. La red `LAB-NET` del Lenovo no pertenece a este anfitrión.
