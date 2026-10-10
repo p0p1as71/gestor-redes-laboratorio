@@ -2588,3 +2588,25 @@ No se registrarán como implementaciones completadas las propuestas que todavía
 4. Actualizar el inventario de NetBox.
 5. Definir y probar funciones específicas para los tres ESP32.
 6. Documentar las pruebas físicas y virtuales realizadas.
+
+---
+
+## 2026-10-10 — Actualización documental de conexiones físicas y separación de plataformas
+
+**Alcance:** documentación en la rama del PR de reorganización V2; sin cambios de infraestructura, firmware, NetBox ni dashboard desplegado.
+
+### Fuentes y correcciones
+
+- Actualización del usuario: Raspberry Pi 3 para prácticas y pruebas; portátil en otro puerto del SG2210P; Yún en otro puerto LAN del MikroTik.
+- Las entradas del 27/09 ya reflejan la redefinición de Pi 3 y su conexión al MikroTik. Se conservan las entradas anteriores como historial, incluida su denominación inicial de monitorización.
+- Nuevo diagrama físico y mapa con origen/fecha de los datos; Pi 3 y Yún directamente en MikroTik, AP/ESP32/portátil en SG2210P.
+- Corregida la ficha Yún: SSH desde Pi 4 sí figura como correcto el 22/09; vigencia actual sin comprobar.
+- Réplica Lenovo separada: propuesta de VM-RPI3 y ramas LAN, sin acreditar aprobación ni creación de VMs.
+- MEDION conserva OPNsense y redes propias; asignación WAN/LAN y segunda VM pendientes.
+- La ficha del dashboard señala que su fuente HTML no está en el repositorio y que el despliegue no se ha actualizado.
+
+### Pendientes explícitos
+
+Identidad del portátil, mapa actual de puertos, IP/MAC/VLAN, servicios/rutas vigentes, reconciliación con NetBox, estado real de Lenovo y MEDION.
+
+Los diagramas anteriores de este CHANGELOG describen estados fechados y pueden estar incompletos u obsoletos. La referencia documental vigente es [topología física](laboratorio-fisico/topologia.md); no constituye inspección en vivo.

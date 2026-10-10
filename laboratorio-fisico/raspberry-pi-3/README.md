@@ -19,3 +19,9 @@ Cliente Linux de laboratorio, diagnóstico de conectividad, pruebas IP, DHCP, DN
 ## Verificación pendiente
 
 Sistema, interfaces, rutas, hostname, servicios todavía activos, ubicación física y acceso. Evaluar si procede mantener SNMP histórico o retirarlo mediante cambio autorizado, nunca automáticamente.
+
+## Conexión física documentada
+
+Ethernet hacia un puerto LAN del MikroTik, confirmado en la actualización del usuario del 10/10/2026. El CHANGELOG del 27/09 registra ether2; su vigencia requiere comprobación. No se conecta al SG2210P en la topología comunicada.
+
+El CHANGELOG del 27/09 ya registra el cambio de función a prácticas y pruebas. Ser un equipo supervisado por LibreNMS no convierte a la Pi 3 en el anfitrión del servicio de monitorización. Véase [mapa físico](../topologia.md).

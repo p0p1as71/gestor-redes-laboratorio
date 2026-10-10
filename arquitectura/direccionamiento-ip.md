@@ -12,3 +12,9 @@
 | libvirt lab-isolated | Sin dirección confirmada en esta revisión | Segmento virtual | Verificación pendiente |
 
 **Regla:** NetBox será la referencia del inventario e IPAM una vez reconciliado. No deducir direcciones actuales de capturas antiguas.
+
+## Actualización física 10/10/2026
+
+Pi 3 y Yún están documentados en MikroTik LAN; el portátil adicional está en SG2210P. No hay IP actual comprobada para ese portátil. Las IP históricas de Pi 3/Yún y ESP32 no se convierten en asignaciones actuales por actualizar el diagrama.
+
+Lenovo y MEDION conservan sus redes independientes: [redes por anfitrión](../laboratorio-virtual/redes-libvirt/README.md).

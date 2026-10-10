@@ -36,7 +36,7 @@ No se asume ninguna sincronización automática entre estos sistemas.
 
 ## Estado técnico resumido (documentación al 10-10-2026)
 
-- **Físico:** Raspberry Pi 4 como gateway, MikroTik como router LAN, SG2210P y EAP225; subsistemas de administración y nodos de pruebas.
+- **Físico:** Pi 4 como gateway/admin; MikroTik con Pi 3 de prácticas y Yún en puertos LAN; SG2210P con EAP225, tres ESP32 y un portátil de identidad pendiente. [Mapa físico y fuentes](laboratorio-fisico/topologia.md).
 - **Virtual principal (diseño):** Lenovo L13: réplica funcional gateway → router → switch → hosts; infraestructura libvirt preparada y VMs previstas aún sin verificar como creadas.
 - **Virtual adicional (histórico):** MEDION `netlab-ws01` con KVM/QEMU, redes `default` y `lab-isolated`, y VM `opnsense-lab`.
 - **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, aislamiento de MEDION, interfaces de OPNsense, identidad de segunda VM, mapa de puertos y servicio permanente del dashboard.
@@ -54,3 +54,4 @@ El detalle histórico y el grado de evidencia de cada elemento están en el [CHA
 **Repositorio privado (verificado el 10/10/2026).** No publicar secretos, claves, contraseñas Wi-Fi, tokens, capturas no revisadas, copias brutas de configuración ni información personal de terceros. `.gitignore` ayuda a evitar inclusiones accidentales, pero **no garantiza** la protección de secretos ya comprometidos o añadidos forzosamente.
 
 Las prácticas no deben cambiar por accidente Starlink, VPS, Tailscale o sistemas de producción.
+

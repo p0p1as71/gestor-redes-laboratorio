@@ -6,7 +6,8 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [x] Repositorio privado confirmado el 10/10/2026.
 - [x] Separar conceptualmente réplica virtual Lenovo de prácticas MEDION.
 - [ ] Revisar colaboradores, protecciones y escaneo exhaustivo de secretos.
-- [ ] Reconciliar inventario físico (incluido SG2210P) con NetBox.
+- [x] Actualizar relaciones físicas comunicadas: Pi 3/Yún en MikroTik y portátil en SG2210P, separando evidencia histórica de estado actual.
+- [ ] Reconciliar inventario físico (incluido portátil por identificar y mapa actual de puertos) con NetBox.
 - [ ] Definir procedimientos de exportaciones de configuración sanitizadas.
 
 ## P1 — Réplica virtual principal Lenovo L13
@@ -15,6 +16,7 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Diseñar WAN controlada, red de tránsito, LAN y política de direccionamiento.
 - [ ] Dimensionar y crear VM-GW-ADMIN y VM-ROUTER.
 - [ ] Crear equivalentes VM-YUN y VM-ESP01/02/03, VM-WIN11 y AP lógico.
+- [ ] Decidir y dimensionar el equivalente VM-RPI3 propuesto para prácticas; no presumir identidad del portátil físico.
 - [ ] Ejecutar pruebas comparativas de routing, DHCP, VLAN y firewall con la red física.
 
 ## P2 — MEDION: plataforma de pruebas adicional
@@ -29,3 +31,4 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Documentar evidencias fechadas y prácticas nuevas.
 
 Fuentes: informe de arquitectura virtual aportado el 10/10/2026 (diseño Lenovo) y CHANGELOG (historial físico/MEDION).
+

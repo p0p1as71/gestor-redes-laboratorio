@@ -18,3 +18,15 @@ Verificar inventario de VMs, interfaces WAN/LAN de OPNsense, XML de `lab-isolate
 ## Límites
 
 Ningún progreso realizado aquí significa automáticamente que la réplica Lenovo (VM-GW-ADMIN → VM-ROUTER → hosts) esté implementada. La red `LAB-NET` del Lenovo no pertenece a este anfitrión.
+
+## Topología propia: diseño de conexiones, no asignación comprobada
+
+| Origen | Destino previsto | Estado |
+|---|---|---|
+| default de MEDION | WAN de opnsense-lab | Asociación pendiente de comprobar |
+| LAN de opnsense-lab | lab-isolated de MEDION | Asociación pendiente de comprobar |
+| Cliente virtual por identificar | lab-isolated | Conexión pendiente de comprobar |
+
+Las redes y opnsense-lab tienen ejecución histórica documentada. El inicio comunicado de una segunda VM no demuestra que sea el cliente del esquema.
+
+No hay conexión física del MEDION al MikroTik o al SG2210P acreditada en esta revisión. El adaptador RTL8153 detectado no demuestra un cable conectado ni passthrough a OPNsense.

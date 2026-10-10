@@ -50,3 +50,9 @@ El historial menciona una copia `lab-mikrotik-2026-09-27.backup` transferida a l
 - Auditoría de puertos de switch conectados al MikroTik.
 - Revisión de rutas, servicios administrativos y orden de firewall.
 - Confirmación de DHCP/Option 138 y conectividad efectiva Omada.
+
+## Actualización documental del 10/10/2026
+
+Conexiones LAN: Pi 3 para prácticas, Yún en otro puerto y uplink al SG2210P. El portátil adicional se conecta al SG2210P. La actualización del usuario confirma las relaciones, no los números de puerto históricos.
+
+Véase [mapa físico](../topologia.md), con evidencia y extremos pendientes.

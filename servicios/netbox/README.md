@@ -17,4 +17,5 @@ Fuente canónica **prevista y a reconciliar** para dispositivos, interfaces, dir
 
 ## Pendientes
 
-Conciliar switch SG2210P, EAP225, ESP32, Pi 3, MEDION, puertos y direcciones actuales; revisar copias de seguridad, actualizaciones y disponibilidad sin intervenir todavía.
+Conciliar switch SG2210P, EAP225, ESP32, Pi 3 de prácticas, Yún en MikroTik LAN y portátil del SG2210P; identificar por separado Lenovo y MEDION, puertos y direcciones actuales; revisar copias de seguridad, actualizaciones y disponibilidad sin intervenir todavía.
+

@@ -27,7 +27,8 @@ Las direcciones MAC particulares y su evidencia histórica constan en el [CHANGE
 
 - Puerto de uplink hacia MikroTik: **pendiente de confirmar**.
 - Puerto exacto EAP225: **pendiente de confirmar**.
-- Puertos de Raspberry Pi, Yún y estaciones: no inferir de registros anteriores.
+- Portátil adicional conectado a otro puerto Ethernet del switch: confirmado por el usuario el 10/10; número, identidad e IP pendientes.
+- Pi 3 y Arduino Yún conectados directamente a puertos LAN del MikroTik; no asignarles puertos del SG2210P.
 
 ## Incidencias abiertas
 
@@ -36,3 +37,5 @@ Omada ha mostrado discrepancias en listados de clientes online/offline; esas vis
 ## Siguiente prueba segura
 
 Consultar tabla MAC actual y estado de puertos (solo lectura) y reconciliar con NetBox. No cambiar VLAN, PoE ni configuración del switch hasta tener la topología vigente.
+
+Referencia vigente: [diagrama físico y mapa de conexiones](../topologia.md).
