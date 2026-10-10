@@ -1,23 +1,21 @@
 # Redes libvirt — separación por anfitrión
 
-## Lenovo L13 — réplica principal
+## Lenovo L13: réplica principal (estado documental previo)
 
-| Red | Estado documental |
-|---|---|
-| `default` | NAT/DHCP, 192.168.122.0/24 según informe 10/10 |
-| `LAB-NET` | `virbr50` con IP del host 192.168.50.1/24, activa/autostart, sin NAT ni DHCP declarados; función definitiva pendiente |
+- `default`: NAT/DHCP, `192.168.122.0/24` según informe Lenovo del 10/10.
+- `LAB-NET`: `virbr50`, IP de host `192.168.50.1/24`; función final pendiente.
 
-No suponer que LAB-NET es absolutamente aislada del host: su bridge dispone de IP. Inspeccionar XML antes de cambiarla.
+No confundir estas redes con las definiciones independientes del MEDION.
 
-## MEDION netlab-ws01 — plataforma adicional
+## MEDION netlab-ws01: verificado el 10/10/2026
 
-| Red | Estado histórico |
-|---|---|
-| `default` | NAT, activa/autostart según CHANGELOG |
-| `lab-isolated` | Segmento interno, activa/autostart; aislamiento extremo a extremo no validado |
+| Red | Bridge | Configuración / evidencia |
+|---|---|---|
+| `default` | `virbr0` | NAT; gateway `192.168.122.1`, utilizado por OPNsense WAN |
+| `lab-isolated` | `virbr-lab` | XML sin `forward`, sin IP de bridge; dos interfaces conectadas |
 
-Una red `default` de un anfitrión no es la `default` del otro. Las pruebas OPNsense se documentan exclusivamente en MEDION.
+Ambas estaban activas, persistentes y con autostart. OPNsense conecta ambas redes y tiene forwarding, reglas permisivas de LAN y NAT. Debian conectado a `lab-isolated` alcanzó `1.1.1.1`.
 
-## Principio de validación
+**Consecuencia:** `lab-isolated` carece de forwarding libvirt propio, pero no está aislada de Internet como sistema completo. Falta validar el bloqueo de otras redes privadas.
 
-Nombres como «isolated», estado activo o ausencia de NAT **no prueban aislamiento completo**. Registrar rutas, bridges, firewall y pruebas de comunicación permitida/bloqueada por anfitrión.
+[Arquitectura MEDION](../medion-netlab-ws01/README.md) · [Pruebas](../../practicas/firewall-nat/PRAC-003-aislamiento-opnsense.md).
