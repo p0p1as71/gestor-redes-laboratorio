@@ -4,10 +4,10 @@
 
 - Switch: SG2210P, puerto 6.
 - Equipo: MEDION `netlab-ws01`.
-- Interfaz física: adaptador USB/Ethernet, identificación exacta y MAC actual pendientes de contrastar.
-- Dirección IP, VLAN y DHCP: pendientes de comprobar.
+- Interfaz física: adaptador USB/Ethernet, Realtek RTL8153, MAC `00:E0:4C:68:31:B0` comprobada en OPNsense (`ue0`) y anteriormente en el anfitrión.
+- En anfitrión, el adaptador estaba sin IP y sin bridge superior; en OPNsense, `ue0` sin IP ni estado UP administrativo. VLAN y política de comunicación física pendientes.
 - Función: estación física del laboratorio que aloja virtualización adicional independiente de la réplica principal Lenovo L13.
-- **Precaución:** el enlace Ethernet del MEDION al laboratorio físico no acredita que sus redes libvirt ni las interfaces de OPNsense estén conectadas o enrutadas hacia la LAN doméstica.
+- **Corrección tras verificación:** el USB/Ethernet sí está pasado a OPNsense y reconocido como `ue0`, con enlace a 1 Gbps. No aparece en las rutas IPv4 ni NAT observadas. Esto no acredita un bloqueo absoluto de tráfico físico.
 
 La identificación del equipo/puerto se fundamenta en la captura Omada y la confirmación del usuario. No acredita modificaciones de NetBox.
 
