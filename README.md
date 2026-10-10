@@ -8,7 +8,7 @@ Documentación de ingeniería y aprendizaje del curso de Gestor de Redes, con la
 
 | Área | Contenido |
 |---|---|
-| [Curso](curso/) | Teoría, temario, apuntes y evaluaciones (contenido por incorporar) |
+| [Curso](curso/) | 19 unidades identificadas; subtemas de UD01–UD09, actividades y evaluaciones documentadas parcialmente |
 | [Arquitectura](arquitectura/README.md) | Topologías, segmentación, direccionamiento y decisiones |
 | [Laboratorio físico](laboratorio-fisico/README.md) | Raspberry Pi, MikroTik, SG2210P, EAP225, ESP32, Arduino Yún y estaciones |
 | [Laboratorio virtual](laboratorio-virtual/README.md) | Réplica principal Lenovo L13 y plataforma de prácticas adicional MEDION |
