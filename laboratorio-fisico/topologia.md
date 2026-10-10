@@ -36,7 +36,7 @@ Las líneas representan enlaces, no direcciones de tráfico. El equipo del puert
 | ESP32-01 | SG2210P | Gi1/0/3 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-02 | SG2210P | Gi1/0/5 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-03 | SG2210P | Gi1/0/4 en 03/10 | Tabla MAC y reserva DHCP históricas |
-| MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Omada 10/10 + identificación física del usuario; IP y MAC pendientes |
+| MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Omada 10/10 + identificación física del usuario; MAC 00:E0:4C:68:31:B0 confirmada; sin IP en anfitrión; passthrough a OPNsense ue0 |
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
 
@@ -55,10 +55,10 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 
 ## Datos no verificables desde el repositorio
 
-- IP y MAC actuales del adaptador USB/Ethernet del MEDION; no inferir su conectividad virtual a partir del enlace físico.
+- MAC del adaptador MEDION confirmada: `00:E0:4C:68:31:B0`; en OPNsense se expone como `ue0` por passthrough USB, sin IP y sin participación en rutas IPv4 observadas. Accesibilidad L2 y políticas futuras no comprobadas.
 - Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún/ESP32; los puertos del switch 1, 2 y 6 están identificados por Omada/usuario.
 - IP/MAC, VLAN, rutas, concesiones DHCP, servicios y estado de enlaces actuales.
 - Contenido vigente de NetBox y del HTML del dashboard: no hay exportación ni fuente HTML en esta rama.
-- Estado real de la réplica Lenovo, segunda VM del MEDION y asociación de interfaces de OPNsense.
+- Estado real de la réplica Lenovo. En MEDION sí se verificaron `opnsense-lab` y `debian-client01`, con WAN `default` y LAN `lab-isolated`; consultar la ficha MEDION.
 
 Para cerrar el mapa, correlacionar identificación física, puertos/enlaces, tabla MAC, DHCP/ARP y NetBox con fecha. No deducir el cableado únicamente de la lista de clientes de Omada.
