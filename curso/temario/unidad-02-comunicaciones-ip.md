@@ -1,13 +1,43 @@
 # Unidad 2 — COMUNICACIONES IP
 
-**Fuente:** título visible en el índice del curso IFCD027PO (captura 10/10/2026).  
-**Estado:** ÍNDICE VERIFICADO; contenido interno de la unidad NO DISPONIBLE.
+**Fuente:** mapa conceptual o índice aportado mediante captura el 10/10/2026.  
+**Estado:** apartados visibles documentados; desarrollo teórico completo pendiente.
 
-## Contenido del curso
-Pendiente de incorporar desde el temario original.
+## Apartados del temario mostrados
 
-## Conceptos, ejercicios y relación con el laboratorio
-Pendientes de elaborar después de consultar la unidad. Las prácticas técnicas pueden relacionarse aquí, sin atribuir contenidos no recibidos al curso.
+### Comunicaciones IP
 
-## Evaluación
-No se dispone de respuestas oficiales específicas de esta unidad.
+- Qué es la arquitectura TCP/IP
+- La dirección de internet: IP
+- La nueva versión de IP (IPng)
+- Protocolo ICMP
+- Protocolo DHCP
+- Protocolo de resolución de direcciones
+- Subredes y supernetting
+
+### Enrutadores
+
+- El router: funcionalidad
+- Switching
+- Puertos
+- Protocolos UDP y TCP
+- Protocolos SLIP y PPP
+- Mecanismo NAT
+- Proxy
+
+### Servicios de redes y seguridad
+
+- Función de un firewall o cortafuegos
+- DNS
+- HOST
+- URI
+- El nombre de dominio
+- Telnet y FTP
+- Parámetros de IP en distintas plataformas
+- Instalar, configurar y eliminar servicios de red en un servidor
+
+## Observaciones de documentación
+
+Los títulos anteriores se transcriben de las capturas y mantienen su terminología, incluidos sistemas o tecnologías históricos. No constituyen confirmación de vigencia técnica ni corrección del contenido.
+
+**Pendiente:** texto de las lecciones, preguntas de autoevaluación, respuestas oficiales y prácticas verificadas asociadas.
