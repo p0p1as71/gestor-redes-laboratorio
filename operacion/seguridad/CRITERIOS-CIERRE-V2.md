@@ -8,7 +8,7 @@
 - [ ] Revisar reglas de protección de main.
 - [ ] Revisar alertas de secret scanning, si están disponibles.
 - [ ] Ejecutar revisión de secretos de todas las ramas e historial con herramienta especializada.
-- [ ] Verificar los enlaces internos y estado de la documentación.
+- [ ] Completar validación automática de todos los enlaces internos del repositorio. Revisión manual parcial satisfactoria (documentos principales, índices y referencias clave); no se declara auditoría exhaustiva.
 - [ ] Contrastar inventario, puertos y redes con sistemas reales, antes de declarar estado vigente.
 - [ ] Aprobar la integración después de revisar el diff del pull request.
 
