@@ -23,7 +23,14 @@ Las direcciones MAC particulares y su evidencia histórica constan en el [CHANGE
 
 **Causa y solución documentadas:** inicialmente los tres ESP32 compartían la MAC `02:00:00:12:34:56`; se corrigió firmware, se asignaron MAC diferentes y se revisó la tabla MAC y DHCP. Resultado verificado el 03/10, sin atribuirle estado actual permanente.
 
-## Otras conexiones
+## Otras conexiones comprobadas el 10/10/2026
+
+- Puerto 1: uplink MikroTik por LLDP (`bridge/ether4`; extremo físico a contrastar en el MikroTik).
+- Puerto 2: EAP225 por LLDP, vecino `C0:3A:55:A9:6B:C2`.
+- Puerto 6: MEDION `netlab-ws01`, Realtek USB/Ethernet, MAC `00:E0:4C:68:31:B0`, enlace 1 Gbps y passthrough a OPNsense como `ue0` sin IP.
+- Puertos 3–5: enlaces a 100 Mbps observados; asociación ESP32 por historial del 03/10 pendiente de reconfirmación.
+
+## Notas anteriores (superadas por la comprobación fechada)
 
 - Puerto de uplink hacia MikroTik: **pendiente de confirmar**.
 - Puerto exacto EAP225: **pendiente de confirmar**.
