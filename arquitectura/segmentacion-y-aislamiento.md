@@ -16,5 +16,5 @@ Una interfaz o red denominada «aislada» no demuestra por sí sola aislamiento 
 - Comprobar rutas y reglas entre la red doméstica y LAN física.
 - Revisar alcance de Tailscale y otros accesos de administración.
 
-Estado: **DOCUMENTADO / validación parcial pendiente**.
+Estado: **SALIDA A INTERNET VERIFICADA / AISLAMIENTO FRENTE A REDES PRIVADAS NO VERIFICADO**.
 
