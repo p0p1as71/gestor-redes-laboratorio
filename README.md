@@ -36,10 +36,10 @@ No se asume ninguna sincronización automática entre estos sistemas.
 
 ## Estado técnico resumido (documentación al 10-10-2026)
 
-- **Físico:** Pi 4 como gateway/admin; MikroTik con Pi 3 de prácticas y Yún en puertos LAN; SG2210P con EAP225, tres ESP32 y un portátil de identidad pendiente. [Mapa físico y fuentes](laboratorio-fisico/topologia.md).
+- **Físico:** Pi 4 como gateway/admin; MikroTik con Pi 3 de prácticas y Yún en puertos LAN; SG2210P con EAP225, tres ESP32 y MEDION `netlab-ws01` en puerto 6 del switch. [Mapa físico y fuentes](laboratorio-fisico/topologia.md).
 - **Virtual principal (diseño):** Lenovo L13: réplica funcional gateway → router → switch → hosts; infraestructura libvirt preparada y VMs previstas aún sin verificar como creadas.
-- **Virtual adicional (histórico):** MEDION `netlab-ws01` con KVM/QEMU, redes `default` y `lab-isolated`, y VM `opnsense-lab`.
-- **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, aislamiento de MEDION, interfaces de OPNsense, identidad de segunda VM, mapa de puertos y servicio permanente del dashboard.
+- **Virtual adicional (verificado 10/10):** MEDION `netlab-ws01` con `opnsense-lab` y `debian-client01`; LAN 10.10.10.0/24 con salida a Internet mediante OPNsense. La interfaz física USB Realtek está pasada a la VM y no tiene IP.
+- **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, política de acceso desde MEDION a redes privadas, comprobación de puertos históricos de ESP32/Pi 3/Yún, conciliación NetBox y servicio permanente del dashboard.
 
 El detalle histórico y el grado de evidencia de cada elemento están en el [CHANGELOG](CHANGELOG.md).
 
