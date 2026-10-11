@@ -9,7 +9,7 @@
 | Identificador | Anfitrión | Estado en CHANGELOG |
 |---|---|---|
 | `opnsense-lab` | MEDION | Creada y activa en las pruebas registradas |
-| Segunda VM sin identificar | MEDION | Usuario comunicó inicio y acceso; identidad/configuración sin verificar |
+| `debian-client01` | MEDION | Ejecutando el 10/10; `vnet2` en `lab-isolated`, IP 10.10.10.179 DHCP, conectividad exterior comprobada |
 
 Ninguna VM de MEDION se cuenta como máquina de la réplica del Lenovo.
 
