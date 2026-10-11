@@ -36,6 +36,6 @@ Omada ha mostrado discrepancias en listados de clientes online/offline; esas vis
 
 ## Siguiente prueba segura
 
-Consultar tabla MAC actual y estado de puertos (solo lectura) y reconciliar con NetBox. No cambiar VLAN, PoE ni configuración del switch hasta tener la topología vigente.
+Reconciliar la tabla MAC y los puertos confirmados con NetBox. No deducir que una lista incompleta de clientes Omada indica puertos desconectados. No cambiar VLAN, PoE ni configuración del switch hasta tener la topología vigente.
 
 Referencia vigente: [diagrama físico y mapa de conexiones](../topologia.md).
