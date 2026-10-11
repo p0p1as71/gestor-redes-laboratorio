@@ -30,12 +30,7 @@ Las direcciones MAC particulares y su evidencia histórica constan en el [CHANGE
 - Puerto 6: MEDION `netlab-ws01`, Realtek USB/Ethernet, MAC `00:E0:4C:68:31:B0`, enlace 1 Gbps y passthrough a OPNsense como `ue0` sin IP.
 - Puertos 3–5: enlaces a 100 Mbps observados; asociación ESP32 por historial del 03/10 pendiente de reconfirmación.
 
-## Notas anteriores (superadas por la comprobación fechada)
-
-- Puerto de uplink hacia MikroTik: **pendiente de confirmar**.
-- Puerto exacto EAP225: **pendiente de confirmar**.
-- Portátil adicional conectado a otro puerto Ethernet del switch: confirmado por el usuario el 10/10; número, identidad e IP pendientes.
-- Pi 3 y Arduino Yún conectados directamente a puertos LAN del MikroTik; no asignarles puertos del SG2210P.
+**Pendiente:** verificar de nuevo la asociación individual de ESP32 en puertos 3–5 y los extremos de cableado en MikroTik.
 
 ## Incidencias abiertas
 
