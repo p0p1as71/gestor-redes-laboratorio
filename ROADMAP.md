@@ -7,7 +7,7 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [x] Separar conceptualmente réplica virtual Lenovo de prácticas MEDION.
 - [ ] Revisar colaboradores, protecciones y escaneo exhaustivo de secretos.
 - [x] Actualizar relaciones físicas comunicadas: Pi 3/Yún en MikroTik y portátil en SG2210P, separando evidencia histórica de estado actual.
-- [ ] Reconciliar inventario físico (incluido portátil por identificar y mapa actual de puertos) con NetBox.
+- [ ] Reconciliar inventario físico (incluido MEDION identificado en puerto 6; verificar otros puertos y mapa actual) con NetBox.
 - [ ] Definir procedimientos de exportaciones de configuración sanitizadas.
 
 ## P1 — Réplica virtual principal Lenovo L13
@@ -20,9 +20,10 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Ejecutar pruebas comparativas de routing, DHCP, VLAN y firewall con la red física.
 
 ## P2 — MEDION: plataforma de pruebas adicional
-- [ ] Verificar asignación real WAN/LAN de OPNsense.
-- [ ] Probar aislamiento de `lab-isolated`.
-- [ ] Identificar segunda VM.
+- [x] Verificar WAN `em0` y LAN `em1` de OPNsense (10/10/2026).
+- [x] Comprobar salida exterior de `lab-isolated`: se confirmó Internet vía OPNsense (10/10/2026).
+- [ ] Definir y validar política de bloqueo de acceso a redes privadas físicas.
+- [x] Identificar segunda VM: `debian-client01` (10/10/2026).
 - [ ] Verificar comportamiento con tapa cerrada.
 
 ## P3 — Servicios y operación
