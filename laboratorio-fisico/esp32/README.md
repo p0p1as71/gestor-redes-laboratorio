@@ -45,7 +45,7 @@ Se identificaron las placas por USB, se corrigieron sus identidades Ethernet y s
 
 Esta incidencia está documentada en [PRAC-002 — Conflicto de MAC](../../practicas/switching/PRAC-002-conflicto-mac-esp32.md).
 
-La distribución histórica de puertos era diferente de la documentada el 12/10.
+La distribución **histórica** del 03/10 situaba ESP32-02 en puerto 5 y ESP32-03 en puerto 4. El cableado se corrigió el 12/10 y la tabla anterior (01→3, 02→4, 03→5) es la referencia documental vigente. Una captura de Omada de ese día muestra enlaces activos en 3–5; falta comprobar individualmente la identidad de 02/03 mediante correlación MAC↔puerto.
 
 ## 4. Puesta en servicio y programación — 12 de octubre
 
