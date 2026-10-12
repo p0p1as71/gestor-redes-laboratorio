@@ -3,6 +3,10 @@
 Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, réplica virtual Lenovo y plataforma MEDION adicional.
 
 ## P0 — Seguridad y coherencia documental
+- [x] Reconciliar síntesis de arquitectura/IP y ficha MEDION/SG2210P con VLAN 20 y OPT1, distinguiendo datos históricos del 10/10 y 12/10 (auditoría 13/10).
+- [x] Registrar retrospectivamente la fusión real del PR #1 en criterios V2, conservando controles pendientes.
+- [x] Preparar [plan de verificaciones AUD-TOP-2026-10-13](operacion/auditorias/PLAN-VERIFICACIONES-AUD-TOP-2026-10-13.md) para equipos físicos, Lenovo, MEDION, NetBox y evidencias (sin ejecutar comprobaciones).
+- [ ] Resolver discrepancia H01 de firmware ESP32-01 frente al servidor HTTP documentado; **pospuesto para la siguiente sesión**.
 - [x] Repositorio privado confirmado el 10/10/2026.
 - [x] Separar conceptualmente réplica virtual Lenovo de prácticas MEDION.
 - [ ] Revisar colaboradores, protecciones y escaneo exhaustivo de secretos.

@@ -15,6 +15,13 @@ Una interfaz o red denominada «aislada» no demuestra por sí sola aislamiento 
 - Debian alcanzó `1.1.1.1`; no puede describirse como completamente aislado.
 - Realtek USB físico pasado a OPNsense como `ue0`, sin IP; bloqueo a otras redes privadas aún no probado.
 
+## Actualización documental MEDION / FÍSICO del 12/10/2026
+
+- En OPNsense se añadió `OPT1/ue0` sobre RTL8153 con `10.20.20.1/24`; SG2210P puerto 6 se configuró como **Access VLAN 20 LAB-FISICO**.
+- LAN virtual OPNsense: `10.10.10.0/24`; LAN física MikroTik: `192.168.88.0/24`; nueva VLAN física: `10.20.20.0/24`. No confundir con `LAB-NET` del Lenovo.
+- Que el switch conserve los puertos 1–5 fuera de la VLAN 20 **no certifica aislamiento L3**: hay que revisar las rutas y políticas entre interfaces OPNsense, el NAT de libvirt y los segmentos privados.
+- **Sin validar:** DHCP IPv4 OPT1, cliente físico VLAN 20, reglas y comunicaciones permitidas/denegadas entre redes. No considerar ninguna de ellas una política de bloqueo efectiva.
+
 ## Verificaciones abiertas
 - Revisar XML de redes libvirt.
 - Contrastar interfaces de OPNsense.

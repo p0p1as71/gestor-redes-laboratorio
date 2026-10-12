@@ -35,12 +35,12 @@ Aplicar la secuencia **TEORÍA → CONCEPTO → PRÁCTICA → OBSERVACIÓN → C
 
 No se asume ninguna sincronización automática entre estos sistemas.
 
-## Estado técnico resumido (documentación al 10-10-2026)
+## Estado técnico resumido (documentación histórica al 13-10-2026)
 
-- **Físico:** Pi 4 como gateway/admin; MikroTik con Pi 3 de prácticas y Yún en puertos LAN; SG2210P con EAP225, tres ESP32 y MEDION `netlab-ws01` en puerto 6 del switch. [Mapa físico y fuentes](laboratorio-fisico/topologia.md).
+- **Físico:** Pi 4 como gateway/admin; MikroTik con Pi 3 de prácticas y Yún en puertos LAN; SG2210P con EAP225 (puerto 2), tres ESP32 (puertos 3/4/5 según corrección comunicada 12/10) y el adaptador RTL8153 del MEDION al puerto 6, **Access VLAN 20**. MikroTik sigue administrando la LAN `192.168.88.0/24`; VLAN 20 `LAB-FISICO` usa `10.20.20.0/24`. [Mapa físico y fuentes](laboratorio-fisico/topologia.md).
 - **Virtual principal (diseño):** Lenovo L13: réplica funcional gateway → router → switch → hosts; infraestructura libvirt preparada y VMs previstas aún sin verificar como creadas.
-- **Virtual adicional (verificado 10/10):** MEDION `netlab-ws01` con `opnsense-lab` y `debian-client01`; LAN 10.10.10.0/24 con salida a Internet mediante OPNsense. La interfaz física USB Realtek está pasada a la VM y no tiene IP.
-- **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, política de acceso desde MEDION a redes privadas, comprobación de puertos históricos de ESP32/Pi 3/Yún, conciliación NetBox y servicio permanente del dashboard.
+- **Virtual adicional (verificado 10/10):** MEDION `netlab-ws01` con `opnsense-lab` y `debian-client01`; LAN 10.10.10.0/24 con salida a Internet mediante OPNsense. El 10/10, la interfaz USB Realtek `ue0` estaba sin IP; según intervención del 12/10 está asignada a `OPT1/ue0`, `10.20.20.1/24` y conectada por VLAN 20 al SG2210P. WAN/LAN se reportaron como `re1`/`re0` el 12/10, frente a `em0`/`em1` el 10/10. DHCP OPT1 y comunicación con un cliente físico no verificados.
+- **Pendiente de comprobar:** asignación de LAB-NET en Lenovo, política de acceso desde MEDION a redes privadas, correlación inequívoca MAC↔placa ESP32-02/03 y comprobación de puertos históricos Pi 3/Yún, conciliación NetBox y servicio permanente del dashboard.
 
 El detalle histórico y el grado de evidencia de cada elemento están en el [CHANGELOG](CHANGELOG.md).
 

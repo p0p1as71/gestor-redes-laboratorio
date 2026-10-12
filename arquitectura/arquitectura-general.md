@@ -2,13 +2,13 @@
 
 ## Tres implementaciones diferenciadas
 
-1. **Físico:** Raspberry Pi 4 → MikroTik; Pi 3 y Yún conectados directamente a puertos LAN del MikroTik; SG2210P conectado al MikroTik y, al switch, EAP225, tres ESP32 y MEDION `netlab-ws01` en puerto 6 del SG2210P.
+1. **Físico:** Raspberry Pi 4 → MikroTik; Pi 3 y Yún conectados directamente a puertos LAN del MikroTik; SG2210P conectado al MikroTik y, al switch, EAP225, tres ESP32 y adaptador RTL8153 del MEDION `netlab-ws01` en puerto 6 del SG2210P, configurado Access VLAN 20 el 12/10.
 2. **Virtual principal Lenovo L13:** réplica funcional de esa cadena, todavía en fase de diseño e implementación; [detalle](../laboratorio-virtual/lenovo-l13/README.md).
 3. **Virtual adicional MEDION:** KVM/QEMU con OPNsense y redes libvirt, para pruebas separadas; [detalle](../laboratorio-virtual/medion-netlab-ws01/README.md).
 
 ## Laboratorio físico — conexiones documentadas
 
-El [diagrama físico y mapa de conexiones](../laboratorio-fisico/topologia.md) recoge la actualización del usuario del 10/10/2026 y la evidencia histórica del CHANGELOG. Es la referencia documental vigente del cableado, con puertos pendientes explícitos.
+El [diagrama físico y mapa de conexiones](../laboratorio-fisico/topologia.md) recoge la actualización del usuario del 10/10/2026 y la evidencia histórica del CHANGELOG. Es la referencia documental vigente del cableado, con ESP32-01/02/03 comunicados en puertos 3/4/5 desde el 12/10 y correlación MAC↔placa pendiente.
 
 La Pi 3 es estación de prácticas y pruebas. El Yún cuelga de otro puerto LAN del MikroTik; el MEDION se conecta mediante Realtek USB/Ethernet al puerto 6 del SG2210P. No representar estos tres equipos como una única rama del switch.
 
@@ -20,7 +20,7 @@ El [diseño Lenovo](../laboratorio-virtual/lenovo-l13/README.md) conserva gatewa
 
 El informe citado registra LAB-NET 192.168.50.0/24 en Lenovo, sin función definitiva. No asignarle automáticamente la LAN de la réplica.
 
-## Virtualización adicional MEDION (verificada el 10/10/2026)
+## Virtualización adicional MEDION (estado histórico 10/10 y actualización 12/10)
 
 | Componente MEDION | Función / relación |
 |---|---|
@@ -31,6 +31,8 @@ El informe citado registra LAB-NET 192.168.50.0/24 en Lenovo, sin función defin
 | debian-client01 | Cliente en `lab-isolated` con 10.10.10.179/24 por DHCP; salida a Internet y DNS verificados |
 
 [Detalle MEDION](../laboratorio-virtual/medion-netlab-ws01/README.md). LAB-NET (Lenovo) y lab-isolated (MEDION) pertenecen a anfitriones distintos.
+
+**Actualización informada 12/10/2026:** OPNsense conservó WAN/LAN virtuales pero las interfaces fueron reportadas como WAN `re1` y LAN `re0` (nombres históricos `em0`/`em1` el 10/10; causa pendiente de comprobar). Se añadió OPT1 sobre RTL8153 `ue0` con `10.20.20.1/24`; SG2210P puerto 6 opera Access VLAN 20 `LAB-FISICO`. La VLAN 20 no sustituye la LAN MikroTik `192.168.88.0/24` y no existe cliente físico probado ni DHCP OPT1 acreditado. [Detalle OPNsense](../laboratorio-virtual/opnsense/README.md).
 
 ## Límites
 
