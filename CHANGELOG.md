@@ -2883,3 +2883,102 @@ Se implementó una arquitectura Ethernet con tres funciones diferenciadas:
 Las comunicaciones y la monitorización fueron verificadas satisfactoriamente en las pruebas registradas.
 
 La intervención constituye una práctica de desarrollo de firmware, configuración Ethernet, comunicación TCP/IP y monitorización de servicios.
+
+
+---
+
+## 2026-10-12 — Integración OPNsense ↔ laboratorio físico mediante RTL8153 y VLAN 20
+
+**Plataforma:** MEDION `netlab-ws01`, Debian 13, VM `opnsense-lab`.  
+**Objetivo:** disponer de una interfaz de OPNsense hacia un segmento Ethernet físico distinto de la LAN virtual y de la LAN MikroTik.
+
+### 1. Recuperación del firmware RTL8153
+
+En el anfitrión Debian se observaron los errores:
+
+```text
+failed to load rtl_nic/rtl8153b-2.fw (-2)
+unable to load firmware patch rtl_nic/rtl8153b-2.fw
+```
+
+El fichero `/lib/firmware/rtl_nic/rtl8153b-2.fw` no existía y `firmware-realtek` no estaba instalado. Se confirmó disponibilidad del paquete `firmware-realtek 20250410-2` para Debian 13 Trixie (`non-free-firmware`), se instaló y se comprobó la existencia del firmware. Tras reinicialización física del adaptador, desaparecieron los errores observados.
+
+### 2. Passthrough USB hacia OPNsense
+
+El adaptador había alternado entre OPNsense (`ue0`) y el anfitrión (`enx00e04c6831b0`), con pérdidas anteriores del dispositivo en la VM. Tras corregir el firmware y arrancar OPNsense limpiamente:
+
+- USB vendor/product: `0x0bda:0x8153`; passthrough persistente declarado por esos identificadores.
+- Adaptador Realtek RTL8153 expuesto a FreeBSD/OPNsense como `ue0`.
+- MAC: `00:e0:4c:68:31:b0`.
+- Enlace: `1000baseT`, full-duplex, `status: active`.
+- El adaptador dejó de aparecer como interfaz `enx00e04c6831b0` del host durante el passthrough.
+
+**Límite de validación:** estable durante las pruebas de esta sesión; no se ha demostrado persistencia funcional tras múltiples reinicios.
+
+### 3. Interfaces de OPNsense después de la intervención
+
+Se conservaron WAN y LAN virtuales, y se incorporó una tercera interfaz física:
+
+| Interfaz lógica | Interfaz reportada | Red / función |
+|---|---|---|
+| WAN | `re1` | Salida por libvirt `default`, conservada |
+| LAN | `re0` | `10.10.10.1/24`, `lab-isolated` |
+| OPT1 | `ue0` | `10.20.20.1/24`, LAB-FISICO |
+
+En la sesión del 10/10 se habían documentado las NIC virtuales como `em0`/`em1`. La asignación `re1`/`re0` es la identificada en la intervención del **12/10**, que tiene prioridad para describir esa sesión; las denominaciones antiguas se conservan como historial. No se ha comprobado aquí qué causó el cambio de nombre.
+
+`ifconfig ue0` confirmó `inet 10.20.20.1`, máscara `0xffffff00`, broadcast `10.20.20.255` y enlace activo. No se configuró upstream gateway ni IPv6 en OPT1.
+
+### 4. VLAN 20 LAB-FISICO en TP-Link Omada
+
+Inicialmente estaba documentada la red `Default` con VLAN ID 1. Se creó:
+
+- Nombre: `LAB-FISICO`.
+- VLAN ID: `20`.
+- `DHCP Server Device`: `External Device`.
+- SG2210P **puerto 6:** modo **Access VLAN 20**.
+- Enlace `OPT1/ue0` ↔ RTL8153 ↔ SG2210P puerto 6: activo a 1 Gbps full-duplex tras el cambio.
+
+Omada conserva funciones de switching/VLAN L2, mientras que OPNsense se prevé como gateway, firewall, router y servidor DHCP de la nueva red. En un puerto Access el adaptador recibe tráfico Ethernet sin etiqueta VLAN; no se configuró una subinterfaz 802.1Q en `ue0`.
+
+**Los demás puertos no se migraron a VLAN 20.** La LAN MikroTik `192.168.88.0/24` y la LAN virtual OPNsense `10.10.10.0/24` permanecen como ámbitos distintos.
+
+### 5. Direccionamiento y DHCP pendiente
+
+- Red física nueva: `10.20.20.0/24`.
+- Dirección OPT1/gateway: `10.20.20.1`.
+- Plan de direcciones: `10.20.20.2–99` infraestructura/estáticas; `10.20.20.100–200` DHCP de clientes; `10.20.20.201–254` reserva futura.
+
+Se introdujo en el asistente DHCP OPT1 habilitado con rango `10.20.20.100–10.20.20.200`. **NO consta verificado un servidor DHCP IPv4 funcionando**: durante las comprobaciones no aparecieron procesos `kea` o `dhcpd`, ni una sección `<dhcpd>` en la consulta indicada sobre `config.xml`. Estas observaciones requieren diagnóstico antes de concluir la causa.
+
+### 6. Diagrama lógico de la intervención
+
+```text
+MEDION netlab-ws01 (Debian 13)
+└── KVM/libvirt
+    └── OPNsense
+        ├── WAN re1 ── libvirt default / NAT
+        ├── LAN re0 ── 10.10.10.1/24 ── lab-isolated ── Debian cliente VM
+        └── OPT1 ue0 ── 10.20.20.1/24 ── RTL8153 (USB passthrough)
+                                             │ 1 Gbps
+                                             └── SG2210P puerto 6
+                                                 Access VLAN 20
+                                                 LAB-FISICO 10.20.20.0/24
+```
+
+### 7. Estado y trabajos pendientes
+
+**Verificado durante la intervención (según informe de sesión):** instalación del firmware Realtek, recuperación del passthrough, interfaz `ue0` de OPNsense activa, asignación OPT1 `10.20.20.1/24`, enlace gigabit, creación de VLAN 20 y configuración Access de puerto 6, conservación de WAN y LAN virtual.
+
+**Pendiente:**
+
+1. Verificar/activar el servicio DHCP IPv4 de OPT1 y su configuración efectiva.
+2. Conectar primer cliente físico a VLAN 20; probar dirección `10.20.20.x`, puerta de enlace y acceso a `10.20.20.1`.
+3. Diseñar, aplicar y comprobar reglas de firewall, NAT y routing según la política de aislamiento aprobada.
+4. Verificar qué tráfico puede salir de cada segmento y si hay rutas no deseadas hacia redes domésticas o de producción.
+5. Comprobar persistencia de USB passthrough y servicio tras reinicios.
+6. Reconciliar esta topología con NetBox; sin atribuir aún cliente físico a VLAN 20.
+
+En esta sesión no se pudo utilizar el Lenovo como cliente Ethernet de prueba porque el único adaptador USB-Ethernet disponible estaba dedicado a OPNsense.
+
+**Naturaleza de la entrada:** transcripción documental de resultados comunicados por el usuario; no representa una inspección independiente de los equipos ni una nueva intervención sobre su configuración.

@@ -19,8 +19,10 @@ flowchart TD
     SW ---|"Puerto propio"| E1["ESP32-01 · prácticas Ethernet"]
     SW ---|"Puerto propio"| E2["ESP32-02 · prácticas Ethernet"]
     SW ---|"Puerto propio"| E3["ESP32-03 · prácticas Ethernet"]
-    SW ---|"Puerto 6 · USB/Ethernet"| L["MEDION netlab-ws01 · anfitrión de VMs adicionales"]
+    SW ---|"Puerto 6 · ACCESS VLAN 20 · RTL8153"| L["OPNsense OPT1 / ue0 · 10.20.20.1/24 · VM en MEDION"]
 ```
+
+**Cambio 12/10:** puerto 6 Access VLAN 20 `LAB-FISICO` (`10.20.20.0/24`) dedicado a `OPT1/ue0` de OPNsense; esto no supone que los puertos 1–5 pertenezcan a VLAN 20. La nueva red no sustituye la LAN física MikroTik `192.168.88.0/24`, ni la LAN virtual `10.10.10.0/24`. DHCP de OPT1 y conectividad de clientes físicos pendientes de validar.
 
 Las líneas representan enlaces, no direcciones de tráfico. El equipo del puerto 6 ha sido identificado por el usuario como MEDION netlab-ws01; la captura Omada confirma enlace a 1 Gbps. Los servicios de gestión no son equipos cableados adicionales.
 
@@ -36,7 +38,7 @@ Las líneas representan enlaces, no direcciones de tráfico. El equipo del puert
 | ESP32-01 | SG2210P | Gi1/0/3 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-02 | SG2210P | Gi1/0/5 en 03/10 | Tabla MAC y reserva DHCP históricas |
 | ESP32-03 | SG2210P | Gi1/0/4 en 03/10 | Tabla MAC y reserva DHCP históricas |
-| MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Omada 10/10 + identificación física del usuario; MAC 00:E0:4C:68:31:B0 confirmada; sin IP en anfitrión; passthrough a OPNsense ue0 |
+| MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Informe 12/10: puerto 6 Access VLAN 20, MAC 00:E0:4C:68:31:B0, passthrough a OPNsense OPT1/ue0, 10.20.20.1/24, 1 Gbps; no hay cliente de VLAN 20 probado |
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
 
@@ -57,11 +59,11 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 | Raspberry Pi 3 | Prácticas, pruebas y diagnóstico de red; no duplica la gestión principal |
 | Arduino Yún | Host Linux/microcontrolador para experimentación |
 | Tres ESP32 | Servidor HTTP, cliente HTTP y monitor HTTP probados el 12/10; despliegue persistente pendiente |
-| MEDION netlab-ws01 | Equipo físico conectado al puerto 6 y anfitrión de VMs adicionales; independiente de la réplica virtual Lenovo |
+| MEDION netlab-ws01 | Anfitrión de OPNsense y Debian; RTL8153 pasado a OPT1 para LAB-FISICO VLAN 20 por puerto 6 |
 
 ## Datos no verificables desde el repositorio
 
-- MAC del adaptador MEDION confirmada: `00:E0:4C:68:31:B0`; en OPNsense se expone como `ue0` por passthrough USB, sin IP y sin participación en rutas IPv4 observadas. Accesibilidad L2 y políticas futuras no comprobadas.
+- MAC del adaptador MEDION: `00:E0:4C:68:31:B0`; el 10/10 se observó `ue0` sin IP; el 12/10 se configuró `OPT1/ue0` con `10.20.20.1/24`. La comunicación con un cliente y las políticas firewall siguen sin verificarse.
 - Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún/ESP32; los puertos del switch 1, 2 y 6 están identificados por Omada/usuario.
 - IP/MAC, VLAN, rutas, concesiones DHCP, servicios y estado de enlaces actuales.
 - Contenido vigente de NetBox y del HTML del dashboard: no hay exportación ni fuente HTML en esta rama.

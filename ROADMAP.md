@@ -20,10 +20,16 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Ejecutar pruebas comparativas de routing, DHCP, VLAN y firewall con la red física.
 
 ## P2 — MEDION: plataforma de pruebas adicional
-- [x] Verificar WAN `em0` y LAN `em1` de OPNsense (10/10/2026).
+- [x] Verificar WAN `em0` y LAN `em1` de OPNsense (estado histórico 10/10/2026); el 12/10 se reportaron como `re1`/`re0`.
 - [x] Comprobar salida exterior de `lab-isolated`: se confirmó Internet vía OPNsense (10/10/2026).
 - [ ] Definir y validar política de bloqueo de acceso a redes privadas físicas.
 - [x] Identificar segunda VM: `debian-client01` (10/10/2026).
+- [x] Recuperar RTL8153 con `firmware-realtek` y passthrough USB a OPNsense (12/10).
+- [x] Configurar tercera interfaz `OPT1/ue0` con `10.20.20.1/24` y enlace 1 Gbps (12/10).
+- [x] Crear VLAN 20 `LAB-FISICO` y configurar puerto 6 del SG2210P como Access (12/10).
+- [ ] Confirmar servicio DHCP IPv4 en OPT1 y pool `10.20.20.100–200`.
+- [ ] Conectar primer cliente físico VLAN 20 y validar IP, gateway y comunicación `10.20.20.1`.
+- [ ] Diseñar y comprobar reglas de firewall y routing para segmentación entre LAB-FISICO, LAN virtual y red física existente.
 - [ ] Verificar comportamiento con tapa cerrada.
 
 ## P3 — Mejoras físicas comprobadas el 12/10
@@ -31,7 +37,8 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [x] Probar comunicación HTTP ESP32-02 → ESP32-01 y monitorización ESP32-03.
 - [ ] Reconfirmar los puertos 4/5 para ESP32-02/03 tras corregir cables.
 - [ ] Repetir pruebas ESP32 con los tres nodos activos y reservas DHCP observadas.
-- [ ] Incorporar fuentes y versiones definitivas de los tres firmwares ESP32 tras revisión.
+- [x] Incorporar los tres archivos fuente `.ino` ESP32 a GitHub (commit `d4f81cc`).
+- [ ] Verificar versiones de firmware y revisar código fuente de ESP32.
 
 ## P4 — Servicios y operación
 - [ ] Comprobar dashboard y reconciliar datos NetBox/LibreNMS.
