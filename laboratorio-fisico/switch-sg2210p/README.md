@@ -11,7 +11,7 @@
 - EAP225 conectado mediante Ethernet/PoE con enlace observado a 1 Gb/s.
 - Tres ESP32 Ethernet con negociación a 100 Mb/s Full Duplex.
 
-## Puertos comprobados para ESP32 (03/10)
+## Puertos ESP32 — referencia histórica del 03/10 (sustituida el 12/10)
 
 | Puerto SG2210P | Nodo | IP reservada |
 |---|---|---|
@@ -36,7 +36,7 @@ Prueba HTTP funcional documentada entre las placas en [PRAC-004](../../practicas
 - Puerto 6: MEDION `netlab-ws01`, Realtek USB/Ethernet, MAC `00:E0:4C:68:31:B0`, enlace 1 Gbps y passthrough a OPNsense como `ue0` sin IP.
 - Puertos 3–5: enlaces a 100 Mbps observados; asociación ESP32 por historial del 03/10 pendiente de reconfirmación.
 
-**Pendiente:** verificar de nuevo la asociación individual de ESP32 en puertos 3–5 y los extremos de cableado en MikroTik.
+**Pendiente:** correlacionar MAC↔nodo↔puerto para ESP32-02/03 mediante tabla MAC/registro de equipo y verificar los extremos de cableado en MikroTik.
 
 ## VLAN 20 LAB-FISICO — intervención 12/10/2026
 

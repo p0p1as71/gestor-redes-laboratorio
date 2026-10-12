@@ -35,7 +35,8 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 ## P3 — Mejoras físicas comprobadas el 12/10
 - [x] Actualizar RouterOS/RouterBOOT del MikroTik hEX lite a 7.24.5 con backups y comprobaciones básicas.
 - [x] Probar comunicación HTTP ESP32-02 → ESP32-01 y monitorización ESP32-03.
-- [ ] Reconfirmar los puertos 4/5 para ESP32-02/03 tras corregir cables.
+- [x] Corregir y documentar cableado ESP32: ESP32-01 → SG2210P puerto 3, ESP32-02 → puerto 4 y ESP32-03 → puerto 5 (intervención del 12/10/2026). Captura Omada posterior: enlaces activos en puertos 3–5.
+- [ ] Correlacionar en Omada cada MAC actual con ESP32-02/03 para disponer de verificación independiente de identidad por puerto (la captura muestra nombres WIZnet, no etiquetas ESP32).
 - [ ] Repetir pruebas ESP32 con los tres nodos activos y reservas DHCP observadas.
 - [x] Incorporar los tres archivos fuente `.ino` ESP32 a GitHub (commit `d4f81cc`).
 - [ ] Verificar versiones de firmware y revisar código fuente de ESP32.
