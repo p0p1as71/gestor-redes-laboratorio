@@ -30,6 +30,10 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Confirmar servicio DHCP IPv4 en OPT1 y pool `10.20.20.100–200`.
 - [ ] Conectar primer cliente físico VLAN 20 y validar IP, gateway y comunicación `10.20.20.1`.
 - [ ] Diseñar y comprobar reglas de firewall y routing para segmentación entre LAB-FISICO, LAN virtual y red física existente.
+- [x] Crear `netlab-traffic.service` y validar ejecución manual de ICMP/DNS/HTTPS en `debian-client01` (12–13/10).
+- [x] Instalar `tcpdump` y obtener `captura-06.pcap` con STP, ICMP, DNS y TCP/HTTPS en LAN virtual.
+- [ ] Reparar `netlab-traffic.timer` (estado `bad-setting`) y restablecer intervalo de 5 minutos; verificar ejecuciones automáticas.
+- [ ] Comparar capturas LAN/WAN de OPNsense para observar NAT directamente.
 - [ ] Verificar comportamiento con tapa cerrada.
 
 ## P3 — Mejoras físicas comprobadas el 12/10

@@ -6,6 +6,7 @@
 | PRAC-002 | Switching: conflicto MAC ESP32 | Físico | Verificado en pruebas del 03/10 | [Abrir](switching/PRAC-002-conflicto-mac-esp32.md) |
 | PRAC-003 | Firewall/routing: aislamiento OPNsense | Virtual MEDION | Pruebas parciales realizadas; Internet accesible | [Abrir](firewall-nat/PRAC-003-aislamiento-opnsense.md) |
 | PRAC-004 | HTTP Ethernet W5500 entre ESP32 | Físico | Respuestas 200 OK comprobadas 12/10; repetición pendiente | [Abrir](switching/PRAC-004-http-esp32.md) |
+| PRAC-005 | Diagnóstico: tráfico sintético y captura PCAP Debian Client | Virtual MEDION | PCAP válida; timer `bad-setting` | [Abrir](diagnostico/PRAC-005-trafico-pcap-debian-client.md) |
 
 Los estados históricos no demuestran el estado actual de los equipos. No ejecutar cambios derivados de una ficha sin diagnóstico, autorización y plan de reversión.
 

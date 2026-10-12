@@ -38,6 +38,12 @@ MEDION netlab-ws01 (Debian 13)
 
 **Nota:** la topología anterior refleja los nombres `em0`/`em1` y la interfaz `ue0` sin IP el **10/10**, no el estado informado el **12/10**.
 
+## Tráfico sintético y captura PCAP — sesión 12–13/10/2026
+
+En `debian-client01` (`enp1s0`, `10.10.10.179/24`, gateway `10.10.10.1`) se creó `/etc/systemd/system/netlab-traffic.service` para generar tráfico ICMP al gateway, DNS de `example.com` y HTTPS con `curl`. La ejecución manual funcionó. Se instaló `tcpdump` y se obtuvo `/root/netlab-captures/captura-06.pcap`, con STP periódico, ICMP, DNS y TCP/HTTPS según el informe de sesión. **El PCAP no está incorporado al repositorio.**
+
+Se probaron disparos automáticos mediante `netlab-traffic.timer`: el intervalo original de 5 minutos llegó a funcionar; una modificación temporal a 30 segundos generó configuración inválida `bad-setting`. **Timer pendiente de reparación**. Próxima validación: capturar también en WAN para observar NAT. [PRAC-005](../../practicas/diagnostico/PRAC-005-trafico-pcap-debian-client.md).
+
 ## Resultados funcionales (10/10)
 
 Desde `debian-client01` se verificaron con cuatro paquetes ICMP y 0 % de pérdida: `10.10.10.1`, `192.168.122.1` y `1.1.1.1`. `getent ahostsv4 debian.org` resolvió nombres; DNS configurado `10.10.10.1`.

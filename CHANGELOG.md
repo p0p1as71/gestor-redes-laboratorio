@@ -2982,3 +2982,48 @@ MEDION netlab-ws01 (Debian 13)
 En esta sesión no se pudo utilizar el Lenovo como cliente Ethernet de prueba porque el único adaptador USB-Ethernet disponible estaba dedicado a OPNsense.
 
 **Naturaleza de la entrada:** transcripción documental de resultados comunicados por el usuario; no representa una inspección independiente de los equipos ni una nueva intervención sobre su configuración.
+
+
+---
+
+## 2026-10-12/13 — Generación y captura de tráfico sintético en Debian Client
+
+**Plataforma:** MEDION `netlab-ws01`, Debian 13, KVM/libvirt; VM `debian-client01` en red virtual `lab-isolated`.
+
+**Objetivo:** producir y observar tráfico controlado ICMP, DNS y HTTPS, relacionándolo con la pila de red del curso.
+
+### Servicio generador
+
+- Se creó la unidad systemd `/etc/systemd/system/netlab-traffic.service`.
+- Genera ICMP (`ping` a `10.10.10.1`), resolución DNS de `example.com` y consulta HTTPS con `curl`.
+- Su ejecución **manual** fue comprobada satisfactoriamente.
+
+### Entorno y captura
+
+- VM cliente: `debian-client01`, interfaz `enp1s0`, IP `10.10.10.179/24`.
+- Puerta de enlace/OPNsense LAN: `10.10.10.1`.
+- Se instaló `tcpdump` y se creó `/root/netlab-captures/`.
+- Tras varias capturas de prueba, se obtuvo `/root/netlab-captures/captura-06.pcap`.
+
+### Tráfico observado según informe
+
+- STP IEEE 802.1D, BPDUs de configuración aproximadamente cada 2 segundos, bridge ID `8000.52:54:00:3f:26:1c.8002`.
+- ICMP `10.10.10.179` ↔ `10.10.10.1`.
+- DNS vía `10.10.10.1:53`, resolución de `example.com`.
+- TCP hacia puerto 443 y tráfico HTTPS; apertura SYN → SYN/ACK → ACK, transferencia y cierre FIN.
+
+La captura en la interfaz LAN conserva `10.10.10.179` como IP de origen, **antes del punto NAT de OPNsense**. No se ha demostrado aún una traducción NAT comparando ambos lados; queda pendiente una captura en la interfaz WAN.
+
+### Incidencia del timer systemd
+
+Se probó `netlab-traffic.timer` con una programación inicial de cinco minutos que llegó a funcionar. El intento de reducir temporalmente la frecuencia a 30 segundos mediante `OnCalendar` generó una definición rechazada por systemd. **Estado de cierre del timer: `bad-setting`, no operativo.** El servicio manual siguió funcionando.
+
+### Estado final y pendientes
+
+**Conseguido:** generador manual funcional, `tcpdump` instalado y captura `captura-06.pcap` válida según las pruebas comunicadas.
+
+**Pendiente:** reparar `netlab-traffic.timer`, restablecer 5 minutos y comprobar el disparo automático; realizar capturas LAN/WAN para observar NAT; registrar filtros y métodos de captura, y revisar cualquier PCAP antes de compartirlo por su contenido potencialmente sensible.
+
+**Documentación:** [PRAC-005 — Generación y captura de tráfico en Debian Client](practicas/diagnostico/PRAC-005-trafico-pcap-debian-client.md).
+
+**Límite de evidencia:** esta entrada recoge el informe facilitado por el usuario; el archivo PCAP no ha sido subido ni auditado directamente desde el repositorio.
