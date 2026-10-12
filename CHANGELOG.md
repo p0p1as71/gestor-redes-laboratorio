@@ -2665,3 +2665,50 @@ No fue necesario utilizar Netinstall ni restablecer la configuración.
 RouterOS y RouterBOOT actualizados a 7.24.5. Acceso administrativo, enrutamiento, conectividad IP a Internet y DNS verificados.
 
 Pendiente comprobar el tráfico desde los clientes del laboratorio y confirmar el funcionamiento de los tres ESP32.
+
+---
+
+## 2026-10-12 — Implementación y pruebas HTTP entre ESP32 del laboratorio físico
+
+**Entorno:** laboratorio físico, red 192.168.88.0/24.
+
+**Objetivo:** establecer y comprobar comunicaciones HTTP entre tres placas Waveshare ESP32-S3-ETH con interfaz Ethernet W5500.
+
+### Arquitectura
+
+| Equipo | Dirección IPv4 | Puerto SG2210P | Función |
+|---|---|---|---|
+| ESP32-01 | 192.168.88.245 | LAN3 | Servidor HTTP |
+| ESP32-02 | 192.168.88.246 | LAN4 | Cliente HTTP |
+| ESP32-03 | 192.168.88.247 | LAN5 | Monitor HTTP |
+
+### Intervención realizada
+
+1. Revisión y corrección de las conexiones físicas LAN4/LAN5.
+2. Comprobación de las reservas DHCP por dirección MAC en el MikroTik.
+3. Carga del programa ESP32_HTTP_CLIENT.ino en ESP32-02.
+4. Establecimiento de comunicaciones Ethernet mediante W5500.
+5. Configuración de peticiones HTTP periódicas cada 10 segundos desde ESP32-02.
+6. Pruebas de comunicación HTTP con ESP32-01.
+7. Pruebas de monitorización HTTP desde ESP32-03.
+
+### Resultados observados
+
+- ESP32-02 obtuvo respuestas HTTP/1.1 200 OK del servidor ESP32-01.
+- ESP32-03 registró cuatro respuestas HTTP satisfactorias en la serie observada.
+- Latencias aproximadas de 19–20 ms en la prueba del monitor.
+- Ningún error registrado durante esa serie de cuatro peticiones.
+- Las tres reservas DHCP permanecieron configuradas tras actualizar RouterOS a 7.24.5.
+
+### Observaciones y pendientes
+
+- Durante la comprobación posterior del MikroTik, las reservas de los tres ESP32 figuraban en estado waiting.
+- Ese estado no permite concluir por sí solo que exista un fallo de conectividad.
+- Pendiente repetir las pruebas con los tres dispositivos conectados y activos.
+- Pendiente documentar versiones definitivas de firmware y código fuente en el repositorio, si todavía no están incorporados.
+
+### Estado final
+
+Comunicación HTTP entre ESP32-02 y ESP32-01 comprobada satisfactoriamente.
+
+Monitorización HTTP desde ESP32-03 comprobada satisfactoriamente en la serie de pruebas observada.
