@@ -1,4 +1,4 @@
-# Topología física — estado documental al 10/10/2026
+# Topología física — estado documental al 12/10/2026
 
 **Alcance:** equipos y cables del laboratorio físico. La réplica Lenovo y las VMs del MEDION se describen por separado en [laboratorio virtual](../laboratorio-virtual/README.md).
 
@@ -40,6 +40,12 @@ Las líneas representan enlaces, no direcciones de tráfico. El equipo del puert
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
 
+## Cambios registrados el 12/10/2026
+
+- MikroTik RB750r2: RouterOS y RouterBOOT 7.24.5 confirmados tras actualización; routing, DNS y DHCP comprobados dentro del alcance descrito en su [ficha](mikrotik/README.md).
+- ESP32: funciones HTTP servidor (01), cliente (02), monitor (03) probadas.
+- Puerto 4/5 ESP32: asignación **nueva** del CHANGELOG (02→4, 03→5) distinta del registro del 03/10 (02→5, 03→4); reconciliar en Omada antes de sustituir las entradas históricas anteriores.
+
 ## Funciones
 
 | Equipo | Responsabilidad |
@@ -50,7 +56,7 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 | EAP225 | Acceso Wi-Fi del laboratorio |
 | Raspberry Pi 3 | Prácticas, pruebas y diagnóstico de red; no duplica la gestión principal |
 | Arduino Yún | Host Linux/microcontrolador para experimentación |
-| Tres ESP32 | Hosts Ethernet para prácticas; funciones de diagnóstico permanentes pendientes |
+| Tres ESP32 | Servidor HTTP, cliente HTTP y monitor HTTP probados el 12/10; despliegue persistente pendiente |
 | MEDION netlab-ws01 | Equipo físico conectado al puerto 6 y anfitrión de VMs adicionales; independiente de la réplica virtual Lenovo |
 
 ## Datos no verificables desde el repositorio
