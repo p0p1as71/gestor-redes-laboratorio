@@ -1,7 +1,18 @@
 # MikroTik hEX lite RB750r2
 
 **Papel:** router y firewall de la LAN física del laboratorio.
-**Estado:** configuración histórica documentada; no auditada en vivo en esta revisión.
+**Estado actualizado:** intervención registrada el 12/10/2026 en el CHANGELOG; aquí se distinguen las comprobaciones de esa fecha del estado en tiempo real.
+
+## Actualización de firmware — 12/10/2026
+
+- **Equipo:** MikroTik hEX lite RB750r2, MIPSBE, almacenamiento 16 MiB (≈3,93 MiB libres antes de actualizar).
+- **RouterOS:** 7.1.2 → 7.12.1 → **7.24.5**; **RouterBOOT:** 7.1.2 → 7.12.1 → **7.24.5**.
+- Se realizaron copia binaria y exportación de configuración antes de intervenir, y otra copia tras la actualización; no guardar aquí ficheros de respaldo sin sanitizar.
+- Se utilizó WinBox 4.4 en Linux, sin Netinstall ni restablecimiento de fábrica.
+- Por SSH se confirmó RouterOS 7.24.5 y RouterBOOT `current-firmware`/`upgrade-firmware` en 7.24.5.
+- Se mantuvieron WAN 192.168.100.2/30, LAN 192.168.88.1/24, DHCP, reservas y ruta predeterminada por 192.168.100.1. La regla `ALLOW Raspberry to LAB` seguía presente.
+- Verificaciones desde MikroTik: ping a Pi 4 y a 1.1.1.1, ambos 4/4 respuestas; resolución DNS de `example.com` correcta.
+- **Pendiente:** reconfirmar conectividad de clientes ESP32; sus tres reservas aparecían `waiting` durante una comprobación y eso, por sí solo, no acredita fallo de enlace.
 
 ## Topología y direccionamiento
 
@@ -42,7 +53,7 @@ Las tres reservas ESP32 se verificaron `bound` con MAC independientes el 03/10. 
 
 ## Copia y recuperación
 
-El historial menciona una copia `lab-mikrotik-2026-09-27.backup` transferida a la Raspberry Pi 4. **No se ha comprobado en esta fase su integridad ni disponibilidad actual.** No almacenar backups binarios ni exportaciones brutas en GitHub público.
+El historial menciona una copia `lab-mikrotik-2026-09-27.backup`. El CHANGELOG del 12/10 también registra backups antes y después de actualizar, sin aportar en esta ficha ruta o verificación criptográfica. No dar por comprobada su disponibilidad actual. No almacenar backups binarios ni exportaciones brutas en GitHub público.
 
 ## Pendientes
 
