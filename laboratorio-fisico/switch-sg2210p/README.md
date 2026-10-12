@@ -23,6 +23,12 @@ Las direcciones MAC particulares y su evidencia histórica constan en el [CHANGE
 
 **Causa y solución documentadas:** inicialmente los tres ESP32 compartían la MAC `02:00:00:12:34:56`; se corrigió firmware, se asignaron MAC diferentes y se revisó la tabla MAC y DHCP. Resultado verificado el 03/10, sin atribuirle estado actual permanente.
 
+## Actualización de conexión ESP32 — 12/10/2026
+
+El CHANGELOG del 12/10 registra corrección del cableado LAN4/LAN5 y presenta ESP32-01 en puerto 3, ESP32-02 en puerto 4 y ESP32-03 en puerto 5. Esto **contradice el mapeo histórico del 03/10** expuesto arriba para ESP32-02/03. Registrar ambas fechas y comprobar tabla MAC/LLDP o correspondencia física antes de declarar el mapa actual certificado.
+
+Prueba HTTP funcional documentada entre las placas en [PRAC-004](../../practicas/switching/PRAC-004-http-esp32.md).
+
 ## Otras conexiones comprobadas el 10/10/2026
 
 - Puerto 1: uplink MikroTik por LLDP (`bridge/ether4`; extremo físico a contrastar en el MikroTik).
