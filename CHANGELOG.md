@@ -2610,3 +2610,58 @@ No se registrarán como implementaciones completadas las propuestas que todavía
 Identidad del portátil, mapa actual de puertos, IP/MAC/VLAN, servicios/rutas vigentes, reconciliación con NetBox, estado real de Lenovo y MEDION.
 
 Los diagramas anteriores de este CHANGELOG describen estados fechados y pueden estar incompletos u obsoletos. La referencia documental vigente es [topología física](laboratorio-fisico/topologia.md); no constituye inspección en vivo.
+
+---
+
+## 2026-10-12 — Actualización de MikroTik hEX lite a RouterOS 7.24.5
+
+**Equipo:** MikroTik hEX lite (RB750r2), arquitectura MIPSBE.
+
+**Objetivo:** actualizar RouterOS y RouterBOOT conservando la configuración del laboratorio físico.
+
+### Estado inicial
+
+- RouterOS 7.1.2.
+- RouterBOOT 7.1.2.
+- Almacenamiento interno de 16 MiB, con aproximadamente 3,93 MiB libres.
+- Copias de seguridad binarias y exportación de configuración realizadas antes de intervenir.
+
+### Intervención realizada
+
+1. Instalación y puesta en funcionamiento de WinBox 4.4 para Linux en el Lenovo.
+2. Actualización integrada de RouterOS 7.1.2 a 7.12.1.
+3. Actualización y activación de RouterBOOT 7.12.1.
+4. Actualización integrada de RouterOS 7.12.1 a 7.24.5.
+5. Actualización y activación de RouterBOOT 7.24.5.
+6. Creación y descarga de una nueva copia de seguridad posterior a la actualización.
+
+No fue necesario utilizar Netinstall ni restablecer la configuración.
+
+### Validaciones posteriores
+
+- RouterOS 7.24.5 confirmado mediante acceso SSH.
+- RouterBOOT: current-firmware y upgrade-firmware en 7.24.5.
+- Cinco interfaces Ethernet con enlace activo.
+- LAN 192.168.88.1/24 y WAN 192.168.100.2/30 conservadas.
+- Servidor DHCP del bridge habilitado.
+- Reservas DHCP de Arduino Yún, Raspberry Pi 3, SG2210P, EAP225 y tres ESP32 conservadas.
+- Tres reservas ESP32 en estado waiting durante la comprobación; conectividad de esos clientes no validada.
+- Ruta por defecto mediante Raspberry Pi 4 (192.168.100.1) activa.
+- Reglas fundamentales de firewall conservadas, incluida ALLOW Raspberry to LAB.
+- Ping a Raspberry Pi 4: 4/4 respuestas, 0 % de pérdidas.
+- Ping a 1.1.1.1: 4/4 respuestas, 0 % de pérdidas.
+- Resolución DNS de example.com correcta.
+
+### Incidencias y observaciones
+
+- El actualizador inicial ofrecía 7.12.1; tras instalarla ofreció 7.24.5.
+- Ambas actualizaciones se descargaron correctamente mediante el actualizador integrado, pese al almacenamiento limitado.
+- El Lenovo necesitó un reinicio durante la intervención; posteriormente se recuperó el acceso SSH.
+- Se observaron ajustes horarios de NTP tras los reinicios.
+- No se detectaron pérdidas de configuración en las comprobaciones efectuadas.
+
+### Estado final y pendientes
+
+RouterOS y RouterBOOT actualizados a 7.24.5. Acceso administrativo, enrutamiento, conectividad IP a Internet y DNS verificados.
+
+Pendiente comprobar el tráfico desde los clientes del laboratorio y confirmar el funcionamiento de los tres ESP32.
