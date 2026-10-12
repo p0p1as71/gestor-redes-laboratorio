@@ -38,12 +38,21 @@ Prueba HTTP funcional documentada entre las placas en [PRAC-004](../../practicas
 
 **Pendiente:** verificar de nuevo la asociación individual de ESP32 en puertos 3–5 y los extremos de cableado en MikroTik.
 
+## VLAN 20 LAB-FISICO — intervención 12/10/2026
+
+- En Omada se observó inicialmente solo la red `Default`, VLAN ID 1.
+- Se creó **`LAB-FISICO` VLAN ID 20** con `DHCP Server Device: External Device`: OPNsense será responsable del L3, no el controlador Omada.
+- **Puerto 6:** configurado como **Access VLAN 20**, conexión a Realtek RTL8153 (MAC `00:e0:4c:68:31:b0`) con passthrough a OPNsense `OPT1/ue0`, dirección `10.20.20.1/24`.
+- Se verificó tras el cambio enlace **1000baseT full-duplex activo**. El resto de puertos no fue convertido en access de LAB-FISICO.
+- **No verificado:** servicio DHCP OPT1, obtención de IPv4 de clientes, tráfico extremo a extremo, reglas firewall y aislamiento entre segmentos.
+- El adaptador había sido conectado provisionalmente al Lenovo durante la actualización del MikroTik; el 12/10 volvió a utilizarse para OPNsense por el puerto 6 según el informe recibido.
+
 ## Incidencias abiertas
 
 Omada ha mostrado discrepancias en listados de clientes online/offline; esas vistas no demuestran ausencia de enlace. Diagnosticar correlacionando puerto, MAC, concesión DHCP, ARP y tráfico.
 
 ## Siguiente prueba segura
 
-Reconciliar la tabla MAC y los puertos confirmados con NetBox. No deducir que una lista incompleta de clientes Omada indica puertos desconectados. No cambiar VLAN, PoE ni configuración del switch hasta tener la topología vigente.
+Reconciliar la tabla MAC y los puertos confirmados con NetBox. No deducir que una lista incompleta de clientes Omada indica puertos desconectados. Antes de cualquier nuevo cambio de VLAN, PoE o puertos, comprobar topología vigente; la VLAN 20 del puerto 6 ya se creó el 12/10.
 
 Referencia vigente: [diagrama físico y mapa de conexiones](../topologia.md).
