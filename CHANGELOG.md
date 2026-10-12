@@ -2712,3 +2712,174 @@ Pendiente comprobar el tráfico desde los clientes del laboratorio y confirmar e
 Comunicación HTTP entre ESP32-02 y ESP32-01 comprobada satisfactoriamente.
 
 Monitorización HTTP desde ESP32-03 comprobada satisfactoriamente en la serie de pruebas observada.
+
+---
+
+## 2026-10-12 — Desarrollo y puesta en servicio de los firmwares ESP32-02 y ESP32-03
+
+**Entorno:** laboratorio físico, red 192.168.88.0/24.
+**Hardware:** Waveshare ESP32-S3-POE-ETH con controlador Ethernet W5500.
+**Herramientas:** Arduino IDE, librería Ethernet_Generic y monitor serie a 115200 baudios.
+
+### 1. Situación inicial
+
+ESP32-02 y ESP32-03 no disponían todavía de los programas HTTP correspondientes a sus funciones actuales.
+
+Las placas ya habían participado en las prácticas Ethernet del 02–03/10/2026, durante las cuales se diagnosticó y corrigió un conflicto de direcciones MAC duplicadas.
+
+El objetivo de esta intervención fue convertirlas en nodos funcionales independientes dentro de una arquitectura de comunicación y monitorización HTTP.
+
+### 2. Arquitectura implementada
+
+| Nodo | IPv4 reservada | Puerto SG2210P | Función |
+|---|---|---|---|
+| ESP32-01 | 192.168.88.245 | LAN3 | Servidor HTTP |
+| ESP32-02 | 192.168.88.246 | LAN4 | Cliente HTTP |
+| ESP32-03 | 192.168.88.247 | LAN5 | Monitor HTTP |
+
+ESP32-01 actúa como servidor central de pruebas, escuchando conexiones TCP en el puerto 80.
+
+ESP32-02 genera solicitudes HTTP periódicas y muestra las respuestas completas.
+
+ESP32-03 comprueba la disponibilidad HTTP del servidor, mide tiempos de respuesta y mantiene contadores de resultados.
+
+### 3. Preparación del entorno Ethernet
+
+Los programas utilizan:
+
+- Biblioteca SPI para la comunicación con W5500.
+- Biblioteca Ethernet_Generic para las funciones Ethernet.
+- Biblioteca esp_mac para obtener la identidad MAC.
+- DHCP para obtener la configuración IPv4.
+- Puerto serie para diagnóstico.
+
+Configuración SPI:
+
+| Señal | GPIO |
+|---|---|
+| CS | 14 |
+| RST | 9 |
+| MISO | 12 |
+| MOSI | 11 |
+| SCK | 13 |
+
+El firmware realiza un reinicio del controlador W5500 antes de inicializar Ethernet.
+
+La MAC se obtiene mediante esp_read_mac(mac, ESP_MAC_ETH).
+
+La configuración IP se solicita mediante Ethernet.begin(mac).
+
+### 4. Desarrollo del ESP32-02 — Cliente HTTP
+
+**Programa:** ESP32_HTTP_CLIENT.ino.
+
+Se implementaron las siguientes funciones:
+
+1. Inicialización del puerto serie a 115200 baudios.
+2. Lectura de la dirección MAC Ethernet.
+3. Inicialización de SPI y W5500.
+4. Reinicio físico del controlador Ethernet.
+5. Obtención de configuración IPv4 por DHCP.
+6. Creación de un cliente TCP mediante EthernetClient.
+7. Conexión con ESP32-01 en 192.168.88.245:80.
+8. Construcción de una solicitud GET / HTTP/1.1.
+9. Envío de las cabeceras Host y Connection: close.
+10. Lectura e impresión de la respuesta HTTP recibida.
+11. Control de inactividad durante la lectura, con límite de tres segundos.
+12. Cierre de la conexión TCP.
+13. Programación de consultas periódicas cada diez segundos mediante millis().
+
+**Validación:** se observaron respuestas HTTP/1.1 200 OK del servidor ESP32-01.
+
+El programa permite generar y observar tráfico HTTP real entre dos microcontroladores conectados a la red Ethernet del laboratorio.
+
+### 5. Desarrollo del ESP32-03 — Monitor HTTP
+
+**Programa:** ESP32_HTTP_MONITOR.ino.
+
+Se implementaron las siguientes funciones:
+
+1. Inicialización del puerto serie y del controlador Ethernet.
+2. Obtención de dirección MAC e IPv4 mediante DHCP.
+3. Creación de conexiones TCP hacia ESP32-01.
+4. Envío periódico de solicitudes HTTP GET.
+5. Lectura de la primera línea de respuesta HTTP.
+6. Comprobación del estado HTTP/1.1 200.
+7. Clasificación de comprobaciones como ONLINE u OFFLINE.
+8. Medición del tiempo transcurrido desde el inicio de la conexión hasta la recepción de la línea de estado o finalización de la espera.
+9. Contador acumulado de comprobaciones correctas.
+10. Contador acumulado de comprobaciones fallidas.
+11. Presentación de resultados por el monitor serie.
+12. Control de espera de tres segundos.
+13. Repetición de comprobaciones cada diez segundos.
+
+**Validación observada:**
+
+- Cuatro comprobaciones satisfactorias.
+- Cero fallos.
+- Tiempos de respuesta aproximados de 19–20 ms.
+
+El tiempo registrado incluye operaciones de conexión TCP y recepción HTTP. No representa exclusivamente la latencia de red.
+
+### 6. ESP32-01 — Servidor de referencia
+
+**Programa:** ETH_MAC_DHCP_StaticIP.ino.
+
+Se utilizó un programa basado en el ejemplo de Waveshare y adaptado para funcionar como servidor HTTP.
+
+El firmware:
+
+- Inicializa W5500 y Ethernet.
+- Obtiene configuración mediante DHCP.
+- Escucha conexiones TCP en el puerto 80.
+- Recibe solicitudes HTTP.
+- Devuelve una respuesta HTTP/1.1 200 OK.
+- Entrega una página HTML identificando al ESP32-01.
+- Cierra la conexión después de responder.
+
+Aunque el archivo conserva el nombre original relacionado con DHCP e IP estática, la versión documentada no implementa una IP estática de respaldo.
+
+### 7. Conectividad y diagnóstico
+
+Durante la intervención se revisó la correspondencia entre dispositivos, conexiones físicas y reservas DHCP.
+
+Se corrigió la distribución de ESP32-02 y ESP32-03 entre LAN4 y LAN5 respecto al estado histórico del 03/10.
+
+Las pruebas HTTP permitieron observar la comunicación TCP entre nodos y la respuesta del servidor.
+
+La actualización del MikroTik a RouterOS 7.24.5 conservó las reservas DHCP existentes.
+
+En una comprobación posterior, las reservas de los tres ESP32 aparecieron en estado waiting. No se consideró prueba suficiente de fallo de conectividad.
+
+### 8. Limitaciones identificadas
+
+- No existe recuperación DHCP completa en los programas cliente y monitor.
+- Los contadores de ESP32-03 se pierden al reiniciar.
+- ESP32-03 verifica el código HTTP, pero no el contenido de la página.
+- No existe todavía almacenamiento persistente ni exportación centralizada de métricas.
+- La disponibilidad HTTP no garantiza por sí sola el correcto funcionamiento de todos los servicios de red.
+- Queda pendiente una prueba conjunta posterior con los tres nodos activos.
+
+### 9. Incorporación de código y documentación a Git
+
+Se incorporaron al repositorio local los programas:
+
+- laboratorio-fisico/esp32/ESP32-01/ETH_MAC_DHCP_StaticIP.ino
+- laboratorio-fisico/esp32/ESP32-02/ESP32_HTTP_CLIENT.ino
+- laboratorio-fisico/esp32/ESP32-03/ESP32_HTTP_MONITOR.ino
+
+Se actualizó laboratorio-fisico/esp32/README.md con la arquitectura, el funcionamiento de los tres nodos y las limitaciones conocidas.
+
+Se conservó una copia de la documentación anterior en README.pre-20261012.md.
+
+### 10. Resultado
+
+Se implementó una arquitectura Ethernet con tres funciones diferenciadas:
+
+**ESP32-01:** servidor HTTP.
+**ESP32-02:** cliente HTTP periódico.
+**ESP32-03:** monitor HTTP con validación de estado, medición de tiempo de respuesta y estadísticas.
+
+Las comunicaciones y la monitorización fueron verificadas satisfactoriamente en las pruebas registradas.
+
+La intervención constituye una práctica de desarrollo de firmware, configuración Ethernet, comunicación TCP/IP y monitorización de servicios.
