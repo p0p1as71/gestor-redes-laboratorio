@@ -1,21 +1,3 @@
-# Tres ESP32-S3-POE-ETH
-
-**Modelo documentado:** Waveshare ESP32-S3-POE-ETH.
-**Función:** nodos de prácticas Ethernet; funciones permanentes de diagnóstico aún por definir.
-
-| Nodo | Puerto SG2210P (03/10) | IP DHCP reservada |
-|---|---|---|
-| ESP32-01 | Gi1/0/3 | 192.168.88.245 |
-| ESP32-02 | Gi1/0/5 | 192.168.88.246 |
-| ESP32-03 | Gi1/0/4 | 192.168.88.247 |
-
-## Incidencia resuelta el 03/10
-
-Las tres placas anunciaban inicialmente la misma MAC Ethernet `02:00:00:12:34:56`, causando desplazamiento del aprendizaje MAC entre puertos. Tras corrección del firmware y reservas DHCP, la tabla del switch mostró tres identidades independientes. El registro histórico no asegura que sigan ejecutando ese firmware hoy.
-
-## Próximo diseño
-
-Asignar a cada nodo una función mensurable y diferenciada (por ejemplo: comprobación ICMP de gateway, medición de disponibilidad de DNS y prueba de conectividad entre segmentos), sin instalar ni desplegar firmware antes de decidir el alcance de tráfico y el modo de observación.
 # Laboratorio físico — Tres ESP32-S3-POE-ETH
 
 **Hardware:** 3 placas Waveshare ESP32-S3-POE-ETH con controlador Ethernet W5500.
@@ -61,9 +43,7 @@ Esto provocaba desplazamientos del aprendizaje MAC entre los puertos del switch.
 
 Se identificaron las placas por USB, se corrigieron sus identidades Ethernet y se actualizaron las reservas DHCP del MikroTik.
 
-Esta incidencia está documentada en:
-
-`practicas/switching/PRAC-002-conflicto-mac-esp32.md`
+Esta incidencia está documentada en [PRAC-002 — Conflicto de MAC](../../practicas/switching/PRAC-002-conflicto-mac-esp32.md).
 
 La distribución histórica de puertos era diferente de la documentada el 12/10.
 
@@ -170,6 +150,8 @@ En la serie observada:
 
 El tiempo registrado incluye la conexión TCP y la recepción de la primera línea HTTP; no equivale exclusivamente a la latencia de red.
 
+La evidencia se registra en [PRAC-004 — HTTP Ethernet entre ESP32](../../practicas/switching/PRAC-004-http-esp32.md).
+
 ## 8. Validación de comunicaciones
 
 Las pruebas realizadas permiten confirmar:
@@ -212,7 +194,7 @@ Las nuevas funciones deberán diseñarse y validarse antes de modificar los firm
 - 02–03/10/2026: diagnóstico y corrección del conflicto MAC.
 - 12/10/2026: implementación y validación de la arquitectura HTTP.
 - Código fuente: carpetas `ESP32-01`, `ESP32-02` y `ESP32-03`.
-- Historial de intervenciones: `CHANGELOG.md`.
+- Historial de intervenciones: [CHANGELOG](../../CHANGELOG.md).
 - Documento histórico conservado: `README.pre-20261012.md`.
 
 **Estado documental:** se describen las funcionalidades comprobadas y las que se deducen directamente de los programas. Los pasos de preparación no respaldados por registros específicos no se presentan como verificaciones independientes.
