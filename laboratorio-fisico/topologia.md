@@ -16,9 +16,9 @@ flowchart TD
     M ---|"Otro puerto LAN"| Y["Arduino Yún · nodo de experimentación"]
     M ---|"Enlace LAN"| SW["SG2210P · switching y PoE"]
     SW ---|"Ethernet / PoE"| AP["EAP225 · acceso Wi-Fi"]
-    SW ---|"Puerto propio"| E1["ESP32-01 · prácticas Ethernet"]
-    SW ---|"Puerto propio"| E2["ESP32-02 · prácticas Ethernet"]
-    SW ---|"Puerto propio"| E3["ESP32-03 · prácticas Ethernet"]
+    SW ---|"Puerto 3"| E1["ESP32-01 · prácticas Ethernet"]
+    SW ---|"Puerto 4"| E2["ESP32-02 · prácticas Ethernet"]
+    SW ---|"Puerto 5"| E3["ESP32-03 · prácticas Ethernet"]
     SW ---|"Puerto 6 · ACCESS VLAN 20 · RTL8153"| L["OPNsense OPT1 / ue0 · 10.20.20.1/24 · VM en MEDION"]
 ```
 
@@ -35,9 +35,9 @@ Las líneas representan enlaces, no direcciones de tráfico. El equipo del puert
 | Yún Ethernet | Otro puerto MikroTik LAN | ether3 en 20 y 27/09 | Usuario confirma relación actual; número actual no comprobado |
 | SG2210P uplink | MikroTik LAN | Switch puerto 1; vecino LLDP MikroTik bridge/ether4 | Omada LLDP del 10/10; etiqueta de interfaz a contrastar en MikroTik |
 | EAP225 | SG2210P | Switch puerto 2 | Omada LLDP del 10/10, vecino C0:3A:55:A9:6B:C2 |
-| ESP32-01 | SG2210P | Gi1/0/3 en 03/10 | Tabla MAC y reserva DHCP históricas |
-| ESP32-02 | SG2210P | Gi1/0/5 en 03/10 | Tabla MAC y reserva DHCP históricas |
-| ESP32-03 | SG2210P | Gi1/0/4 en 03/10 | Tabla MAC y reserva DHCP históricas |
+| ESP32-01 | SG2210P | **Gi1/0/3**, referencia 12/10 | Cableado comunicado y enlace activo observado en Omada |
+| ESP32-02 | SG2210P | **Gi1/0/4**, referencia 12/10 | Cableado corregido; enlace en puerto 4 visible en Omada; identificación MAC↔placa pendiente |
+| ESP32-03 | SG2210P | **Gi1/0/5**, referencia 12/10 | Cableado corregido; enlace en puerto 5 visible en Omada; identificación MAC↔placa pendiente |
 | MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Informe 12/10: puerto 6 Access VLAN 20, MAC 00:E0:4C:68:31:B0, passthrough a OPNsense OPT1/ue0, 10.20.20.1/24, 1 Gbps; no hay cliente de VLAN 20 probado |
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
@@ -46,7 +46,7 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 
 - MikroTik RB750r2: RouterOS y RouterBOOT 7.24.5 confirmados tras actualización; routing, DNS y DHCP comprobados dentro del alcance descrito en su [ficha](mikrotik/README.md).
 - ESP32: funciones HTTP servidor (01), cliente (02), monitor (03) probadas.
-- Puerto 4/5 ESP32: asignación **nueva** del CHANGELOG (02→4, 03→5) distinta del registro del 03/10 (02→5, 03→4); reconciliar en Omada antes de sustituir las entradas históricas anteriores.
+- Cableado **corregido el 12/10**: ESP32-01→3, ESP32-02→4, ESP32-03→5. Esta es la referencia vigente; el 03/10 quedó registrado históricamente el cruce 02→5 / 03→4. Omada muestra enlaces activos en 3–5, pero falta correlación inequívoca MAC↔identidad de cada ESP32.
 
 ## Funciones
 
@@ -64,7 +64,7 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 ## Datos no verificables desde el repositorio
 
 - MAC del adaptador MEDION: `00:E0:4C:68:31:B0`; el 10/10 se observó `ue0` sin IP; el 12/10 se configuró `OPT1/ue0` con `10.20.20.1/24`. La comunicación con un cliente y las políticas firewall siguen sin verificarse.
-- Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún/ESP32; los puertos del switch 1, 2 y 6 están identificados por Omada/usuario.
+- Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún; para ESP32 se dispone de cableado comunicado (3, 4 y 5) y enlaces activos observados, pendiente de identificación MAC inequívoca de los nodos 02/03.
 - IP/MAC, VLAN, rutas, concesiones DHCP, servicios y estado de enlaces actuales.
 - Contenido vigente de NetBox y del HTML del dashboard: no hay exportación ni fuente HTML en esta rama.
 - Estado real de la réplica Lenovo. En MEDION sí se verificaron `opnsense-lab` y `debian-client01`, con WAN `default` y LAN `lab-isolated`; consultar la ficha MEDION.
