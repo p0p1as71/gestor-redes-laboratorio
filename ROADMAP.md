@@ -26,9 +26,16 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [x] Identificar segunda VM: `debian-client01` (10/10/2026).
 - [ ] Verificar comportamiento con tapa cerrada.
 
-## P3 — Servicios y operación
+## P3 — Mejoras físicas comprobadas el 12/10
+- [x] Actualizar RouterOS/RouterBOOT del MikroTik hEX lite a 7.24.5 con backups y comprobaciones básicas.
+- [x] Probar comunicación HTTP ESP32-02 → ESP32-01 y monitorización ESP32-03.
+- [ ] Reconfirmar los puertos 4/5 para ESP32-02/03 tras corregir cables.
+- [ ] Repetir pruebas ESP32 con los tres nodos activos y reservas DHCP observadas.
+- [ ] Incorporar fuentes y versiones definitivas de los tres firmwares ESP32 tras revisión.
+
+## P4 — Servicios y operación
 - [ ] Comprobar dashboard y reconciliar datos NetBox/LibreNMS.
-- [ ] Definir tres funciones útiles para ESP32 físicos.
+- [x] Definir y probar tres roles iniciales para ESP32 físicos: servidor, cliente y monitor HTTP.
 - [ ] Documentar evidencias fechadas y prácticas nuevas.
 
 Fuentes: informe de arquitectura virtual aportado el 10/10/2026 (diseño Lenovo) y CHANGELOG (historial físico/MEDION).
