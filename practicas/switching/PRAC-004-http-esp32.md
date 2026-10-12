@@ -16,7 +16,7 @@ HTTP utiliza un protocolo de aplicación sobre la conectividad IP. La respuesta 
 | ESP32-02 | `192.168.88.246` | LAN4 | Cliente HTTP (cada 10 s) |
 | ESP32-03 | `192.168.88.247` | LAN5 | Monitor HTTP |
 
-**Nota de evidencia:** el 03/10 se documentó ESP32-02 en puerto 5 y ESP32-03 en puerto 4. El 12/10 se registró una corrección de cables LAN4/LAN5 y el mapa anterior. Mantener ambos registros fechados hasta correlacionar físicamente MAC y puerto en Omada.
+**Nota de evidencia:** el 03/10 se documentó ESP32-02 en puerto 5 y ESP32-03 en puerto 4. El 12/10 se registró una corrección de cables LAN4/LAN5 y el mapa anterior. El mapa de referencia vigente tras la corrección física es 02→4 y 03→5; el del 03/10 es histórico. Una captura posterior Omada confirma enlaces en los puertos 3–5, pero falta validar de modo independiente la correspondencia MAC↔nodo para los puertos 4 y 5.
 
 ## Implementación registrada
 
@@ -38,7 +38,7 @@ HTTP utiliza un protocolo de aplicación sobre la conectividad IP. La respuesta 
 
 - Repetir prueba con los tres nodos activos, identificando MAC/puerto y estado DHCP.
 - Registrar número de peticiones, errores, latencia, uptime y fecha de la nueva serie.
-- Incorporar código fuente y versiones de firmware **solo después** de revisar que no incluyan credenciales o datos sensibles.
+- Los tres archivos `.ino` ya se incorporaron a GitHub (commit `d4f81cc`); siguen pendientes la revisión técnica de las fuentes y la identificación de versiones definitivas de firmware.
 - No inferir persistencia del servicio ni mediciones continuadas de una serie de cuatro peticiones.
 
 **Fuente:** entradas «Actualización de MikroTik hEX lite a RouterOS 7.24.5» e «Implementación y pruebas HTTP entre ESP32 del laboratorio físico», `CHANGELOG.md`, 12/10/2026.
