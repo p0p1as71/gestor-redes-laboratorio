@@ -3027,3 +3027,59 @@ Se probó `netlab-traffic.timer` con una programación inicial de cinco minutos 
 **Documentación:** [PRAC-005 — Generación y captura de tráfico en Debian Client](practicas/diagnostico/PRAC-005-trafico-pcap-debian-client.md).
 
 **Límite de evidencia:** esta entrada recoge el informe facilitado por el usuario; el archivo PCAP no ha sido subido ni auditado directamente desde el repositorio.
+
+---
+
+## 2026-10-14 — Diagnóstico de conectividad Tailscale y habilitación de journald persistente en Raspberry Pi 4
+
+**Ámbito:** entorno real de administración del laboratorio (`raspi` y Lenovo ThinkPad L13 Gen 3). No corresponde a la réplica virtual Lenovo ni a la plataforma MEDION.
+
+### Incidencia y recuperación de conectividad
+
+- La Raspberry Pi 4 (`Raspi`) y el Lenovo aparecieron desconectados en la aplicación móvil de Tailscale. La Raspberry tampoco respondió inicialmente a `tailscale ping`.
+- Raspberry Pi 4: Wi-Fi `wlan0` en `192.168.1.236`, Ethernet `eth0` en `192.168.100.1/30`, Tailscale `100.90.39.30` y usuario SSH `popi`.
+- Tras un **reinicio físico** de la Raspberry se recuperaron Tailscale y el acceso SSH desde el Lenovo. Se obtuvo `pong from raspi (100.90.39.30) via 192.168.1.236:41641 in 2ms`, mediante conexión directa sin relay DERP.
+- Lenovo L13: Tailscale `100.116.135.126`, IP doméstica `192.168.1.192` y versión de Tailscale `1.104.1`. Se comprobó conectividad con la Raspberry y con el VPS `ailab-core01` (`100.87.19.25`). No se actualizó ni reinstaló Tailscale en el Lenovo.
+
+### Diagnóstico y persistencia de registros en Raspberry Pi 4
+
+- `journalctl --list-boots` mostraba únicamente el arranque actual. Se identificó la configuración efectiva `/usr/lib/systemd/journald.conf.d/40-rpi-volatile-storage.conf` con `Storage=volatile`, que impedía conservar el historial entre reinicios.
+- Tras comprobar el espacio disponible, se creó la configuración independiente `/etc/systemd/journald.conf.d/90-persistent.conf`, sin modificar el archivo original de Raspberry Pi OS:
+
+  ```ini
+  [Journal]
+  Storage=persistent
+  SystemMaxUse=100M
+  MaxRetentionSec=14day
+  ```
+
+- Se verificó el contenido y la prioridad de la configuración, se reinició de forma controlada `systemd-journald`, se ejecutó `journalctl --flush` y se comprobó la presencia de registros en `/var/log/journal`.
+- Ocupación inicial reportada: **16 MB** (`Archived and active journals take up 16M in the file system`). Se configuraron un máximo de **100 MB** y una retención de **14 días**, sujetos a las reglas de conservación de journald.
+- **Pendiente de validar:** que los registros persistan tras el siguiente reinicio ordinario de la Raspberry.
+
+### Análisis de red y Tailscale en Lenovo L13
+
+- NetworkManager registró la obtención de `192.168.88.249` en `Lab-Redes` a las 09:33:43 y problemas intermitentes de comunicación con DERP Madrid entre las 09:33 y las 09:37.
+- A las 09:37:53 se solicitó activar `Starlink` desde `nm-applet` (PID 1835, UID 1000), se recibió `192.168.1.192` y se confirmó conectividad global; a las 09:38:04 los indicadores de salud de Tailscale eran correctos.
+- El usuario indicó posteriormente que **es posible que él mismo efectuara el cambio de Wi-Fi**. No se considera demostrado un cambio automático no autorizado ni un fallo de NetworkManager.
+- Los perfiles `Starlink` y `Lab-Redes` tenían autoconexión activada y prioridad `0`, ambos por DHCP. En `Lab-Redes`: `ipv4.method=auto`, `ipv4.never-default=no` y `ipv4.gateway=--` en la configuración consultada. No está demostrado que `Lab-Redes` careciera de acceso general a Internet.
+- En ambos equipos aparecieron errores `logtail: upload failed 429: rate limited on bytes transferred per ID`, con reintentos posteriores satisfactorios. Afectan al envío de registros de diagnóstico; **no hay evidencia para atribuirles la desconexión original**.
+- En el Lenovo se observaron intentos fallidos hacia `192.168.100.2:80` a través de la Raspberry mientras esta estaba desconectada. Revisar por separado si se repiten con la Raspberry operativa.
+
+### Principio arquitectónico y límites
+
+- Se establece como requisito que las redes físicas y de laboratorio dispongan de salida a Internet y mecanismos de administración remota **autorizada**, según su función, sin permitir por ello comunicación indiscriminada entre subredes.
+- Deben mantenerse separados: acceso a Internet, acceso administrativo remoto, permisos entre redes, aislamiento experimental y servicios de producción. Tailscale permanece como componente de acceso remoto autorizado.
+- Se evaluarán rutas alternativas de administración y puntos únicos de fallo en la infraestructura doméstica.
+- **No se modificaron** Tailscale, Docker, NetBox ni LibreNMS en la Raspberry; tampoco se cambiaron las redes virtuales KVM ni la plataforma MEDION.
+
+### Estado final y trabajos pendientes
+
+**Verificado según informe del 14/10/2026:** Raspberry y Lenovo accesibles por Tailscale; comunicación directa Lenovo–Raspberry; SSH a la Raspberry recuperado; registros de journald escritos de forma persistente en disco con configuración independiente; uso inicial de 16 MB; Tailscale del Lenovo operativo.
+
+**No demostrado:** causa exacta de la desconexión de Raspberry; participación de una actualización de Tailscale; ausencia general de Internet desde `Lab-Redes`; cambio de Wi-Fi automático.
+
+**Pendiente:** (1) verificar persistencia de journald tras reiniciar; (2) probar Internet y Tailscale desde `Lab-Redes`; (3) revisar las rutas remotas autorizadas entre subredes; (4) investigar `192.168.100.2:80` si reaparece el fallo; (5) evaluar monitorización y alertas de conectividad de los nodos principales.
+
+**Límite de evidencia:** registro documental basado en el informe aportado; no constituye auditoría directa de los equipos ni autorización para nuevos cambios de configuración.
+
