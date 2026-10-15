@@ -15,3 +15,7 @@ Ficha de conexión física: [MEDION en el switch](portatil-switch/README.md).
 
 Consultar [inventario](inventario/README.md) y [topología](topologia.md). La asignación de puertos actual requiere conciliación con NetBox y las tablas de equipos.
 
+
+## Extensión planificada — PYME virtual Lenovo (15/10/2026)
+
+Se estudia añadir **clientes y servidores virtuales** (Windows 11, NAS OpenMediaVault y CUPS/IPP) a la red física mediante un adaptador USB-Ethernet del Lenovo y Linux Bridge. **No está conectado ni aprobado ningún puerto del switch para este fin**. Comprobar primero coexistencia con el MEDION (puerto 6/VLAN 20), disponibilidad de adaptador distinto, puertos, VLAN, IPAM, DHCP y aislamiento. Este plan sustituye la intención de reproducir todos los dispositivos físicos como VMs.

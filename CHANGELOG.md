@@ -3162,3 +3162,63 @@ Solo se instalaron herramientas de auditoría en Lenovo y se actualizó document
 - Reglas verificadas: `deletion` (impedir eliminación), `non_fast_forward` (impedir force push) y `pull_request` (exigir PR antes de integrar) con `required_approving_review_count=0`.
 - **Estado: protección de `main` verificada a nivel de configuración del ruleset**. No se realizó un intento de push prohibido ni una prueba disruptiva de aplicación.
 - Esta comprobación cierra el pendiente de alcance del ruleset descrito en la entrada anterior, sin cerrar la auditoría global de exposición de servicios ni permisos y alertas GitHub Security.
+
+
+---
+
+## 2026-10-15 — Decisión arquitectónica: PYME virtual Lenovo en lugar de réplica integral; preparar traslado de Omada a VPS
+
+**Ámbitos:** laboratorio FÍSICO, Lenovo L13, VPS Hetzner y plataforma MEDION (separada). **Tipo:** decisión de arquitectura + resultados de diagnóstico comunicados por el usuario; **migración Omada y construcción de PYME NO iniciadas**.
+
+### 1. Cambio de objetivo del laboratorio virtual Lenovo
+
+- **Se descarta como plan activo** reproducir toda la cadena física Pi4 → MikroTik → switch → ESP32/Yún/RPi3 mediante VMs equivalentes. El diseño anterior del 10/10 se conserva como **historial**, no como tarea de ejecución.
+- **Nuevo objetivo aprobado de diseño:** añadir una **red de pequeña empresa virtual** conectable más adelante al laboratorio físico, como si fueran equipos nuevos:
+  - **Windows 11 VM**, puesto de trabajo KVM/QEMU para SMB, IP/DNS, diagnóstico y cliente IPP; RAM de planificación ~4 GiB.
+  - **OpenMediaVault VM** como servidor NAS sin escritorio, SMB y **cuatro discos virtuales** para experimentar RAID 0, 1, 5 y 10 con montajes sucesivos; RAM prevista 1–2 GiB.
+  - **CUPS** como servidor de impresión virtual IPP, preferentemente contenedor segregado; memoria estimada 100–200 MiB.
+  - **Linux Bridge** como switch virtual, inicialmente con red de pruebas aislada; futuro enlace USB 3.0→Ethernet Lenovo→SG2210P solo tras validar puerto, VLAN, DHCP, NetBox y seguridad.
+- RAM adicional orientativa del entorno ~5,5–6,5 GiB, sin medir la sobrecarga total real. Disco de VMs previsto en SSD externo `LAB-VMS`; comprobar su capacidad y disponibilidad actual antes de crear.
+- Direcciones planteadas para eventual integración física: Windows `192.168.88.110`, OMV `192.168.88.120`, CUPS `192.168.88.130`; son **propuestas, no reservas ni concesiones**.
+- **No confundir**: el adaptador RTL8153 actualmente documentado en MEDION sirve a OPNsense en SG2210P puerto 6 Access VLAN20; no hay puerto/adaptador confirmado ni conexión física Lenovo PYME implementada. Wi-Fi cliente del Lenovo seguirá fuera del bridge. Docker existente no se altera.
+- **MEDION** continúa como plataforma independiente: OPNsense `lab-isolated`, LAB-FISICO/VLAN20 y sus prácticas sin integración automática con la PYME.
+
+### 2. Dependencia: Omada Controller Lenovo → VPS Hetzner (solo PLANIFICADA)
+
+**Motivo:** liberar RAM del Lenovo y desacoplar administración Omada del portátil, manteniendo SG2210P/EAP225 bajo gestión continua.
+
+- Fuente del controlador: Lenovo L13, Omada Controller **v6.3.0.45** según sesiones previas; todavía operativo allí. Destino propuesto: VPS `Ailab-core01` Debian 12, vía Tailscale → Raspberry Pi 4 → MikroTik → red física `192.168.88.0/24`.
+- El VPS aloja otros servicios. **No se ha instalado Omada ni trasladado su base de datos**; no se han apagado servicios del Lenovo ni autorizado aperturas públicas.
+- El sistema de descubrimiento DHCP Option 138 documentado anteriormente apunta al Lenovo por Tailscale: debe diseñarse el cambio con reversión, sin modificarlo aún.
+
+### 3. Preparación VPS — resultados reportados el 15/10
+
+| Elemento | Antes / operación comunicada | Después / límite |
+|---|---|---|
+| Disco VPS | 150 GB, 95 % ocupado; backups acumulados en `/home/ailab/ai-lab-core/backups` | **46 GB usados, 99 GB libres, 32 %**; ~91 GB recuperados |
+| Retención local | Copia `/home/ailab/ai-lab-core/scripts/backup.sh.bak-20261015`, edición `backup.sh` | Conserva 3 carpetas locales recientes antes de intentar sincronizar con Google Drive; **sin prueba integral/restauración** |
+| Swap | Creado `/swapfile` de 4 GiB y entrada `/etc/fstab` | 15 GiB de RAM total, 6,2 GiB disponibles; swap 4 GiB activada, 0B usada; **reinicio pendiente** |
+| Tailscale VPS | Activada aceptación de rutas anunciadas `--accept-routes=true` | Rutas Pi4 `192.168.100.0/30` y `192.168.88.0/24` aceptadas según prueba de sesión; salida general por Hetzner |
+
+Estos cambios **ya se realizaron en sesión distinta según el informe aportado**. El trabajo documental actual no vuelve a ejecutar ni valida la restaurabilidad del backup.
+
+### 4. Conectividad VPS ↔ MikroTik — distinción de evidencias
+
+- Ping VPS → Raspberry Tailscale y Ethernet, y MikroTik WAN `192.168.100.2`, documentados como correctos. SSH VPS → MikroTik WAN, reportado correcto.
+- Ping desde VPS a IP LAN MikroTik `192.168.88.1`, repetido el 15/10: **4 paquetes enviados, 4 recibidos, 0 % de pérdidas**, RTT promedio ~71,2 ms; **HECHO VERIFICADO por transcripción aportada**.
+- Una captura de ICMP en MikroTik `/tool sniffer quick interface=ether1 ip-protocol=icmp` **se inició**, pero Termius cerró la sesión y su salida no se conservó. **NO contar como prueba de captura completada**; origen IP visto en `ether1`, SNAT en Raspberry y recorrido exacto no confirmados.
+- **No acreditado:** VPS → SG2210P/EAP225; ping al router **no demuestra acceso** a dispositivos posteriores ni adopción remota operativa.
+- En esta investigación no se cambiaron reglas ni rutas del MikroTik, según el informe aportado.
+
+### 5. Orden de actuación acordado; no ejecutado aún
+
+1. Captura ICMP en MikroTik `ether1` con sesión persistente + ping desde VPS, guardar resultados, identificar IP origen y comprobar si hay SNAT; después probar acceso a dispositivo Omada real.
+2. Comprobar compatibilidad Omada v6.3.0.45/Debian 12, dependencias, puertos y rutas de adopción, y recursos reales del VPS; elegir instalación nativa o Docker sin tocar producción.
+3. Validar backup/restauración del VPS, preparar backup del controlador Lenovo y plan de rollback.
+4. Instalar y restaurar Omada en VPS **solo con autorización**, confirmar adopción/comunicación SG2210P/EAP225; desactivar Lenovo únicamente tras verificaciones.
+5. Medir RAM/SSD libre del Lenovo, revisar KVM/libvirt y red `LAB-NET`, crear Linux Bridge inicialmente aislado; desplegar Windows 11, OpenMediaVault (cuatro discos virtuales) y CUPS/IPP en entorno segregado.
+6. Integración futura por adaptador USB-Ethernet **del Lenovo** al SG2210P, previa comprobación de puerto/VLAN/IPAM/aislamiento y autorización; practicar y registrar resultados en GitHub y NetBox.
+
+### Estado al cierre
+
+**DECISIÓN DOCUMENTADA / MIGRACIÓN NO INICIADA / PYME VIRTUAL NO DESPLEGADA.** VPS preparado parcialmente; conectividad ICMP hasta el MikroTik LAN confirmada, **no** hasta Omada; sniffer no conservado. No se modificaron equipos, VPS, firmware, reglas, servicios, NetBox ni redes al documentar este cambio.

@@ -38,3 +38,9 @@ El informe citado registra LAB-NET 192.168.50.0/24 en Lenovo, sin función defin
 
 No alterar de forma incidental el entorno doméstico, Tailscale, Docker, VPS ni producción. Distinguir diseño, configuración histórica y estado comprobado del momento.
 
+
+## Cambio de estrategia acordado — 15/10/2026
+
+El diseño de réplica funcional descrito arriba es **histórico y sustituido como objetivo activo**. En Lenovo se proyecta una **PYME virtual** con Windows 11 como puesto de trabajo; OpenMediaVault como NAS con discos virtuales para RAID 0/1/5/10; y CUPS/IPP en contenedor aislado (sin enlazar Docker de producción). KVM/QEMU alojará las VMs y un Linux Bridge conectará sus interfaces, inicialmente en red de prueba aislada. Solo después de revisar puertos, VLAN, DHCP, reservas y controles de acceso podrá estudiarse un uplink USB-Ethernet al SG2210P en la LAN `192.168.88.0/24`. Direcciones `.110`, `.120` y `.130` son **propuestas**, no reservas. El adaptador del MEDION es parte de otra plataforma: **no asumir disponibilidad del mismo adaptador para Lenovo**.
+
+La reducción de consumo del Lenovo depende de una futura migración controlada de Omada al VPS Hetzner; no se ha iniciado. MEDION y producción se mantienen separados. [Diseño PYME](../laboratorio-virtual/lenovo-l13/README.md).

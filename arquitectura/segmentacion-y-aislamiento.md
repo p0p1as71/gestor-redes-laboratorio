@@ -30,3 +30,7 @@ Una interfaz o red denominada «aislada» no demuestra por sí sola aislamiento 
 
 Estado: **SALIDA A INTERNET VERIFICADA / AISLAMIENTO FRENTE A REDES PRIVADAS NO VERIFICADO**.
 
+
+## PYME virtual Lenovo — nueva política objetivo 15/10/2026
+
+Primero red virtual **aislada para prácticas**, con Windows 11 y NAS OpenMediaVault; CUPS debe conectarse a esa red mediante mecanismo explícito y segregado, sin incorporar contenedores existentes. Antes de conectar un Linux Bridge a un adaptador Ethernet físico hacia SG2210P, comprobar aislamiento L2/L3, VLAN del puerto, IPAM/NetBox, DHCP, firewall y rutas. Las direcciones `192.168.88.110/.120/.130` están propuestas, **no asignadas**. No puentear la Wi-Fi doméstica del Lenovo ni reutilizar el RTL8153 de MEDION sin evaluación independiente. El cambio no relaja las precauciones sobre VPS y Tailscale.
