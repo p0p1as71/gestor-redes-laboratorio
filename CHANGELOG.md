@@ -3118,3 +3118,38 @@ Se probó `netlab-traffic.timer` con una programación inicial de cinco minutos 
 **Ruta guardada y activa; conexión SSH a consola MikroTik acreditada en la sesión del 15/10.** La persistencia *tras un reinicio real de la Raspberry* sigue **PENDIENTE DE VERIFICACIÓN**. Este registro no acredita por sí mismo acceso SSH directo Lenovo→MikroTik, sino administración desde la Raspberry alcanzada mediante Tailscale.
 
 **Lección:** anunciar subredes en Tailscale no sustituye el enrutamiento local del router que las anuncia; comprobar `ip route get` antes de cambiar firewall.
+
+
+---
+
+## 2026-10-15 — Auditoría de secretos y reglas de protección del repositorio público
+
+**Ámbito:** GitHub `p0p1as71/gestor-redes-laboratorio` y análisis local en Lenovo ThinkPad L13. **Categoría:** seguridad, gobernanza y publicación.
+
+### Auditoría de secretos — Gitleaks
+
+- El repositorio fue confirmado como **público** en GitHub; se corrigió la portada y se documentó una revisión parcial de publicación mediante el PR #9 (commit `0f49f15`).
+- En Lenovo se instaló Gitleaks desde los repositorios de Ubuntu Noble; el ejecutable responde, aunque `gitleaks version` muestra `version is set by build process`.
+- Comando de auditoría ejecutado: `gitleaks detect --source ~/gestor-redes-laboratorio --log-opts="--all" --redact --no-banner`.
+- **Resultado consignado:** `104 commits scanned`, `no leaks found`. No se detectaron secretos reconocibles por las reglas predeterminadas de Gitleaks.
+- `git branch -a`, `git ls-remote --heads origin` y `git show-ref` permitieron contrastar **10 ramas remotas** y sus SHA coincidentes en GitHub y Lenovo. La cobertura corresponde a refs actuales accesibles, no a objetos eliminados o inalcanzables.
+- La auditoría no certifica ausencia absoluta de credenciales, exposición de servicios ni permisos de colaboración.
+
+### GitHub CLI — diagnóstico sin cambios de seguridad acreditados
+
+- La consulta de protección desde `gh api` devolvió HTTP 401; `gh auth status` identificó un token local inválido.
+- Se inició `gh auth login`, que intentó proponer una clave pública SSH ya existente y abrir un navegador; no se acreditó finalización de la autenticación ni alta de clave nueva. Se decidió dejar `gh` sin intervención adicional y continuar con el conector GitHub de ChatGPT.
+- Git por SSH del Lenovo y la integración GitHub de ChatGPT funcionaron de forma independiente.
+
+### Reglas GitHub — estado observado el 15/10
+
+- El usuario creó en la interfaz web el ruleset **`Proteccion-main`** (ID `25191874`); la API confirmó `enforcement=active` y reglas de **prohibición de borrado**, **bloqueo de force push** y **Pull Request obligatorio** con **0 aprobaciones requeridas**.
+- **Incidencia de alcance pendiente:** la consulta directa de GitHub devolvió `conditions.ref_name.include=[]`. La rama `main` aparecía `protected=false` en su endpoint. Aunque el usuario comunicó haber configurado los objetivos, **no está verificado que el ruleset se aplique efectivamente a ninguna rama**.
+- **No declarar `main` protegida** hasta confirmar que la regla contiene una condición de inclusión que coincida con `main` y que su aplicación es efectiva.
+- Sigue pendiente consultar alertas GitHub Security, colaboradores/permisos, historial inalcanzable y superficie de exposición de servicios de administración.
+
+### Impacto
+
+Solo se instalaron herramientas de auditoría en Lenovo y se actualizó documentación GitHub. **No se modificaron equipos del laboratorio, VLAN, firewall, Tailscale ni NetBox.**
+
+**Dictamen:** exploración inicial de secretos **favorable**; revisión de seguridad de publicación **abierta**; ruleset **creado pero aplicación a `main` no acreditada**.
