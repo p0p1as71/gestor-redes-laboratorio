@@ -35,6 +35,7 @@
 
 #include <SPI.h>
 #include <Ethernet_Generic.h>  // Or Ethernet.h depending on installed library
+#include <esp_mac.h>
 
 // W5500 Pin Assignments
 #define W5500_CS     14  // Chip Select (CS)
@@ -45,17 +46,19 @@
 #define W5500_SCK    13  // SPI Clock (SCK)
 
 // MAC address (can be random but should be unique on the network)
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+byte mac[6];
 
 // Ethernet client instance
 EthernetClient client;
 
+// HTTP server listening on TCP port 80
+EthernetServer server(80);
+
 void setup() {
   // Start serial communication
   Serial.begin(115200);
-  while (!Serial) {
-    ; // Wait for serial port to be ready (for native USB boards)
-  }
+  Serial.println("BOOT OK");
+  esp_read_mac(mac, ESP_MAC_ETH);
 
   // Initialize SPI with custom pins
   SPI.begin(W5500_SCK, W5500_MISO, W5500_MOSI, W5500_CS);
@@ -70,18 +73,9 @@ void setup() {
   // Initialize Ethernet with specified CS pin
   Ethernet.init(W5500_CS);
 
-  // Try to configure using DHCP
+  // Configure Ethernet using DHCP only
   if (Ethernet.begin(mac) == 0) {
-    Serial.println("DHCP failed, falling back to static IP...");
-
-    // Static IP fallback settings
-    IPAddress ip(192, 168, 1, 177);
-    IPAddress gateway(192, 168, 1, 1);
-    IPAddress subnet(255, 255, 255, 0);
-    IPAddress dns(192, 168, 1, 1);
-
-    // Initialize with static IP
-    Ethernet.begin(mac, ip, dns, gateway, subnet);
+    Serial.println("DHCP failed.");
   }
 
   delay(1000);
@@ -89,8 +83,46 @@ void setup() {
   // Print the assigned IP address
   Serial.print("IP Address: ");
   Serial.println(Ethernet.localIP());
+  server.begin();
+  Serial.println("HTTP server started on port 80");
 }
 
 void loop() {
-  // Your main loop code here (e.g., TCP/UDP handling)
+
+  EthernetClient client = server.available();
+
+  if (client) {
+    Serial.println("HTTP client connected");
+
+    unsigned long startTime = millis();
+    bool currentLineIsBlank = true;
+
+    while (client.connected() && millis() - startTime < 2000) {
+      if (client.available()) {
+        char c = client.read();
+
+        if (c == '\n' && currentLineIsBlank) {
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html; charset=UTF-8");
+          client.println("Connection: close");
+          client.println();
+          client.println("<html><body>");
+          client.println("<h1>ESP32-01 - Laboratorio de redes</h1>");
+          client.println("<p>Servidor HTTP funcionando.</p>");
+          client.println("</body></html>");
+          break;
+        }
+
+        if (c == '\n') {
+          currentLineIsBlank = true;
+        } else if (c != '\r') {
+          currentLineIsBlank = false;
+        }
+      }
+    }
+
+    delay(1);
+    client.stop();
+    Serial.println("HTTP client disconnected");
+  }
 }
