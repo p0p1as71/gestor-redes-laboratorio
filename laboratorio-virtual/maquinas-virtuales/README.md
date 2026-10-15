@@ -15,3 +15,7 @@ Ninguna VM de MEDION se cuenta como máquina de la réplica del Lenovo.
 
 Para cada VM registrar: anfitrión, propósito, interfaces, redes, recursos, fecha/evidencia de comprobación y política de respaldo.
 
+
+## Nuevo objetivo Lenovo — PYME virtual (15/10/2026)
+
+El inventario de VMs de réplica descrito arriba es **histórico**, no un despliegue ni la lista de creación vigente. Nuevos objetivos: **Windows 11** (KVM/QEMU, puesto de trabajo, RAM inicial de planificación 4 GB); **OpenMediaVault** (KVM/QEMU, servidor NAS/SMB sin escritorio, 1–2 GB RAM previstos y cuatro discos virtuales de prueba para comparar RAID 0/1/5/10, configuraciones sucesivas); **CUPS** (preferentemente Docker aislado, 100–200 MB estimados, con acceso IPP diseñado explícitamente). Estos consumos no se han medido. La disponibilidad de CPU/RAM/SSD externo y licencias se verificará antes de crear máquinas. No se han implementado estas VMs en esta intervención. MEDION sigue independiente.
