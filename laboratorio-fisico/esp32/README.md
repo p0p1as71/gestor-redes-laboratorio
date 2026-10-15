@@ -2,7 +2,7 @@
 
 **Hardware:** 3 placas Waveshare ESP32-S3-POE-ETH con controlador Ethernet W5500.
 **Red:** 192.168.88.0/24.
-**Fecha de actualización:** 12/10/2026.
+**Fecha de actualización de documentación:** 15/10/2026 (sin nueva prueba funcional de hardware).
 **Estado:** arquitectura HTTP implementada y pruebas funcionales satisfactorias.
 
 ## 1. Objetivo
@@ -77,6 +77,9 @@ La interfaz Ethernet se inicializa mediante `Ethernet.init(W5500_CS)` y `Etherne
 El monitor serie utiliza 115200 baudios.
 
 ## 5. ESP32-01 — Servidor HTTP
+
+**Corrección de fuente publicada:** commit GitHub `6d9aaae` del 15/10/2026, `fix: recuperar firmware HTTP original del ESP32-01`. La inspección de `ESP32-01/ETH_MAC_DHCP_StaticIP.ino` en `main` confirma generación de MAC con `esp_read_mac`, DHCP mediante `Ethernet.begin(mac)`, `EthernetServer server(80)` y respuesta `HTTP/1.1 200 OK`. Se resuelve **H01 como discrepancia de fuente publicada** respecto de la función HTTP documentada. Las pruebas HTTP del 12/10 se conservan como antecedentes; **no consta nueva prueba del firmware sobre hardware después del commit**.
+
 
 **Firmware:** `ESP32-01/ETH_MAC_DHCP_StaticIP.ino`
 
@@ -192,7 +195,8 @@ Las nuevas funciones deberán diseñarse y validarse antes de modificar los firm
 ## 11. Trazabilidad
 
 - 02–03/10/2026: diagnóstico y corrección del conflicto MAC.
-- 12/10/2026: implementación y validación de la arquitectura HTTP.
+- 12/10/2026: implementación y validación histórica de la arquitectura HTTP.
+- 15/10/2026: recuperación del sketch servidor ESP32-01 en GitHub, commit `6d9aaae`; H01 resuelto documentalmente, pendiente revalidación en dispositivo si se requiere.
 - Código fuente: carpetas `ESP32-01`, `ESP32-02` y `ESP32-03`.
 - Historial de intervenciones: [CHANGELOG](../../CHANGELOG.md).
 - Documento histórico conservado: `README.pre-20261012.md`.
