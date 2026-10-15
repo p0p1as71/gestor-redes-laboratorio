@@ -3083,3 +3083,38 @@ Se probó `netlab-traffic.timer` con una programación inicial de cinco minutos 
 
 **Límite de evidencia:** registro documental basado en el informe aportado; no constituye auditoría directa de los equipos ni autorización para nuevos cambios de configuración.
 
+
+
+---
+
+## 2026-10-15 — Raspberry Pi 4: ruta persistente hacia MikroTik y recuperación de SSH
+
+**Ámbito:** laboratorio FÍSICO (Raspberry Pi 4 `Raspi` / MikroTik). **Fuente:** diagnóstico y captura Termius aportados el 15/10/2026; no es inspección en vivo realizada desde este repositorio.
+
+### Incidencia y diagnóstico
+
+- La conexión SSH hacia `192.168.88.1:22` agotaba el tiempo desde Lenovo a través de Tailscale y también desde Raspberry Pi 4.
+- Tailscale Lenovo↔Raspberry funcionaba (~5 ms); la Raspberry anunciaba `192.168.100.0/30` y `192.168.88.0/24`.
+- `eth0` tenía `192.168.100.1/30`; faltaba ruta específica `192.168.88.0/24` en la Raspberry.
+- Antes del cambio, `ip route get 192.168.88.1` elegía `via 192.168.1.1 dev wlan0` (Starlink), no el tránsito Ethernet al MikroTik.
+
+### Corrección aplicada a la Raspberry (ya realizada)
+
+1. Ruta temporal: `sudo ip route add 192.168.88.0/24 via 192.168.100.2 dev eth0`.
+2. Primer intento de modificación NetworkManager por nombre de perfil falló por codificación UTF-8.
+3. Se utilizó el UUID del perfil Ethernet `ff200535-83ed-33eb-97c5-943b6f133bfc`:
+   `sudo nmcli con mod ff200535-83ed-33eb-97c5-943b6f133bfc +ipv4.routes "192.168.88.0/24 192.168.100.2"`.
+
+### Verificación y evidencia
+
+- NetworkManager mostró la ruta guardada: `192.168.88.0/24 192.168.100.2`.
+- Consulta del kernel: `192.168.88.1 via 192.168.100.2 dev eth0 src 192.168.100.1`.
+- Captura de Termius aportada: sesión de consola con prompt `[admin@MikroTik] >` y registro en MikroTik de un **intento fallido de autenticación** para `admin` desde `192.168.100.1` vía SSH. La combinación de la sesión observada y la identificación de acceso Raspberry→MikroTik comunicada por el usuario acredita acceso administrativo, sin interpretar el registro de intento fallido como un inicio de sesión exitoso.
+- **No se adjunta a GitHub la captura original**: contiene identificadores de red; conservar referencia a evidencia aportada en la sesión.
+- **Sin cambios** de firewall, Tailscale o servicios de producción; sin reiniciar interfaces.
+
+### Resultado y pendiente
+
+**Ruta guardada y activa; conexión SSH a consola MikroTik acreditada en la sesión del 15/10.** La persistencia *tras un reinicio real de la Raspberry* sigue **PENDIENTE DE VERIFICACIÓN**. Este registro no acredita por sí mismo acceso SSH directo Lenovo→MikroTik, sino administración desde la Raspberry alcanzada mediante Tailscale.
+
+**Lección:** anunciar subredes en Tailscale no sustituye el enrutamiento local del router que las anuncia; comprobar `ip route get` antes de cambiar firewall.
