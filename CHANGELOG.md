@@ -3279,3 +3279,15 @@ Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la med
 `br-pyme` **ya enlaza con la LAN física** mediante USB-Ethernet; el anterior objetivo de puente aislado con futura conexión ha quedado superado para el anfitrión. No hay VMs ni pruebas de aislamiento o VLAN adicional. Antes de crear y conectar Windows 11/OMV y CUPS, verificar políticas de red, DHCP/IPAM y riesgos. Omada debe migrarse con backup, restore, prueba de acceso SG2210P/EAP225 y rollback antes de desactivarlo en Lenovo. MEDION sigue separado. Persistencia de bridge/rutas tras reinicio no acreditada.
 
 **CIERRE:** BRIDGE OPERATIVO / RUTA DEFAULT STARLINK CORRECTA / LIBVIRT SIN VMs / OMADA ACTIVO EN LENOVO / MIGRACIÓN PENDIENTE.
+
+
+---
+
+## 2026-10-15 — Conciliación de topología física con `br-pyme`
+
+**Motivo:** tras el PR #15 se detectó que `laboratorio-fisico/topologia.md`, `laboratorio-fisico/README.md` y `arquitectura/arquitectura-general.md` seguían presentando el Lenovo como futura integración, a pesar de la prueba ya consignada del bridge físico.
+
+- **DOCUMENTACIÓN ACTUALIZADA:** se añade el Lenovo L13 como equipo **físicamente conectado al SG2210P** mediante USB-Ethernet `enx00e04c6808a2` y `br-pyme`, con DHCP `192.168.88.236/24` y ping 4/4 al MikroTik `192.168.88.1` según la sesión técnica del 15/10.
+- **PENDIENTE:** número de puerto real del SG2210P, persistencia tras reinicio y aislamiento/seguridad de las VM cuando existan. `br-pyme` no usa VLAN filtering; las máquinas virtuales Windows 11/OMV siguen sin crear. No se atribuye al Lenovo el puerto 6 Access VLAN20 ni la interfaz `ue0` del MEDION.
+- **HISTÓRICO:** se conserva el cableado Raspberry Pi, MikroTik, EAP225, ESP32 y MEDION con fuentes y fechas previas, sin alterar sus relaciones.
+- **ALCANCE:** solo corrección documental en GitHub; ningún cambio en equipos, switches, firewall, NetBox, Omada ni servicios.

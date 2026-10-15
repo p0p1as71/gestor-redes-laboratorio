@@ -1,8 +1,8 @@
-# Topología física — estado documental al 12/10/2026
+# Topología física — estado documental actualizado al 15/10/2026
 
-**Alcance:** equipos y cables del laboratorio físico. La réplica Lenovo y las VMs del MEDION se describen por separado en [laboratorio virtual](../laboratorio-virtual/README.md).
+**Alcance:** equipos y cables del laboratorio físico. La PYME virtual Lenovo y las VMs del MEDION se describen por separado en [laboratorio virtual](../laboratorio-virtual/README.md).
 
-**Fuentes:** CHANGELOG (22 y 27/09, 02–03/10 y seguimientos) y actualización comunicada por el usuario el 10/10/2026: Pi 3 para prácticas, portátil en otro puerto del switch y Yún en otro puerto LAN del MikroTik. Esta revisión no accede a equipos en vivo ni a NetBox.
+**Fuentes:** CHANGELOG (22 y 27/09, 02–03/10 y seguimientos) y actualización comunicada por el usuario el 10/10/2026: Pi 3 para prácticas, portátil en otro puerto del switch y Yún en otro puerto LAN del MikroTik. Se incorporan también las pruebas del 15/10 en Lenovo para `br-pyme`. Esta revisión documental no accede de nuevo a equipos en vivo ni a NetBox.
 
 ## Conexiones documentadas
 
@@ -20,7 +20,11 @@ flowchart TD
     SW ---|"Puerto 4"| E2["ESP32-02 · prácticas Ethernet"]
     SW ---|"Puerto 5"| E3["ESP32-03 · prácticas Ethernet"]
     SW ---|"Puerto 6 · ACCESS VLAN 20 · RTL8153"| L["OPNsense OPT1 / ue0 · 10.20.20.1/24 · VM en MEDION"]
+    SW ---|"Puerto no confirmado · USB-Ethernet"| LEN["Lenovo L13 · br-pyme · 192.168.88.236/24 (DHCP)"]
+    LEN -.->|"Futuras VM; aún no creadas"| PYME["PYME virtual · Windows 11 / OMV / CUPS"]
 ```
+
+**Cambio 15/10 (Lenovo):** `br-pyme` está ya conectado físicamente mediante la NIC USB-Ethernet `enx00e04c6808a2` al SG2210P; obtuvo `192.168.88.236/24` por DHCP y respondió al ping del MikroTik `192.168.88.1` con 4/4 y 0 % de pérdidas. **No se ha confirmado el número de puerto del SG2210P.** El Wi-Fi Starlink del Lenovo mantiene la única ruta predeterminada IPv4. El bridge no tiene filtrado VLAN, las VM todavía no existen y **no se ha demostrado aislamiento**. La relación punteada del diagrama es un objetivo futuro, no un cable adicional.
 
 **Cambio 12/10:** puerto 6 Access VLAN 20 `LAB-FISICO` (`10.20.20.0/24`) dedicado a `OPT1/ue0` de OPNsense; esto no supone que los puertos 1–5 pertenezcan a VLAN 20. La nueva red no sustituye la LAN física MikroTik `192.168.88.0/24`, ni la LAN virtual `10.10.10.0/24`. DHCP de OPT1 y conectividad de clientes físicos pendientes de validar.
 
@@ -39,11 +43,13 @@ Las líneas representan enlaces, no direcciones de tráfico. El equipo del puert
 | ESP32-02 | SG2210P | **Gi1/0/4**, referencia 12/10 | Cableado corregido; enlace en puerto 4 visible en Omada; identificación MAC↔placa pendiente |
 | ESP32-03 | SG2210P | **Gi1/0/5**, referencia 12/10 | Cableado corregido; enlace en puerto 5 visible en Omada; identificación MAC↔placa pendiente |
 | MEDION netlab-ws01 | SG2210P, mediante adaptador USB/Ethernet | Switch puerto 6, enlace 1 Gbps | Informe 12/10: puerto 6 Access VLAN 20, MAC 00:E0:4C:68:31:B0, passthrough a OPNsense OPT1/ue0, 10.20.20.1/24, 1 Gbps; no hay cliente de VLAN 20 probado |
+| **Lenovo L13 / `br-pyme`** | **SG2210P**, mediante USB-Ethernet `enx00e04c6808a2` | **Puerto sin identificar** | Informe de pruebas 15/10: DHCP `192.168.88.236/24` en el bridge, 4/4 ICMP al MikroTik, sin ruta default por el bridge; sin VM ni filtrado VLAN verificados |
 
 No considerar libres ether4–ether5 por un registro de septiembre: el switch se añadió después. La conexión Wi-Fi doméstica de Pi 3 fue registrada históricamente; no se incluye como enlace vigente ni como gateway de respaldo implementado.
 
-## Cambios registrados el 12/10/2026
+## Cambios registrados el 12/10 y el 15/10/2026
 
+- **15/10 — Lenovo:** `br-pyme` activo y enlazado al físico, `192.168.88.236` DHCP, 4/4 ICMP al gateway, ruta por defecto Starlink preservada. Omada aún activo en Lenovo y VMs PYME no creadas.
 - MikroTik RB750r2: RouterOS y RouterBOOT 7.24.5 confirmados tras actualización; routing, DNS y DHCP comprobados dentro del alcance descrito en su [ficha](mikrotik/README.md).
 - ESP32: funciones HTTP servidor (01), cliente (02), monitor (03) probadas.
 - Cableado **corregido el 12/10**: ESP32-01→3, ESP32-02→4, ESP32-03→5. Esta es la referencia vigente; el 03/10 quedó registrado históricamente el cruce 02→5 / 03→4. Omada muestra enlaces activos en 3–5, pero falta correlación inequívoca MAC↔identidad de cada ESP32.
@@ -60,6 +66,7 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 | Arduino Yún | Host Linux/microcontrolador para experimentación |
 | Tres ESP32 | Servidor HTTP, cliente HTTP y monitor HTTP probados el 12/10; despliegue persistente pendiente |
 | MEDION netlab-ws01 | Anfitrión de OPNsense y Debian; RTL8153 pasado a OPT1 para LAB-FISICO VLAN 20 por puerto 6 |
+| Lenovo ThinkPad L13 | Anfitrión de `br-pyme` y futuro Windows 11/OMV/CUPS, conectado mediante USB-Ethernet; controlador Omada todavía ejecutándose aquí |
 
 ## Datos no verificables desde el repositorio
 
@@ -67,6 +74,6 @@ No considerar libres ether4–ether5 por un registro de septiembre: el switch se
 - Confirmación del extremo MikroTik del uplink, así como de los puertos históricos de Pi 3/Yún; para ESP32 se dispone de cableado comunicado (3, 4 y 5) y enlaces activos observados, pendiente de identificación MAC inequívoca de los nodos 02/03.
 - IP/MAC, VLAN, rutas, concesiones DHCP, servicios y estado de enlaces actuales.
 - Contenido vigente de NetBox y del HTML del dashboard: no hay exportación ni fuente HTML en esta rama.
-- Estado real de la réplica Lenovo. En MEDION sí se verificaron `opnsense-lab` y `debian-client01`, con WAN `default` y LAN `lab-isolated`; consultar la ficha MEDION.
+- Puerto concreto del SG2210P conectado al Lenovo, persistencia de `br-pyme` tras reinicio y aislamiento de las futuras VM; solo está comprobada la conectividad del **host** al MikroTik. En MEDION sí se verificaron `opnsense-lab` y `debian-client01`, con WAN `default` y LAN `lab-isolated`; consultar la ficha MEDION.
 
-Para cerrar el mapa, correlacionar identificación física, puertos/enlaces, tabla MAC, DHCP/ARP y NetBox con fecha. No deducir el cableado únicamente de la lista de clientes de Omada.
+Para cerrar el mapa, correlacionar identificación física, puertos/enlaces, tabla MAC, DHCP/ARP y NetBox con fecha. No deducir el cableado únicamente de la lista de clientes de Omada. **No confundir la IP dinámica del bridge Lenovo `192.168.88.236` con una dirección asignada a futuras máquinas virtuales.**
