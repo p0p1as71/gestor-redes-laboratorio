@@ -3,7 +3,7 @@
 ## Tres implementaciones diferenciadas
 
 1. **Físico:** Raspberry Pi 4 → MikroTik; Pi 3 y Yún conectados directamente a puertos LAN del MikroTik; SG2210P conectado al MikroTik y, al switch, EAP225, tres ESP32 y adaptador RTL8153 del MEDION `netlab-ws01` en puerto 6 del SG2210P, configurado Access VLAN 20 el 12/10.
-2. **Virtual principal Lenovo L13:** réplica funcional de esa cadena, todavía en fase de diseño e implementación; [detalle](../laboratorio-virtual/lenovo-l13/README.md).
+2. **Virtual principal Lenovo L13:** PYME virtual (Windows 11, OpenMediaVault, CUPS/IPP y Linux Bridge, diseño aprobado el 15/10, aún no desplegado), sustituyendo la réplica funcional como objetivo activo; [detalle](../laboratorio-virtual/lenovo-l13/README.md).
 3. **Virtual adicional MEDION:** KVM/QEMU con OPNsense y redes libvirt, para pruebas separadas; [detalle](../laboratorio-virtual/medion-netlab-ws01/README.md).
 
 ## Laboratorio físico — conexiones documentadas
@@ -14,11 +14,11 @@ La Pi 3 es estación de prácticas y pruebas. El Yún cuelga de otro puerto LAN 
 
 El informe de diseño de la réplica citó **TL-SG108PE** como modelo de referencia en una versión anterior de topología; el CHANGELOG posterior registra el **SG2210P** como switch instalado. Revisar el inventario vivo para identificar cualquier dispositivo adicional; no equiparar ambos modelos.
 
-## Réplica virtual Lenovo (objetivo)
+## Lenovo — PYME virtual (objetivo vigente desde 15/10)
 
-El [diseño Lenovo](../laboratorio-virtual/lenovo-l13/README.md) conserva gateway, tránsito, router, switch y hosts. El ajuste propone VM-RPI3 para prácticas y sitúa VM-YUN en una rama LAN del router; son objetivos sin despliegue acreditado.
+El [diseño Lenovo](../laboratorio-virtual/lenovo-l13/README.md) prevé Windows 11, OpenMediaVault con discos virtuales para prácticas RAID, CUPS/IPP y un Linux Bridge inicialmente aislado. Un enlace posterior mediante Ethernet al SG2210P requerirá validación de VLAN, DHCP, rutas, permisos e IPAM. **No se ha desplegado ni conectado**.
 
-El informe citado registra LAB-NET 192.168.50.0/24 en Lenovo, sin función definitiva. No asignarle automáticamente la LAN de la réplica.
+**Diseño anterior, histórico 10/10:** una réplica gateway, router, switch y hosts (VM-RPI3/VM-YUN/VM-ESP). Ya no es el plan de ejecución. La red LAB-NET 192.168.50.0/24 consta en registros antiguos de Lenovo y su función actual debe consultarse antes de asignarla a la PYME.
 
 ## Virtualización adicional MEDION (estado histórico 10/10 y actualización 12/10)
 
@@ -41,6 +41,6 @@ No alterar de forma incidental el entorno doméstico, Tailscale, Docker, VPS ni 
 
 ## Cambio de estrategia acordado — 15/10/2026
 
-El diseño de réplica funcional descrito arriba es **histórico y sustituido como objetivo activo**. En Lenovo se proyecta una **PYME virtual** con Windows 11 como puesto de trabajo; OpenMediaVault como NAS con discos virtuales para RAID 0/1/5/10; y CUPS/IPP en contenedor aislado (sin enlazar Docker de producción). KVM/QEMU alojará las VMs y un Linux Bridge conectará sus interfaces, inicialmente en red de prueba aislada. Solo después de revisar puertos, VLAN, DHCP, reservas y controles de acceso podrá estudiarse un uplink USB-Ethernet al SG2210P en la LAN `192.168.88.0/24`. Direcciones `.110`, `.120` y `.130` son **propuestas**, no reservas. El adaptador del MEDION es parte de otra plataforma: **no asumir disponibilidad del mismo adaptador para Lenovo**.
+El diseño de réplica funcional del 10/10 es **histórico y sustituido como objetivo activo**. En Lenovo se proyecta una **PYME virtual** con Windows 11 como puesto de trabajo; OpenMediaVault como NAS con discos virtuales para RAID 0/1/5/10; y CUPS/IPP en contenedor aislado (sin enlazar Docker de producción). KVM/QEMU alojará las VMs y un Linux Bridge conectará sus interfaces, inicialmente en red de prueba aislada. Solo después de revisar puertos, VLAN, DHCP, reservas y controles de acceso podrá estudiarse un uplink USB-Ethernet al SG2210P en la LAN `192.168.88.0/24`. Direcciones `.110`, `.120` y `.130` son **propuestas**, no reservas. El adaptador del MEDION es parte de otra plataforma: **no asumir disponibilidad del mismo adaptador para Lenovo**.
 
 La reducción de consumo del Lenovo depende de una futura migración controlada de Omada al VPS Hetzner; no se ha iniciado. MEDION y producción se mantienen separados. [Diseño PYME](../laboratorio-virtual/lenovo-l13/README.md).
