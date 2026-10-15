@@ -14,6 +14,10 @@
 - Verificaciones desde MikroTik: ping a Pi 4 y a 1.1.1.1, ambos 4/4 respuestas; resolución DNS de `example.com` correcta.
 - **Pendiente:** reconfirmar conectividad de clientes ESP32; sus tres reservas aparecían `waiting` durante una comprobación y eso, por sí solo, no acredita fallo de enlace.
 
+## Recuperación de acceso SSH desde Raspberry — 15/10/2026
+
+Desde Raspberry Pi 4 (`192.168.100.1/30`), una conexión SSH a la LAN MikroTik (`192.168.88.1`) expiraba porque la Raspberry elegía `192.168.1.1 dev wlan0` (Starlink). Se añadió en la Pi una ruta persistida en NetworkManager a `192.168.88.0/24 via 192.168.100.2 dev eth0`. La consulta de ruta resultó correcta y una captura de Termius mostró prompt `[admin@MikroTik] >` desde una sesión identificada por el usuario como acceso SSH desde la Raspberry a través de Tailscale. En los logs aparece también un **intento SSH fallido** desde `192.168.100.1` (no confundir con la sesión abierta). No se cambiaron las reglas MikroTik ni Tailscale. **Pendiente:** prueba después de reiniciar la Pi y, por separado, acceso directo Lenovo→MikroTik si se necesita.
+
 ## Topología y direccionamiento
 
 | Elemento | Valor de referencia |
