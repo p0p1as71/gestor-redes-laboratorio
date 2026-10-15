@@ -15,6 +15,8 @@
 | LAB-FISICO / VLAN 20 | `10.20.20.0/24` | Segmento físico nuevo por SG2210P puerto 6 Access | VLAN configurada; sin cliente físico ni DHCP acreditado |
 | LAB-FISICO / pool DHCP previsto | `10.20.20.100–10.20.20.200` | Direcciones de clientes | Introducido en asistente, servicio DHCP sin verificar |
 
+| Ruta en Raspberry Pi 4 (15/10) | Destino `192.168.88.0/24` vía `192.168.100.2 dev eth0` | Alcanzar LAN MikroTik desde Pi 4 | Guardada en NetworkManager y activa según `ip route get`; reinicio sin verificar |
+
 **Regla:** NetBox será la referencia del inventario e IPAM una vez reconciliado. No deducir direcciones actuales de capturas antiguas.
 
 ## Actualización física 10/10/2026
