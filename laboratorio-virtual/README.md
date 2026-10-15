@@ -16,3 +16,7 @@ Estado según informe de arquitectura de 10/10: infraestructura KVM/libvirt y SS
 
 Cada máquina, red, prueba y evidencia debe indicar **anfitrión: Lenovo o MEDION**. No reunir interfaces ni direcciones de ambos equipos en una única topología efectiva ni considerar realizadas en uno las tareas del otro.
 
+
+## Decisión vigente 15/10/2026 — sustitución del objetivo Lenovo
+
+La **réplica integral** descrita arriba se conserva como **diseño histórico del 10/10**, no como roadmap vigente. El Lenovo pasa a ser **PYME virtual**: VM Windows 11, VM OpenMediaVault (NAS/SMB, RAID con discos virtuales), CUPS/IPP segregado y Linux Bridge. Red inicialmente aislada; conexión al SG2210P por USB-Ethernet solo después de verificar y autorizar la segmentación. La migración de Omada al VPS se estudia para liberar RAM; **no ejecutada**. MEDION continúa aparte, sin incorporarlo automáticamente. [Ficha Lenovo actualizada](lenovo-l13/README.md).
