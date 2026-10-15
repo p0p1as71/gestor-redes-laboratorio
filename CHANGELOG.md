@@ -3153,3 +3153,12 @@ Se probó `netlab-traffic.timer` con una programación inicial de cinco minutos 
 Solo se instalaron herramientas de auditoría en Lenovo y se actualizó documentación GitHub. **No se modificaron equipos del laboratorio, VLAN, firewall, Tailscale ni NetBox.**
 
 **Dictamen:** exploración inicial de secretos **favorable**; revisión de seguridad de publicación **abierta**; ruleset **creado pero aplicación a `main` no acreditada**.
+
+
+### Verificación adicional del ruleset — 15/10/2026, 21:22 (hora local)
+
+- El usuario confirmó haber actualizado `Proteccion-main` en GitHub.
+- Consulta directa de la API: ruleset ID `25191874`, `enforcement=active`, `conditions.ref_name.include=["~DEFAULT_BRANCH"]`; **la rama predeterminada `main` queda incluida**.
+- Reglas verificadas: `deletion` (impedir eliminación), `non_fast_forward` (impedir force push) y `pull_request` (exigir PR antes de integrar) con `required_approving_review_count=0`.
+- **Estado: protección de `main` verificada a nivel de configuración del ruleset**. No se realizó un intento de push prohibido ni una prueba disruptiva de aplicación.
+- Esta comprobación cierra el pendiente de alcance del ruleset descrito en la entrada anterior, sin cerrar la auditoría global de exposición de servicios ni permisos y alertas GitHub Security.
