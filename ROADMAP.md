@@ -14,6 +14,13 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, ré
 - [ ] Reconciliar inventario físico (incluido MEDION identificado en puerto 6; verificar otros puertos y mapa actual) con NetBox.
 - [ ] Definir procedimientos de exportaciones de configuración sanitizadas.
 
+## P0.1 — Enrutamiento físico Pi 4 / MikroTik (15/10/2026)
+- [x] Diagnosticar ruta errónea `192.168.88.1` por gateway doméstico `192.168.1.1 dev wlan0`.
+- [x] Guardar en NetworkManager ruta estática `192.168.88.0/24 via 192.168.100.2 dev eth0` y verificar selección con `ip route get`.
+- [x] Registrar evidencia de acceso a consola MikroTik mediante SSH desde Raspberry Pi 4 (Termius/Tailscale; intento fallido en log distinguido de sesión abierta).
+- [ ] Verificar permanencia de ruta tras reiniciar Raspberry Pi 4, con autorización y ventana apropiadas.
+- [ ] Probar separadamente acceso SSH directo Lenovo→MikroTik si forma parte del objetivo operativo.
+
 ## P1 — Réplica virtual principal Lenovo L13
 - [ ] Confirmar estado del pool `lab-vms`, `LAB-NET` y redes libvirt.
 - [ ] Elegir VM-ROUTER y switch virtual L2/VLAN.
