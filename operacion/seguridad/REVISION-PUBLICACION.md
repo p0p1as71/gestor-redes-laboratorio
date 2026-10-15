@@ -64,3 +64,13 @@
 5. **Si aparecen secretos:** revocar/rotar credenciales primero; después decidir limpieza de historial y revisión de forks/cachés. Borrar líneas en `main` **no elimina** un valor comprometido de commits anteriores.
 
 **Dictamen 15/10:** `PUBLICACIÓN YA ACTIVA / SIN SECRETO LITERAL DETECTADO EN MUESTRA / AUDITORÍA DE SECRETOS Y EXPOSICIÓN EXTERNA INCOMPLETA`. No declarar publicación segura hasta completar los controles P0.
+
+
+## Actualización de controles verificados — 15/10/2026 (posterior a la revisión parcial)
+
+- **Visibilidad actual:** repositorio público; el estado privado de 10/10 es histórico.
+- **Protección de rama:** ruleset GitHub `Proteccion-main` ID `25191874`, `enforcement=active`, `include=["~DEFAULT_BRANCH"]`, aplicable a `main`; exige PR con **0 aprobaciones**, prohíbe eliminación y force push. Configuración comprobada por API; no se ha efectuado un push de rechazo de prueba.
+- **Escaneo local registrado:** `gitleaks detect --source ~/gestor-redes-laboratorio --log-opts="--all" --redact --no-banner` examinó **104 commits**, resultado `no leaks found`; 10 referencias de ramas contrastadas. Escaneo favorable según firmas predeterminadas, no certifica secretos fuera de reglas, commits inalcanzables, servicios, colaboradores ni alertas GitHub Security.
+- Los puntos del plan anterior de ejecutar Gitleaks y crear reglas **ya tienen ejecución documentada**. Siguen pendientes acceso/permisos de colaboradores, alertas, posibles objetos inalcanzables y exposición operativa. Se conserva el historial previo, sin presentarlo como estado actual.
+
+**Dictamen vigente:** PUBLICACIÓN ACTIVA / RULESET DE `main` CONFIRMADO / GITLEAKS SIN HALLAZGOS EN ALCANCE ANALIZADO / AUDITORÍA GENERAL TODAVÍA ABIERTA.

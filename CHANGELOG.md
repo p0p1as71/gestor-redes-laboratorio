@@ -3222,3 +3222,33 @@ Estos cambios **ya se realizaron en sesión distinta según el informe aportado*
 ### Estado al cierre
 
 **DECISIÓN DOCUMENTADA / MIGRACIÓN NO INICIADA / PYME VIRTUAL NO DESPLEGADA.** VPS preparado parcialmente; conectividad ICMP hasta el MikroTik LAN confirmada, **no** hasta Omada; sniffer no conservado. No se modificaron equipos, VPS, firmware, reglas, servicios, NetBox ni redes al documentar este cambio.
+
+
+---
+
+## 2026-10-15 — Reconciliación AUD-TOP R2 y cierre documental de H01 en `main`
+
+**Motivo:** corregir documentación visible públicamente en `main` tras el informe de auditoría de solo lectura AUD-TOP-2026-10-15-R2, realizado con corte 22:18, y la confirmación posterior del usuario acerca del sketch ESP32-01. **No se han modificado dispositivos ni servicios.**
+
+### H01 — ESP32-01
+
+- **HECHO VERIFICADO EN GITHUB:** commit `6d9aaaede5c6296de6d0fb8f9a655ca862c9e937` (15/10, «fix: recuperar firmware HTTP original del ESP32-01») en la historia de `main` para `laboratorio-fisico/esp32/ESP32-01/ETH_MAC_DHCP_StaticIP.ino`.
+- La versión publicada contiene MAC leída por `esp_read_mac`, DHCP con `Ethernet.begin(mac)`, servidor `EthernetServer(80)` y respuesta `HTTP/1.1 200 OK`. La discrepancia entre el firmware previamente versionado y la función de servidor indicada en README queda **RESUELTA DOCUMENTALMENTE Y EN CÓDIGO PUBLICADO**.
+- Las respuestas HTTP y las pruebas cliente/monitor del 12/10 son **evidencias históricas**; no se ha reprogramado ni probado el ESP32-01 en vivo a raíz de este cambio. **Revalidación posterior en hardware: no acreditada.**
+- La clasificación «H01 pendiente/sin intervenir» del informe R2 es **foto histórica desactualizada** respecto de la fuente publicada en `main`.
+
+### H19 — Prioridad editorial del nuevo diseño Lenovo
+
+- Corregidos encabezados y resúmenes de arquitectura y del índice del laboratorio virtual para señalar primero **PYME virtual Lenovo** como objetivo vigente desde el 15/10; la antigua réplica Pi4/MikroTik/switch/ESP32 permanece como **diseño histórico de 10/10**.
+- El plan de auditoría del 13/10 queda expresamente marcado **histórico y parcialmente superado**; sus tareas relativas a H01 y las VMs de réplica no deben ejecutarse como si fueran la planificación actual. MEDION continúa independiente.
+
+### Seguridad de publicación
+
+- Reconciliado el documento `operacion/seguridad/REVISION-PUBLICACION.md` con el estado posterior del 15/10: repositorio **público**, ruleset `Proteccion-main` activo sobre `~DEFAULT_BRANCH` (main) con PR obligatorio y 0 revisiones, anti-borrado y anti-force-push; Gitleaks local documentado para **104 commits sin secretos detectados** bajo sus reglas.
+- **No cerrar auditoría de seguridad global:** alertas GitHub Security, colaboradores/permisos, historial inalcanzable y exposición de servicios siguen pendientes. No confundir corrección documental con certificación operativa.
+
+### Hallazgos no cerrados por este cambio
+
+Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la medida indicada por el informe R2; H19 queda **resuelto en los índices principales**, sujeto a futuras revisiones de documentos históricos; H01 se cierra **en fuente publicada**, sin nueva prueba sobre hardware. El estado de Omada (Lenovo, migración VPS pendiente), conectividad VPS→SG2210P/EAP225 y aislamiento MEDION no se altera.
+
+**Alcance efectivo:** documentación y GitHub exclusivamente. Sin cambios en red física, firmware desplegado, Lenovo/libvirt, MEDION, VPS, NetBox, Tailscale o producción.
