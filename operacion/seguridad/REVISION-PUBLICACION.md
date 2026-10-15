@@ -38,3 +38,29 @@
 - Resolver alertas reales que aparezcan.
 - Registrar fecha, evidencia y resultado de la inspección restante.
 - No confundir ausencia de coincidencias textuales con garantía absoluta de ausencia de secretos.
+
+
+---
+
+## Revisión parcial de visibilidad y publicación — 15/10/2026
+
+**Resultado directamente contrastado:** API de GitHub indica `visibility=public` y `private=false` para `p0p1as71/gestor-redes-laboratorio`. El dato «privado» del 10/10 queda como observación histórica, no como estado actual. No se conoce la fecha exacta del cambio de visibilidad.
+
+**Alcance de comprobaciones realizadas en esta revisión:** consulta del árbol de la rama `main` (archivos versionados de documentación, prácticas, sketches y procedimientos), lectura de muestras de archivos de alto interés: README, CHANGELOG, revisión de publicación anterior, fichas MikroTik/ESP32/Omada y reglas de contribución; búsqueda de texto en el índice GitHub de `password`, `token`, `BEGIN PRIVATE KEY` y `tailscale`. Esas búsquedas no identificaron en los resultados examinados **material literal de claves privadas, contraseñas o tokens operativos**. **Esto no es un escaneo exhaustivo ni prueba ausencia de secretos.** El índice de código no sustituye un análisis de todas las versiones, ramas, blobs borrados o logs.
+
+### Exposición que sí existe
+
+- La documentación pública describe CIDR/IP internas, direcciones de administración, topología, puertos, relaciones de tránsito, VLAN 20, Tailscale y nombres de servicios. Las IP privadas y MAC **no son secretos de autenticación**, pero facilitan el reconocimiento de una instalación si un atacante alcanza la red por otra vía.
+- El CHANGELOG conserva una referencia histórica a permitir temporalmente `diffie-hellman-group14-sha1` y `ssh-rsa` para compatibilidad con Arduino Yún. Es evidencia de un cliente SSH legado, **no demuestra que todos los equipos permitan esos algoritmos ni que el servicio esté expuesto a Internet**.
+- Se describen interfaces de gestión MikroTik/Omada/NetBox, sin verificar exposición WAN real. No confundir divulgación de rutas de administración con prueba de acceso externo.
+- No se encontraron PCAP, capturas originales, backups binarios ni exportaciones brutas en el árbol actual de `main`; la existencia de objetos históricos accesibles en Git no ha sido descartada.
+
+### Controles pendientes ANTES de declarar segura la publicación
+
+1. **P0 — Historia completa:** ejecutar en entorno autorizado una herramienta de detección de secretos (por ejemplo, Gitleaks) sobre `git log -p --all` o sobre el historial Git completo, **incluyendo todas las ramas/tags existentes**. Revisar resultados sin publicar valores sensibles; no subir el informe bruto si contiene hallazgos.
+2. **P0 — GitHub Security:** inspeccionar alertas de secret scanning/push protection, colaboradores y permisos de escritura, reglas de protección de `main` y automatizaciones de Actions. El acceso de la integración puede impedir algunas consultas: no interpretar 403 como control desactivado.
+3. **P1 — Publicación mínima:** revisar si es necesario conservar públicamente IP de gestión, MAC completas, UUID de interfaces y rutas de administración detalladas. Preferir ejemplos sintéticos o documentación privada cuando la reproducibilidad no exija los valores reales.
+4. **P1 — Servicios:** desde los segmentos autorizados, verificar reglas WAN, acceso a SSH/WebFig/WinBox y al controlador Omada/NetBox. **No ejecutar escaneo remoto ni cambiar reglas sin autorización**.
+5. **Si aparecen secretos:** revocar/rotar credenciales primero; después decidir limpieza de historial y revisión de forks/cachés. Borrar líneas en `main` **no elimina** un valor comprometido de commits anteriores.
+
+**Dictamen 15/10:** `PUBLICACIÓN YA ACTIVA / SIN SECRETO LITERAL DETECTADO EN MUESTRA / AUDITORÍA DE SECRETOS Y EXPOSICIÓN EXTERNA INCOMPLETA`. No declarar publicación segura hasta completar los controles P0.
