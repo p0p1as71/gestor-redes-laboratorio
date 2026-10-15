@@ -93,3 +93,16 @@ Lenovo Linux Mint / KVM-QEMU
 **Secuencia nueva:** (1) comprobar/migrar Omada con backup y rollback, (2) medir recursos del Lenovo, (3) inspeccionar libvirt y crear red aislada, (4) crear Windows 11, (5) crear OMV + discos y SMB, (6) conectar CUPS/IPP de pruebas, (7) tras verificar rutas/firewall/segmentación, autorizar enlace Ethernet al físico, (8) documentar capturas/mediciones y NetBox. **Estado: PLANIFICADO, sin VMs nuevas ni red conectada.**
 
 La plataforma MEDION `netlab-ws01` no forma parte de esta PYME salvo decisión posterior explícita.
+
+
+## Estado posterior: bridge `br-pyme` operativo (15/10/2026)
+
+**Actualiza el diseño anterior:** el bridge del anfitrión **ya está conectado a la LAN física**, no está aislado. Se creó mediante NetworkManager con UUID `20409153-bc7e-44e3-95e5-4fe172dae4fd`, STP activado, VLAN filtering desactivado e IPv4 por DHCP. Puerto subordinado: USB-Ethernet `enx00e04c6808a2` conectado al SG2210P; la dirección IPv4 reside en `br-pyme`, no en la NIC subordinada.
+
+- **IPv4 DHCP del bridge:** `192.168.88.236/24` (dinámica). MikroTik: `192.168.88.1`.
+- **Salida IPv4 predeterminada del Lenovo:** Wi-Fi Starlink `wlp0s20f3`, `192.168.1.192/24`, gateway `192.168.1.1`. La ruta default temporal a través de MikroTik se corrigió con `ipv4.never-default yes` y `nmcli device reapply br-pyme`.
+- **Prueba verificada en la sesión:** `ping -c 4 -I br-pyme 192.168.88.1` → 4/4 respuestas, 0 % pérdidas; RTT mínimo/medio/máximo: 0,453/0,594/0,784 ms.
+- **Libvirt:** `default` y `LAB-NET` activas y autostart; `virsh list --all` sin ninguna VM. Docker preservado.
+- **Omada:** continúa en Lenovo. Consumo observado del servicio ~3,9 GB RAM y 234,1 MB swap; migración VPS aún pendiente.
+
+**Precaución:** no hay prueba de conectividad de VM ni aislamiento VLAN. Windows 11/OMV y CUPS siguen pendientes; conectar VMs al bridge las expondría al dominio L2 del laboratorio físico. Comprobar políticas de red y direccionamiento antes. MEDION es independiente. Persistencia tras reinicio no contrastada.
