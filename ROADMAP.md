@@ -6,10 +6,10 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, **P
 - [x] Reconciliar síntesis de arquitectura/IP y ficha MEDION/SG2210P con VLAN 20 y OPT1, distinguiendo datos históricos del 10/10 y 12/10 (auditoría 13/10).
 - [x] Registrar retrospectivamente la fusión real del PR #1 en criterios V2, conservando controles pendientes.
 - [x] Preparar [plan de verificaciones AUD-TOP-2026-10-13](operacion/auditorias/PLAN-VERIFICACIONES-AUD-TOP-2026-10-13.md) para equipos físicos, Lenovo, MEDION, NetBox y evidencias (sin ejecutar comprobaciones).
-- [ ] Resolver discrepancia H01 de firmware ESP32-01 frente al servidor HTTP documentado; **pospuesto para la siguiente sesión**.
+- [x] Resolver discrepancia **H01 del sketch ESP32-01 publicado**: commit `6d9aaae` del 15/10 incorpora servidor HTTP sobre W5500. **No equivale a revalidación funcional posterior en hardware**.
 - [x] Repositorio privado confirmado el 10/10/2026.
 - [x] Separar conceptualmente réplica virtual Lenovo de prácticas MEDION.
-- [ ] Revisar colaboradores, protecciones y escaneo exhaustivo de secretos.
+- [ ] Completar revisión de colaboradores, alertas y alcance de seguridad: ruleset `Proteccion-main` activo para `main` y Gitleaks histórico 104 commits sin hallazgos; no concluir que la auditoría global está cerrada.
 - [x] Actualizar relaciones físicas comunicadas: Pi 3/Yún en MikroTik y portátil en SG2210P, separando evidencia histórica de estado actual.
 - [ ] Reconciliar inventario físico (incluido MEDION identificado en puerto 6; verificar otros puertos y mapa actual) con NetBox.
 - [ ] Definir procedimientos de exportaciones de configuración sanitizadas.
