@@ -52,7 +52,7 @@ El detalle histórico y el grado de evidencia de cada elemento están en el [CHA
 
 ## Seguridad
 
-**Repositorio privado (verificado el 10/10/2026).** No publicar secretos, claves, contraseñas Wi-Fi, tokens, capturas no revisadas, copias brutas de configuración ni información personal de terceros. `.gitignore` ayuda a evitar inclusiones accidentales, pero **no garantiza** la protección de secretos ya comprometidos o añadidos forzosamente.
+**Visibilidad actual: PÚBLICO (comprobado en GitHub el 15/10/2026);** era privado el 10/10, según registro histórico. **Revisión de seguridad de publicación NO cerrada**: quedan pendientes el escaneo especializado de todo el historial y ramas, comprobación de permisos y alertas. Véase [revisión de publicación](operacion/seguridad/REVISION-PUBLICACION.md). No publicar secretos, claves, contraseñas Wi-Fi, tokens, capturas no revisadas, copias brutas de configuración ni información personal de terceros. `.gitignore` ayuda a evitar inclusiones accidentales, pero **no garantiza** la protección de secretos ya comprometidos o añadidos forzosamente.
 
 Las prácticas no deben cambiar por accidente Starlink, VPS, Tailscale o sistemas de producción.
 
