@@ -1,5 +1,7 @@
 # Lenovo ThinkPad L13 Gen 3 — laboratorio virtual principal
 
+**AVISO: diseño de réplica reproducido a continuación = HISTÓRICO (10/10/2026), sustituido por decisión del 15/10/2026.** No ejecutar su antigua secuencia de creación como plan vigente.
+
 **Fuente de diseño conservada:** `INFORME_ARQUITECTURA_LABORATORIO_VIRTUAL`, 10/10/2026, aportado por el usuario. El diseño es una **arquitectura objetivo**, no una implementación íntegra verificada.
 
 ## Objetivo
@@ -65,3 +67,29 @@ La IP de `virbr50` hace que **LAB-NET no sea absolutamente aislada del host** po
 
 **No ejecutado:** este documento solo corrige y conserva el diseño.
 
+
+
+---
+
+## Diseño ACTUAL — PYME virtual conectable al laboratorio físico (decisión 15/10/2026)
+
+**Objetivo distinto del anterior:** no reproducir Pi4/MikroTik/ESP32/Yún como VMs; crear clientes y servidores virtuales equivalentes a **nuevos equipos de una pequeña empresa** y, más adelante, conectarlos al switch SG2210P de forma controlada.
+
+```text
+Lenovo Linux Mint / KVM-QEMU
+  ├── Linux Bridge PYME (nombre por definir; inicialmente aislado)
+  │     ├── Windows 11 VM — estación de trabajo
+  │     ├── OpenMediaVault VM — NAS/SMB/RAID de prácticas
+  │     └── CUPS/IPP — contenedor Docker de prueba aislado y enlazado expresamente
+  └── (futuro, NO CONECTADO) adaptador USB 3.0 a Ethernet → SG2210P
+```
+
+**Funciones:** Windows 11 para cliente SMB, DNS, IP, gestión e impresión. OpenMediaVault como servidor sin escritorio, SMB y **cuatro discos virtuales** con experimentos de RAID 0, 1, 5 y 10, usando configuraciones sucesivas para no interferir entre pruebas; los discos son simulados sobre almacenamiento existente, **no cuatro discos físicos independientes**. CUPS sirve como impresora virtual IPP sin adquirir hardware, aislado de los contenedores del Lenovo.
+
+**Recursos previstos, NO medidos:** Windows 11 ~4 GiB RAM; OpenMediaVault ~1–2 GiB; CUPS ~100–200 MiB; sobrecarga KVM/host adicional. Estimación conjunta ~5,5–6,5 GiB adicionales, orientativa. El SSD externo `LAB-VMS` y pool `lab-vms` constaban preparados históricamente; verificar espacio libre real, RAM, CPU y estado actual antes de crear nada. **Dependencia previa:** migración controlada de Omada a VPS para liberar recursos sin interrumpir gestión.
+
+**Red y direcciones:** primero switch virtual Linux Bridge en segmento privado de prueba aún no elegido. Más adelante conectar por USB-Ethernet propio del Lenovo al SG2210P, con puerto/VLAN validados y autorización. Propuestas `192.168.88.110` (Windows), `192.168.88.120` (OMV) y `192.168.88.130` (CUPS): **no son concesiones ni reservas**. Confirmar que no hay conflictos con MikroTik DHCP/NetBox; no usar bridge sobre interfaz Wi-Fi cliente y no apropiarse del RTL8153 del MEDION, que sirve a OPNsense VLAN20.
+
+**Secuencia nueva:** (1) comprobar/migrar Omada con backup y rollback, (2) medir recursos del Lenovo, (3) inspeccionar libvirt y crear red aislada, (4) crear Windows 11, (5) crear OMV + discos y SMB, (6) conectar CUPS/IPP de pruebas, (7) tras verificar rutas/firewall/segmentación, autorizar enlace Ethernet al físico, (8) documentar capturas/mediciones y NetBox. **Estado: PLANIFICADO, sin VMs nuevas ni red conectada.**
+
+La plataforma MEDION `netlab-ws01` no forma parte de esta PYME salvo decisión posterior explícita.
