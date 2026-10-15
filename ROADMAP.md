@@ -89,3 +89,19 @@ Las tareas siguientes se conservan solo como antecedentes, **no como trabajo vig
 
 Fuentes: informe de arquitectura virtual aportado el 10/10/2026 (diseño Lenovo) y CHANGELOG (historial físico/MEDION).
 
+
+
+## Actualización de infraestructura Lenovo — 15/10/2026 (estado posterior)
+
+- [x] Crear `br-pyme` con NetworkManager, STP activo, DHCP y USB-Ethernet `enx00e04c6808a2` al SG2210P.
+- [x] Comprobar `192.168.88.236/24` (dinámica) en bridge y NIC subordinada sin IPv4 propia.
+- [x] Restituir única ruta IPv4 predeterminada por Wi-Fi Starlink tras `ipv4.never-default yes` y reaplicar conexión.
+- [x] Probar ping `br-pyme` → MikroTik `192.168.88.1`, 4/4 y 0 % pérdida.
+- [x] Consultar `default` y `LAB-NET` activas/autostart en libvirt; **0 máquinas virtuales**.
+- [x] Medir Omada activo: v6.3.0.45, ~3,9 GB RAM y 234,1 MB swap.
+- [ ] Validar persistencia tras reinicio sin provocarlo ahora.
+- [ ] Revisar segmentación y controles antes de conectar las futuras VMs al bridge **ya conectado al físico y sin VLAN filtering**.
+- [ ] Migrar Omada al VPS con backup/restauración/rollback y adopción comprobados; solo después desactivar Lenovo.
+- [ ] Crear Windows 11, OpenMediaVault (4 discos virtuales) y CUPS/IPP; validar VM→red física.
+
+**Nota temporal:** el anterior plan de crear bridge aislado y conectar físicamente en una fase posterior ya está superado **para el host**. No se han creado ni conectado VMs; su aislamiento sigue pendiente.
