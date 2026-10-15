@@ -47,3 +47,10 @@ No usar Tailscale como sustituto implícito de una LAN o de medidas de seguridad
 **Restricciones:** VPS aloja servicios de producción; no afectar bases, Docker, Tailscale ni copias existentes por la migración. Separar MEDION (OPNsense/VLAN20) del recorrido de Omada. No incluir secretos, IP pública del VPS, tokens, backups o capturas sin saneamiento en el repositorio público.
 
 **Estado:** solo preparación y diagnóstico; Omada aún en Lenovo, migración pendiente.
+
+
+## Diagnóstico en Lenovo, 15/10/2026
+
+Comprobados y aportados por el usuario: paquete `omadac` v6.3.0.45, unidad systemd `tpeap.service` activa, instalación `/opt/tplink/EAPController`, MongoDB integrado en puerto `27217`, consumo atribuido al servicio **~3,9 GB RAM y 234,1 MB swap**. Estas cifras son mediciones previas, no memoria liberada.
+
+El bridge `br-pyme` del Lenovo funciona y alcanza MikroTik, pero **Omada sigue alojado y activo en Lenovo**. Instalación, restauración y adopción en VPS, pruebas de continuidad y retirada posterior siguen pendientes.
