@@ -3252,3 +3252,30 @@ Estos cambios **ya se realizaron en sesión distinta según el informe aportado*
 Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la medida indicada por el informe R2; H19 queda **resuelto en los índices principales**, sujeto a futuras revisiones de documentos históricos; H01 se cierra **en fuente publicada**, sin nueva prueba sobre hardware. El estado de Omada (Lenovo, migración VPS pendiente), conectividad VPS→SG2210P/EAP225 y aislamiento MEDION no se altera.
 
 **Alcance efectivo:** documentación y GitHub exclusivamente. Sin cambios en red física, firmware desplegado, Lenovo/libvirt, MEDION, VPS, NetBox, Tailscale o producción.
+
+
+---
+
+## 2026-10-15 — Bridge `br-pyme` Lenovo operativo y auditoría de Omada
+
+**Ámbito:** Lenovo ThinkPad L13 Gen 3, Linux Mint 22.3, extensión al laboratorio físico. Evidencia: comandos y resultados aportados por el usuario. El cambio GitHub solo documenta, no ejecuta configuración de red.
+
+### Configuración y prueba — HECHOS VERIFICADOS EN LA SESIÓN
+
+1. Se identificó la NIC USB-Ethernet `enx00e04c6808a2`; inicialmente con DHCP `192.168.88.237/24` y ruta default preferente hacia MikroTik. Wi-Fi Starlink `192.168.1.192/24`, gateway `192.168.1.1`.
+2. Se creó `br-pyme` en NetworkManager mediante `nmcli connection add type bridge ifname br-pyme con-name br-pyme`, UUID `20409153-bc7e-44e3-95e5-4fe172dae4fd`. STP habilitado, filtrado VLAN desactivado, DHCP IPv4 y `ipv4.never-default yes`.
+3. Se subordinó el perfil `Conexión cableada 1` al bridge y se activó. `bridge link show` mostró `enx00e04c6808a2 ... master br-pyme state learning`; la NIC dejó de tener IPv4, que pasó al bridge mediante DHCP como `192.168.88.236/24` (dinámica).
+4. Durante la activación coexistieron default vía `192.168.88.1 dev br-pyme metric 425` y Starlink `192.168.1.1 dev wlp0s20f3 metric 600`. Tras `sudo nmcli device reapply br-pyme`, quedó **solo default IPv4 vía Starlink**.
+5. `ping -c 4 -I br-pyme 192.168.88.1`: 4/4 respuestas, 0 % pérdidas, RTT min/avg/max 0,453/0,594/0,784 ms. **Demuestra host→MikroTik, no pruebas VM→LAN**.
+
+### Comprobaciones adicionales
+
+- `virsh net-list --all`: `default` y `LAB-NET` activas, autostart; mantenidas sin cambios. `virsh list --all`: **sin máquinas virtuales registradas**.
+- Omada continúa en Lenovo: paquete `omadac` v6.3.0.45, unidad `tpeap.service` activa, instalación `/opt/tplink/EAPController`, MongoDB integrado en puerto `27217`, ~3,9 GB RAM y 234,1 MB swap atribuidos al servicio.
+- **La migración Omada al VPS no ha comenzado**; no se ha detenido ni desinstalado el controlador, ni validado adopción desde VPS.
+
+### Diferencias con el diseño anterior y próximos pasos
+
+`br-pyme` **ya enlaza con la LAN física** mediante USB-Ethernet; el anterior objetivo de puente aislado con futura conexión ha quedado superado para el anfitrión. No hay VMs ni pruebas de aislamiento o VLAN adicional. Antes de crear y conectar Windows 11/OMV y CUPS, verificar políticas de red, DHCP/IPAM y riesgos. Omada debe migrarse con backup, restore, prueba de acceso SG2210P/EAP225 y rollback antes de desactivarlo en Lenovo. MEDION sigue separado. Persistencia de bridge/rutas tras reinicio no acreditada.
+
+**CIERRE:** BRIDGE OPERATIVO / RUTA DEFAULT STARLINK CORRECTA / LIBVIRT SIN VMs / OMADA ACTIVO EN LENOVO / MIGRACIÓN PENDIENTE.
