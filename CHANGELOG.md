@@ -3291,3 +3291,14 @@ Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la med
 - **PENDIENTE:** número de puerto real del SG2210P, persistencia tras reinicio y aislamiento/seguridad de las VM cuando existan. `br-pyme` no usa VLAN filtering; las máquinas virtuales Windows 11/OMV siguen sin crear. No se atribuye al Lenovo el puerto 6 Access VLAN20 ni la interfaz `ue0` del MEDION.
 - **HISTÓRICO:** se conserva el cableado Raspberry Pi, MikroTik, EAP225, ESP32 y MEDION con fuentes y fechas previas, sin alterar sus relaciones.
 - **ALCANCE:** solo corrección documental en GitHub; ningún cambio en equipos, switches, firewall, NetBox, Omada ni servicios.
+
+
+---
+
+## 2026-10-16 — Consolidación integral del README del Lenovo
+
+- Se sustituyeron las tablas y el diagrama **obsoletos de la réplica del 10/10** por una arquitectura PYME actual, con tabla de componentes y estado, datos de red, recursos, secuencia vigente y antecedentes históricos separados.
+- Se incorporó la configuración **verificada el 15/10** de `br-pyme` con USB-Ethernet `enx00e04c6808a2` enlazado al SG2210P, DHCP `192.168.88.236/24`, salida Starlink exclusiva y ping 4/4 hacia MikroTik.
+- Se mantienen **0 VMs registradas**, Omada aún activo en Lenovo y migración al VPS pendiente; no se afirma segmentación VLAN ni validación de acceso desde VMs.
+- Se distinguen los datos de almacenamiento/libvirt del **informe histórico 10/10** de las comprobaciones actuales; se marca como pendiente la identificación del puerto SG2210P del Lenovo.
+- **Alcance:** solo documentación GitHub; no se alteraron redes, máquinas, servicios ni hardware.
