@@ -25,11 +25,17 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, **P
 - [x] Migrar Omada al VPS (resultado comunicado 28/10); SG2210P y EAP225 conectados. **Documentación específica de backup/restauración/rollback pendiente.**
 - [x] Medir RAM tras desinstalar Omada: **8,7 GiB disponible**, 15 GiB total, swap 1,7/2,0 GiB (informe 28/10).
 - [ ] Medir CPU y espacio libre SSD, verificar pool `lab-vms`.
-- [ ] Revisar pool `lab-vms`, SSD `LAB-VMS`, `LAB-NET`, Docker existente y políticas de aislamiento.
+- [x] Verificar SSD externo `/mnt/lab-vms` montado y operativo; **Windows 11 ya utiliza `win11.qcow2`**. Revisar aparte pool `lab-vms` y Docker.
+- [x] Consultar definición libvirt de `LAB-NET` y confirmar red sin NAT/DHCP, `virbr50` y Windows `192.168.50.20` (28/10).
+- [ ] Completar auditoría de aislamiento `LAB-NET`, especialmente **IPv6 y forwarding/firewall del host**.
 - [x] Crear `br-pyme` conectado físicamente al SG2210P (15/10).
 - [ ] Diseñar red segregada para VMs: `br-pyme` no ofrece aislamiento por sí solo.
-- [ ] Crear Windows 11 (puesto de trabajo; RAM 4 GB estimados) y validar su red.
-- [ ] Crear OpenMediaVault (NAS/SMB; 1–2 GB RAM estimados), cuatro discos virtuales y prácticas RAID 0/1/5/10.
+- [x] Crear **Windows 11 Pro `win11`** (4 vCPU, **4096 MiB**, disco QCOW2 **90 GiB** sobre SSD externo); instalada, probada y **apagada** al cierre del 28/10.
+- [x] Configurar IPv4 estática `192.168.50.20/24` y comprobar **ping a host `192.168.50.1` (4/4)**, sin ruta IPv4 predeterminada y sin respuesta ICMP a `8.8.8.8`.
+- [ ] Verificar Secure Boot efectivo y TPM dentro de Windows.
+- [ ] Crear **Debian 13 Server** (2 GiB RAM y 40 GiB disco previstos), `192.168.50.10/24` propuesta; primero verificar ISO en `/mnt/lab-vms/isos`.
+- [ ] Probar comunicación Windows ↔ Debian e implementar DHCP/DNS en Debian.
+- [ ] Crear OpenMediaVault (NAS/SMB; 1–2 GB RAM estimados), cuatro discos virtuales y prácticas RAID 0/1/5/10, fase posterior no iniciada.
 - [ ] Integrar CUPS/IPP aislado, sin modificar contenedores existentes.
 - [x] USB-Ethernet Lenovo `enx00e04c6808a2` enlazado por `br-pyme` al físico.
 - [ ] Identificar puerto SG2210P y validar VLAN, direccionamiento, DHCP y NetBox antes de conectar VMs.
@@ -107,6 +113,20 @@ Fuentes: informe de arquitectura virtual aportado el 10/10/2026 (diseño Lenovo)
 - [ ] Validar persistencia tras reinicio sin provocarlo ahora.
 - [ ] Revisar segmentación y controles antes de conectar las futuras VMs al bridge **ya conectado al físico y sin VLAN filtering**.
 - [x] Omada en VPS y retirado de Lenovo según informe 28/10; backup/rollback no acreditados individualmente.
-- [ ] Crear Windows 11, OpenMediaVault (4 discos virtuales) y CUPS/IPP; validar VM→red física.
+- [x] Windows 11 Pro instalada en `LAB-NET` aislada inicialmente de red física; **no** se ha probado conexión VM→red física.
+- [ ] Debian Server, OpenMediaVault y CUPS/IPP pendientes; auditar IPv6 y políticas antes de integración.
 
 **Nota temporal:** el anterior plan de crear bridge aislado y conectar físicamente en una fase posterior ya está superado **para el host**. No se han creado ni conectado VMs; su aislamiento sigue pendiente.
+
+
+## Avance documentado 28/10 — Windows 11 Pro funcional
+
+- [x] KVM/QEMU, libvirt `qemu:///system`, Virt-Manager, OVMF y `swtpm` operativos.
+- [x] SSD externo `/mnt/lab-vms` (`sda1`, ext4, 233,8 GB) montado; ISO de Windows 11 conservada y hash SHA-256 calculado.
+- [x] VM `win11` instalada con UEFI/TPM2, Intel `e1000e`, IP estática en `LAB-NET`; apagada al cierre.
+- [x] IPv4 básica validada: ping VM→host 4/4; sin gateway predeterminada, Internet ICMP no accesible.
+- [x] Medición al cierre con Windows apagado: **8,3 GiB RAM disponible**; swap **1,9/2,0 GiB**. Durante la ejecución QEMU ~4,08 GiB RSS.
+- [ ] Auditar IPv6, firewall y rutas del anfitrión; confirmar Secure Boot.
+- [ ] Verificar ISO Debian Server y preparar VM con recursos planificados, en conversación técnica separada.
+
+**Los apartados con fecha 15/10 son históricos**; las casillas pendientes sobre crear Windows que todavía aparezcan en planes antiguos no son estado vigente.

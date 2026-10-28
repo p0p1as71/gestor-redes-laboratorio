@@ -3319,3 +3319,22 @@ Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la med
 - Se actualiza el estado operativo de Omada en su ficha, README Lenovo, ROADMAP, arquitectura y resumen físico. Las constataciones del 15/10 quedan como histórico.
 
 **Alcance:** solo GitHub; no se han cambiado servicios, configuraciones ni equipos físicos.
+
+
+---
+
+## 2026-10-28 — Windows 11 Pro instalado y LAB-NET comprobada en Lenovo
+
+**Fuente:** informe de estado técnico facilitado por usuario el 28/10. Solo registro documental en GitHub; sin ejecutar instalaciones, cambios de red ni pruebas nuevas en esta actualización.
+
+- Lenovo L13: KVM/QEMU, libvirt `qemu:///system`, Virt-Manager, OVMF y swtpm operativos.
+- SSD externo `sda1` ext4 de **233,8 GB** montado en `/mnt/lab-vms`. ISO `Windows11_Client_x64_es-es_26300_9457.iso`, tamaño observado 8,5 GB, almacenada bajo `/mnt/lab-vms/isos`. Se calculó hash SHA-256, sin que ello certifique origen del archivo.
+- **VM `win11` instalada y probada (Windows 11 Pro)**: 4 vCPU, **4096 MiB** RAM, disco QCOW2 90 GiB `/mnt/lab-vms/win11.qcow2`, UEFI/OVMF y TPM 2.0 emulado, NIC Intel e1000e conectada a `LAB-NET`. Cuenta local `netlab`; **VM apagada ordenadamente al cierre**.
+- **LAB-NET**: `virbr50`, `192.168.50.0/24`, host `192.168.50.1/24`; XML consultado sin NAT, DHCP libvirt ni interfaz física asociada. Windows con **`192.168.50.20/24` estática**, sin gateway ni DNS externos.
+- **Pruebas IPv4**: Windows → Lenovo ping 4/4, 0 % pérdidas; ping a 8.8.8.8 con 100 % pérdidas; `route print -4` sin ruta IPv4 por defecto. **Aislamiento IPv4 básico favorable**, sin certificar aislamiento integral IPv6 ni políticas forwarding/firewall del host.
+- Incidencias resueltas: TPM duplicado, CD-ROM configurado como directorio, selección UEFI DVD, instalación local sin Internet, APIPA por falta de DHCP y elevación de CMD para IPv4.
+- **Recursos al cierre** (Windows apagado): 15 GiB RAM total, 7,0 GiB usada, 6,3 GiB libre, **8,3 GiB disponible**, swap **1,9/2,0 GiB**. QEMU Windows ~4,08 GiB RSS durante uso. La medida de 8,7 GiB tras retirada Omada corresponde a un momento anterior.
+- **Debian 13 Server no creado**: plan 2 GiB RAM, disco 40 GiB, IPv4 propuesta `192.168.50.10/24`; siguiente trabajo técnico fuera de este chat: inspeccionar ISOs disponibles. OpenMediaVault y CUPS también pendientes.
+- El bridge físico `br-pyme` continúa siendo un ámbito distinto de `LAB-NET`; esta sesión no modificó la red física, MEDION, Docker ni sistemas de producción.
+
+**Estado:** VM Windows funcional, apagada; conectividad IPv4 al host validada; auditoría completa de aislamiento y Debian pendientes.
