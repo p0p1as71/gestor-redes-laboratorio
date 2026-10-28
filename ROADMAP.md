@@ -22,14 +22,17 @@ Las tareas son planes, no ejecución verificada. **Tres ámbitos**: físico, **P
 - [ ] Probar separadamente acceso SSH directo Lenovo→MikroTik si forma parte del objetivo operativo.
 
 ## P1 — PYME virtual Lenovo L13 (objetivo vigente desde 15/10)
-- [ ] Finalizar diagnóstico de conectividad Omada VPS ↔ laboratorio y migrar controlador con backup, restauración, adopción y rollback comprobados.
-- [ ] Medir recursos libres (RAM/CPU/disco) en Lenovo una vez retirado Omada bajo autorización.
+- [x] Migrar Omada al VPS (resultado comunicado 28/10); SG2210P y EAP225 conectados. **Documentación específica de backup/restauración/rollback pendiente.**
+- [x] Medir RAM tras desinstalar Omada: **8,7 GiB disponible**, 15 GiB total, swap 1,7/2,0 GiB (informe 28/10).
+- [ ] Medir CPU y espacio libre SSD, verificar pool `lab-vms`.
 - [ ] Revisar pool `lab-vms`, SSD `LAB-VMS`, `LAB-NET`, Docker existente y políticas de aislamiento.
-- [ ] Diseñar y activar red de pruebas aislada con Linux Bridge (sin conectar aún al SG2210P).
+- [x] Crear `br-pyme` conectado físicamente al SG2210P (15/10).
+- [ ] Diseñar red segregada para VMs: `br-pyme` no ofrece aislamiento por sí solo.
 - [ ] Crear Windows 11 (puesto de trabajo; RAM 4 GB estimados) y validar su red.
 - [ ] Crear OpenMediaVault (NAS/SMB; 1–2 GB RAM estimados), cuatro discos virtuales y prácticas RAID 0/1/5/10.
 - [ ] Integrar CUPS/IPP aislado, sin modificar contenedores existentes.
-- [ ] Confirmar disponibilidad del adaptador USB-Ethernet para Lenovo, puerto SG2210P, VLAN, DHCP y NetBox; enlazar solo tras autorización y prueba de aislamiento.
+- [x] USB-Ethernet Lenovo `enx00e04c6808a2` enlazado por `br-pyme` al físico.
+- [ ] Identificar puerto SG2210P y validar VLAN, direccionamiento, DHCP y NetBox antes de conectar VMs.
 - [ ] Documentar prácticas IP/ARP, SMB, RAID, impresión y monitorización.
 
 ## Diseño histórico sustituido — réplica virtual completa Lenovo (10/10)
@@ -44,17 +47,19 @@ Las tareas siguientes se conservan solo como antecedentes, **no como trabajo vig
 - [ ] Decidir y dimensionar el equivalente VM-RPI3 propuesto para prácticas; no presumir identidad del portátil físico.
 - [ ] Ejecutar pruebas comparativas de routing, DHCP, VLAN y firewall con la red física.
 
-## P1.1 — Migración Omada al VPS: diagnóstico y continuidad
+## P1.1 — Omada migrado al VPS (resultado comunicado el 28/10)
 - [x] Recuperar espacio del VPS según sesión 15/10 (150 GB totales, uso final 32 %), conservando 3 backups locales; retención de backup modificada con copia previa.
 - [x] Crear swap de 4 GiB y configurar persistencia en `fstab`; prueba tras reinicio pendiente.
 - [x] Habilitar aceptación de rutas Tailscale en VPS y comprobar ping VPS → MikroTik LAN `192.168.88.1` (4/4 respuestas).
 - [ ] Validar ejecución y restauración de backup del VPS; comprobar retención remota.
 - [ ] Verificar swap tras reinicio autorizado.
 - [ ] Repetir sniffer MikroTik `ether1` conservando evidencia de ICMP y origen IP/SNAT.
-- [ ] Probar comunicación desde VPS a SG2210P y EAP225 sin cambios de firewall preventivos.
-- [ ] Investigar compatibilidad Omada 6.3.0.45 con Debian 12, requisitos y puertos; elegir nativo o Docker.
-- [ ] Respaldar controlador Lenovo, planificar rollback, instalar/restaurar en VPS, adoptar equipos y verificar operación.
-- [ ] Retirar Omada de Lenovo **solo tras prueba funcional**, medir RAM liberada.
+- [x] SG2210P y EAP225 reportados conectados a Omada en VPS; pruebas de protocolos/firewall no documentadas.
+- [x] Omada 6.3.0.45 operativo en VPS según informe; modalidad de despliegue y detalles de compatibilidad sin documentar.
+- [x] Controlador migrado con SG2210P/EAP225 conectados según informe.
+- [ ] Documentar evidencias de backup, restauración y rollback; no deducirlas del estado final.
+- [x] Omada desinstalado de Lenovo, con RAM disponible posterior medida.
+- [ ] Cuantificar ahorro exacto solo con mediciones previas comparables.
 
 ## P2 — MEDION: plataforma de pruebas adicional
 - [x] Verificar WAN `em0` y LAN `em1` de OPNsense (estado histórico 10/10/2026); el 12/10 se reportaron como `re1`/`re0`.
@@ -101,7 +106,7 @@ Fuentes: informe de arquitectura virtual aportado el 10/10/2026 (diseño Lenovo)
 - [x] Medir Omada activo: v6.3.0.45, ~3,9 GB RAM y 234,1 MB swap.
 - [ ] Validar persistencia tras reinicio sin provocarlo ahora.
 - [ ] Revisar segmentación y controles antes de conectar las futuras VMs al bridge **ya conectado al físico y sin VLAN filtering**.
-- [ ] Migrar Omada al VPS con backup/restauración/rollback y adopción comprobados; solo después desactivar Lenovo.
+- [x] Omada en VPS y retirado de Lenovo según informe 28/10; backup/rollback no acreditados individualmente.
 - [ ] Crear Windows 11, OpenMediaVault (4 discos virtuales) y CUPS/IPP; validar VM→red física.
 
 **Nota temporal:** el anterior plan de crear bridge aislado y conectar físicamente en una fase posterior ya está superado **para el host**. No se han creado ni conectado VMs; su aislamiento sigue pendiente.

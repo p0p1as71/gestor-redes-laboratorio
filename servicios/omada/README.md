@@ -1,6 +1,6 @@
 # Omada Software Controller
 
-**Anfitrión documentado:** Lenovo ThinkPad L13 Gen 3.
+**Anfitrión actual según informe recibido el 28/10/2026:** VPS Hetzner `Ailab-core01`. Omada desinstalado del Lenovo.
 **Componentes documentados el 03/10:** Omada Network Application 6.3.0.45, Java 17, MongoDB 8.0.32, jsvc. Versiones históricas, no verificadas hoy.
 
 - Equipos adoptados: SG2210P y EAP225.
@@ -22,7 +22,7 @@ Los listados de clientes en Omada mostraron discrepancias frente a las conexione
 No usar Tailscale como sustituto implícito de una LAN o de medidas de seguridad. No reconfigurar controlador, DHCP ni dispositivos adoptados sin verificar estado y posibilidad de reversión.
 
 
-## Migración prevista al VPS Hetzner — 15/10/2026 (SIN INICIAR)
+## Plan histórico de migración — 15/10/2026 (SUPERADO)
 
 **Objetivo:** liberar RAM del Lenovo y mantener Omada Network Controller (v6.3.0.45 documentada) disponible sin depender de él, mediante alojamiento en VPS Debian 12 `Ailab-core01`. Controlador actual Lenovo **permanece operativo**; no realizar corte ni desinstalación antes de backup, adopción validada y reversión preparada.
 
@@ -46,11 +46,29 @@ No usar Tailscale como sustituto implícito de una LAN o de medidas de seguridad
 
 **Restricciones:** VPS aloja servicios de producción; no afectar bases, Docker, Tailscale ni copias existentes por la migración. Separar MEDION (OPNsense/VLAN20) del recorrido de Omada. No incluir secretos, IP pública del VPS, tokens, backups o capturas sin saneamiento en el repositorio público.
 
-**Estado:** solo preparación y diagnóstico; Omada aún en Lenovo, migración pendiente.
+**Estado de esta sección:** histórico del 15/10, superado por la migración completada comunicada el 28/10.
 
 
-## Diagnóstico en Lenovo, 15/10/2026
+## Diagnóstico histórico en Lenovo, 15/10/2026
 
 Comprobados y aportados por el usuario: paquete `omadac` v6.3.0.45, unidad systemd `tpeap.service` activa, instalación `/opt/tplink/EAPController`, MongoDB integrado en puerto `27217`, consumo atribuido al servicio **~3,9 GB RAM y 234,1 MB swap**. Estas cifras son mediciones previas, no memoria liberada.
 
-El bridge `br-pyme` del Lenovo funciona y alcanza MikroTik, pero **Omada sigue alojado y activo en Lenovo**. Instalación, restauración y adopción en VPS, pruebas de continuidad y retirada posterior siguen pendientes.
+Este fue el estado del 15/10. **Superado:** el controlador está en VPS y desinstalado del Lenovo según resumen recibido el 28/10.
+
+
+## Estado actual comunicado el 28/10/2026 — MIGRACIÓN COMPLETADA
+
+**Origen:** informe del usuario; fecha exacta de las operaciones no indicada y no se hicieron comprobaciones directas en equipos desde esta edición.
+
+| Componente | Estado comunicado |
+|---|---|
+| Omada Network Application | v6.3.0.45 en VPS Hetzner `Ailab-core01` |
+| Tailscale VPS | `100.87.19.25` |
+| Trayecto lógico de gestión | VPS → Tailscale → Raspberry Pi 4 → MikroTik |
+| SG2210P | `192.168.88.251` — conectado |
+| EAP225 | `192.168.88.250` — conectado |
+| Lenovo L13 | Omada desinstalado, preparado para KVM/QEMU |
+
+**RAM Lenovo tras migración:** total 15 GiB; utilizada 6,6 GiB; libre 6,7 GiB; **disponible 8,7 GiB**. Swap total 2,0 GiB y usada 1,7 GiB. La memoria disponible incluye caché recuperable y no equivale a memoria asignada a VMs. La swap ocupada no demuestra presión actual de memoria. **No existe medición anterior directamente comparable** para calcular cuánto liberó exactamente Omada.
+
+**Evidencia no aportada en el resumen:** procedimiento exacto de copia/restauración y rollback, método de instalación, puertos y sniffer/SNAT, comprobación tras reinicio. No tratarlos como validados individualmente. El texto de preparación del 15/10 más arriba es histórico.

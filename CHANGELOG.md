@@ -3302,3 +3302,20 @@ Siguen abiertos H04–H07, H09–H12, H14–H15, H17–H18 y H20–H22 en la med
 - Se mantienen **0 VMs registradas**, Omada aún activo en Lenovo y migración al VPS pendiente; no se afirma segmentación VLAN ni validación de acceso desde VMs.
 - Se distinguen los datos de almacenamiento/libvirt del **informe histórico 10/10** de las comprobaciones actuales; se marca como pendiente la identificación del puerto SG2210P del Lenovo.
 - **Alcance:** solo documentación GitHub; no se alteraron redes, máquinas, servicios ni hardware.
+
+
+---
+
+## 2026-10-28 — Migración Omada finalizada (estado informado)
+
+**Origen:** informe proporcionado por el usuario; la fecha exacta de ejecución de cada operación no figura en el resumen. Esta actualización es exclusivamente documental.
+
+- Omada Network Application **6.3.0.45** trasladado al VPS Hetzner `Ailab-core01`, accesible mediante Tailscale. Trayecto informado: VPS → Raspberry Pi 4 → MikroTik → dispositivos Omada.
+- **SG2210P `192.168.88.251` conectado** y **EAP225 `192.168.88.250` conectado** al controlador migrado.
+- **Omada desinstalado del Lenovo L13**, disponible para el laboratorio KVM/QEMU; la existencia de nuevas VM no está confirmada.
+- **Memoria Lenovo posterior:** RAM total 15 GiB, usada 6,6 GiB, libre 6,7 GiB, **disponible 8,7 GiB**. Swap total 2,0 GiB, usada 1,7 GiB. La memoria disponible incluye memoria recuperable; no equivale a una reserva exclusiva para VMs.
+- **No cuantificar el ahorro exacto** de RAM por Omada sin mediciones antes/después comparables. La swap ocupada no demuestra por sí sola presión de memoria actual.
+- **Información no acreditada por este resumen:** método exacto de instalación, backup/restauración, rollback, trazas SNAT y persistencia tras reinicios. No se afirman como pruebas realizadas.
+- Se actualiza el estado operativo de Omada en su ficha, README Lenovo, ROADMAP, arquitectura y resumen físico. Las constataciones del 15/10 quedan como histórico.
+
+**Alcance:** solo GitHub; no se han cambiado servicios, configuraciones ni equipos físicos.

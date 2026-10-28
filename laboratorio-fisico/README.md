@@ -9,7 +9,7 @@
 - Arduino Yún: dispositivo Linux/microcontrolador para prácticas.
 - Raspberry Pi 3: prácticas y pruebas de red, no monitorización principal.
 - MEDION `netlab-ws01` conectado al puerto 6 del SG2210P mediante adaptador USB/Ethernet Realtek, con passthrough a OPNsense.
-- **Lenovo L13: conectado físicamente al SG2210P mediante USB-Ethernet `enx00e04c6808a2` y bridge `br-pyme` (DHCP `192.168.88.236/24`, ping a MikroTik 4/4 el 15/10). Puerto físico del switch no identificado. Omada sigue en Lenovo; Windows 11, OMV y CUPS pendientes.**
+- **Lenovo L13: conectado físicamente al SG2210P mediante USB-Ethernet `enx00e04c6808a2` y bridge `br-pyme` (DHCP `192.168.88.236/24`, ping a MikroTik 4/4 el 15/10). Puerto físico del switch no identificado. **Omada migrado a VPS según informe del 28/10**; Windows 11, OMV y CUPS pendientes.**
 
 Ficha de conexión física: [MEDION en el switch](portatil-switch/README.md).
 
