@@ -1,6 +1,6 @@
 # Lenovo ThinkPad L13 Gen 3 — laboratorio virtual PYME
 
-**Estado documental: 15/10/2026 (revisión 16/10).** El objetivo vigente es desplegar una **pequeña empresa virtual** en el Lenovo, utilizando KVM/QEMU, con conexión controlada al laboratorio físico. El proyecto anterior de replicar virtualmente Raspberry Pi 4, MikroTik, ESP32 y Arduino Yún quedó sustituido como plan activo el 15/10/2026.
+**Estado documental: bridge verificado 15/10/2026; migración Omada finalizada según informe recibido el 28/10/2026.** El objetivo vigente es desplegar una **pequeña empresa virtual** en el Lenovo, utilizando KVM/QEMU, con conexión controlada al laboratorio físico. El proyecto anterior de replicar virtualmente Raspberry Pi 4, MikroTik, ESP32 y Arduino Yún quedó sustituido como plan activo el 15/10/2026.
 
 > **Distinción fundamental:** el bridge Linux `br-pyme` del anfitrión **ya está creado y conectado al SG2210P**; **todavía no se ha creado ninguna VM**, por lo que no hay conectividad de clientes virtuales demostrada ni segmentación VLAN adicional acreditada.
 
@@ -33,7 +33,7 @@ Las flechas discontinuas representan **componentes pendientes**. El bridge y su 
 | OpenMediaVault VM | NAS, SMB y prácticas RAID | **Pendiente de crear** |
 | Cuatro discos virtuales OMV | Prácticas secuenciales RAID 0/1/5/10 | **Previstos**, no son cuatro discos físicos |
 | CUPS/IPP | Servidor de impresión de prácticas | **Pendiente**; decidir integración segregada de Docker existente |
-| Omada Network Application | Administración SG2210P/EAP225 | **Activo en Lenovo**; migración a VPS Hetzner pendiente |
+| Omada Network Application | Administración SG2210P/EAP225 | **Migrado a VPS Hetzner `Ailab-core01`** y desinstalado del Lenovo (informe 28/10) |
 
 **Máquinas virtuales:** `virsh list --all` no mostraba ninguna VM registrada en la comprobación del 15/10. No confundir redes libvirt existentes con VMs creadas ni con el bridge `br-pyme`, administrado por NetworkManager.
 
@@ -60,13 +60,13 @@ Las flechas discontinuas representan **componentes pendientes**. El bridge y su 
 | Elemento | Situación y limitación |
 |---|---|
 | RAM del Lenovo | **16 GB** registrados en el informe de preparación; comprobar disponibilidad actual antes de crear VMs |
-| Omada (`omadac` v6.3.0.45) | `tpeap.service` **activo**, MongoDB integrado (`27217`), instalación `/opt/tplink/EAPController`; **~3,9 GB RAM y 234,1 MB swap** medidos en la sesión |
+| Omada, medición **histórica** 15/10 | `tpeap.service` activo y consumo ~3,9 GB RAM / 234,1 MB swap antes de migración. **Ya no instalado en Lenovo** (informe 28/10) |
 | SSD `LAB-VMS`, pool `lab-vms` | Consta montaje ext4 `/mnt/lab-vms` y pool activo/autostart en el informe del 10/10; **capacidad, montaje y estado actuales sin revalidar el 15/10** |
 | Windows 11 | Reserva orientativa ~4 GiB RAM; **no es consumo medido** |
 | OpenMediaVault | Reserva orientativa ~1–2 GiB RAM; **no es consumo medido** |
 | CUPS/IPP | Estimación ~100–200 MiB RAM; elección de despliegue pendiente |
 
-Las reservas orientativas para Windows, OMV y CUPS suman aproximadamente **5,1–6,2 GiB**, sin computar toda la sobrecarga del anfitrión, caches o contenedores adicionales. Dimensionar con medidas reales antes de instalar. El ahorro de memoria por migración de Omada **no está verificado**: sigue ejecutándose en Lenovo.
+Las reservas orientativas para Windows, OMV y CUPS suman aproximadamente **5,1–6,2 GiB**, sin computar toda la sobrecarga del anfitrión, caches o contenedores adicionales. Dimensionar con medidas reales antes de instalar. La migración está **finalizada según informe 28/10**. No es posible calcular el ahorro exacto sin mediciones comparables. En el Lenovo se reportan **8,7 GiB disponibles** de 15 GiB totales y swap usada 1,7/2,0 GiB; la RAM disponible no es exclusiva para VMs.
 
 ## Funciones de la PYME por implementar
 
@@ -79,8 +79,8 @@ Las direcciones `192.168.88.110` (Windows), `192.168.88.120` (OMV) y `192.168.88
 
 ## Próximos trabajos — orden vigente
 
-1. **Migración controlada de Omada al VPS Hetzner:** verificar acceso VPS→SG2210P/EAP225, preparar backup comprobable y rollback, instalar/restaurar y confirmar adopción. **No detener ni desinstalar Omada del Lenovo antes de validar el VPS.**
-2. **Medir recursos después de migración:** RAM, swap, CPU, espacio SSD, montaje `LAB-VMS` y pool libvirt. Revisar la persistencia de `br-pyme` y las rutas en un reinicio autorizado, sin provocarlo solo para documentar.
+1. **Omada migrado, completado según informe del 28/10:** SG2210P y EAP225 conectados, controlador desinstalado del Lenovo. Detalles de backup, rollback y captura de tráfico no constan en el resumen.
+2. **Memoria medida después de migración:** 15 GiB total, **8,7 GiB disponible**, swap 1,7/2,0 GiB. Pendiente revisar CPU, SSD, montaje `LAB-VMS` y pool libvirt; persistencia de `br-pyme` solo en reinicio autorizado.
 3. **Definir aislamiento de las VMs:** decidir si iniciar sobre una red libvirt realmente segregada y bajo qué condiciones permitir acceso al `br-pyme` que ya está conectado al SG2210P. Identificar puerto físico, configuración VLAN y DHCP/IPAM. No reutilizar Docker ni Tailscale por defecto.
 4. **Crear Windows 11 VM** con recursos dimensionados y documentar su interfaz de red.
 5. **Crear OpenMediaVault VM** y cuatro discos virtuales para practicar RAID/SMB, con medidas y resultados.
@@ -98,5 +98,19 @@ Se conserva como **antecedente de diseño**, no como inventario de componentes a
 
 - [Topología física actual](../../laboratorio-fisico/topologia.md)
 - [Redes libvirt: Lenovo y MEDION separados](../redes-libvirt/README.md)
-- [Omada: preparación de migración](../../servicios/omada/README.md)
+- [Omada: migración finalizada](../../servicios/omada/README.md)
 - [CHANGELOG](../../CHANGELOG.md) y [ROADMAP](../../ROADMAP.md)
+
+
+## RAM posterior a la migración Omada — datos recibidos el 28/10
+
+| Métrica | Valor |
+|---|---|
+| RAM total | 15 GiB |
+| RAM utilizada | 6,6 GiB |
+| RAM libre | 6,7 GiB |
+| **RAM disponible** | **8,7 GiB** |
+| Swap total | 2,0 GiB |
+| Swap utilizada | 1,7 GiB |
+
+**Nota:** la cifra disponible comprende memoria recuperable, varía con la carga y no debe dedicarse completamente a VMs. La cifra histórica del consumo de Omada no permite inferir ahorro exacto.
